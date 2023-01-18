@@ -8,6 +8,7 @@ import it.sauronsoftware.jave.Encoder;
 import it.sauronsoftware.jave.MultimediaInfo;
 import it.sauronsoftware.jave.VideoSize;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.drew.imaging.jpeg.JpegMetadataReader;
@@ -17,6 +18,14 @@ import com.drew.metadata.Metadata;
 import com.drew.metadata.MetadataException;
 import com.drew.metadata.Tag;
 import com.drew.metadata.exif.ExifIFD0Directory;
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ast.*;
+import com.github.javaparser.ast.body.*;
+import com.github.javaparser.ast.stmt.ExpressionStmt;
+import com.github.javaparser.ast.stmt.IfStmt;
+import com.github.javaparser.ast.type.ClassOrInterfaceType;
+import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
+import com.github.javaparser.utils.StringEscapeUtils;
 import com.google.common.collect.Maps;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -40,7 +49,7 @@ import com.spire.presentation.Presentation;
 import com.spire.presentation.ShapeType;
 import com.spire.presentation.TextFont;
 import com.spire.presentation.drawing.FillFormatType;
-
+import com.sun.mail.util.MailSSLSocketFactory;
 
 import net.jimmc.jshortcut.JShellLink;
 import net.sourceforge.pinyin4j.PinyinHelper;
@@ -81,7 +90,24 @@ import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.FileImageInputStream;
 import javax.imageio.stream.ImageOutputStream;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
 import javax.swing.*;
+
+import javax.mail.MessagingException;
+
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import javax.mail.internet.MimeUtility;
+import javax.mail.search.FlagTerm;
+import javax.mail.search.SearchTerm;
+
+import javax.mail.Authenticator;
+import javax.mail.PasswordAuthentication;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMultipart;
+import com.sun.mail.util.MailSSLSocketFactory;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.pdfbox.io.MemoryUsageSetting;
@@ -139,7 +165,8 @@ public class G2_ApplyRuleFor_TypeFile {
 	static Map<String, String> propKey2ValueList = new HashMap<String, String>();
 
 	static int BYTE_CONTENT_LENGTH_Rule7 = 1024 * 10 * 10; // 读取文件Head字节数常数
-	static String strDefaultKey_Rule7 = "zukgit12"; // 8-length
+	 static String strDefaultKey_Rule7 = "zukgit12"; // 8-length
+	 // static String strDefaultKey_Rule7 = "1234567812345678"; // 8-length
 
 	static String strZ7DefaultKey_PSW_Rule19 = "752025"; // 8-length
 	public static byte[] TEMP_Rule7 = new byte[BYTE_CONTENT_LENGTH_Rule7];
@@ -193,7 +220,7 @@ public class G2_ApplyRuleFor_TypeFile {
 
 	static OS_TYPE CUR_OS_TYPE = OS_TYPE.Windows;
 	static String curOS_ExeTYPE = "";
-	static ArrayList<String> mKeyWordName = new ArrayList<>();
+	static ArrayList<String> mKeyWordName = new ArrayList<String>();
 
 	// 当前Shell目录下的 文件类型列表 抽取出来 通用
 	static HashMap<String, ArrayList<File>> CurDirFileTypeMap = new HashMap<String, ArrayList<File>>();;
@@ -340,11 +367,9 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		realTypeRuleList.add(new Read_Jpg_Exif_Info_Create_MDContent_Rule_41());
 
-
-		// 传递一个地址  然后返回这个地址的所有的网页的代码  打印在 Temp.txt 中 , 循环到底 持续五分钟  并执行一直写入txt的操作
-		//  必须以 http 开头
+		// 传递一个地址 然后返回这个地址的所有的网页的代码 打印在 Temp.txt 中 , 循环到底 持续五分钟 并执行一直写入txt的操作
+		// 必须以 http 开头
 		realTypeRuleList.add(new GetHttpCode_Rule_42());
-
 
 // 传递一个 txt文本文件 以及一个 splitstr_XXXX 到程序中,将会去把当前所有的字符串进行split分隔，并输入split分隔后的第一个空格前的字符串
 
@@ -357,57 +382,5131 @@ public class G2_ApplyRuleFor_TypeFile {
 		// 在 jpg 图片 本身 标记 一些 这个图片本身的一些属性
 		realTypeRuleList.add(new ShowJpgTagContent_To_Image_Rule_46());
 
-
-		//  给定一个 西瓜视频 主页 下载 该页面内的所有视频文件
+		// 给定一个 西瓜视频 主页 下载 该页面内的所有视频文件
 		realTypeRuleList.add(new Download_XiGua_HomeVideo_Rule_47());
-
 
 		// voice_fafaefafea 读取 voice 的 内容
 		realTypeRuleList.add(new Read_Speak_Word_Rule_48());
 
-
-		// 给定一个 类型的 模板  起始页(默认1)  最终页(默认100)
-		// 是否代理(默认false)  itemtag(页面内的标记用于过滤)  imagetag(详细内容也的照片的标示)
+		// 给定一个 类型的 模板 起始页(默认1) 最终页(默认100)
+		// 是否代理(默认false) itemtag(页面内的标记用于过滤) imagetag(详细内容也的照片的标示)
 		// CategoryModel_HttpPage_Download_Rule_49
 		realTypeRuleList.add(new CategoryModel_HttpPage_Download_Rule_49());
-
-
-
 
 		// 把 当前的 输入的 jpg 或者 当前目录下的 jpg文件 动态计算成 320 宽度的 字符串 并 在打开的文件中打印
 		realTypeRuleList.add(new JPG_To_TextChar_Rule_50());
 
-
 		// 把 当前的 原目录中的所有文件 复制到 对应目录的文件， 如果文件大小一直 那么就跳过复制的过程
-		// tip: git action 操作过程中 文件大小不变 但是 它的MD5值 变化了  导致每次都 更新相同的文件
+		// tip: git action 操作过程中 文件大小不变 但是 它的MD5值 变化了 导致每次都 更新相同的文件
 		realTypeRuleList.add(new SrcDir_Copy2_DstDir_WithFileLength_Rule_51());
 
-		// 去除在 一个文件夹中 多余的相同的 MD5 文件   只保留 一个MD5  去重操作
+		// 去除在 一个文件夹中 多余的相同的 MD5 文件 只保留 一个MD5 去重操作
 		realTypeRuleList.add(new Delete_SameMD5File_OnlyExistOneInDir_Rule_52());
 		// initrule
+
+		// 在 一个 android-studio apk 目录执行的 用于 克隆一个工程到同目录 但工程名称可选
+		realTypeRuleList.add(new Copy_APK_Product_ChangeProductName_Rule_53());
+
+		realTypeRuleList.add(new Send_Email_TO_Dst_Rule_54());
+
+		
+		//读取到当前 所有 目录的 .rs 文件  对于 【pub fn】___ 【pub const fn】 pub unsafe   字样的 字符串 并且不是// 开头的字符串打印出一份详情清单
+		realTypeRuleList.add(new Read_RS_File_Print_Pub_Fn_Method_To_MD_Rule_55());
+		
+		
+		// 对 输入的字符串   进行 加密  并打印 前后数据 对比
+		realTypeRuleList.add(new Encry_StringByte_To_Print_Rule_56());
+		
+		// 对 build_device.bash  和 build_msi_device.sh  两个 编译文件 添加 修改 埋点 
+		// bash   sh    java   等等  需要   添加Log 的 操作
+		realTypeRuleList.add(new AddLog_CompileCheck_For_File_Rule_57());
+		
+		/*
+		 * { "jpg_lin_land":{"":["12.jpg","34.jpg"],"123":["123.jpg"]},
+		 * "jpg_lin_port":{"":["12.jpg","34.jpg"],"123":["123.jpg"]} }
+		 */
+		//  对输入的目录结构进行文件统计 并生成 json 数据输出
+		
+		realTypeRuleList.add(new InputDirSearch_To_JsonSummary_Rule_58());
+		
+		
+	}
+	
+	
+	class InputDirSearch_To_JsonSummary_Rule_58 extends Basic_Rule {
+		boolean isDirInput; //   是否有指定的 目录进行输入  
+
+		ArrayList<File> inputDirFileList;   // 输入的目录的集合
+		
+//		ArrayList<RootDirFile> rootDirList ;  // 构建 json-file-Summary 的 Bean类
+		FileSummary  mFileSummary;
+		File targetJsonDir;   // 指定当前 json 的 输出路径    //  如果为空 那么就在shell输出 json
+		File targetJsonFile ;  // 当前输出的Json 的文件的位置   // 名称固定  filesummary_rule58.json
+		String jsonFileName ;  // filesummary_rule58.json  固定死
+		InputDirSearch_To_JsonSummary_Rule_58() {
+			super("#", 58, 5); //
+			inputDirFileList = new ArrayList<File>();
+//			rootDirList = new  ArrayList<RootDirFile>();
+			isDirInput = false;
+			jsonFileName = "filesummary_rule"+rule_index+".json";
+			mFileSummary = new FileSummary("3333332");
+		}
+
+		@Override
+		boolean allowEmptyDirFileList() {
+			// TODO Auto-generated method stub
+			return true;
+		}
+		
+		
+		@Override
+		String simpleDesc() {
+			return "  \n"
+					+ Cur_Bat_Name  + " #_"+rule_index+"    ### 指定当前目录 输出当前目录的文件情况的 json 数据统计 \n"
+					+ Cur_Bat_Name  + " #_"+rule_index+"   C:\\Users\\zhuzj5\\Desktop\\ScreenShot\\1\\testA   C:\\Users\\zhuzj5\\Desktop\\ScreenShot\\1\\testB  outjsondir_C:\\Users\\zhuzj5\\Desktop\\ScreenShot\\1  ### 指定目录输出该目录的文件情况的 json 数据统计 \n"
+
+					;
+		}
+		
+		@Override
+		boolean initParamsWithInputList(ArrayList<String> inputParamList) {
+			// mdname_true // kaoyan_true gaokao_true
+
+			for (int i = 0; i < inputParamList.size(); i++) {
+				String paramItem_trim = inputParamList.get(i);
+				
+				File input_dir_file = new File(paramItem_trim);
+				
+				if(input_dir_file.exists() && input_dir_file.isDirectory()) {
+					
+					inputDirFileList.add(input_dir_file);
+				}
+				
+				
+				if(paramItem_trim.toLowerCase().trim().startsWith("outjsondir_")) {
+					
+					String outDirPath = paramItem_trim.replace("outjsondir_", "");
+					
+					File outDirFile = new File(outDirPath);
+					if(outDirFile.exists() && outDirFile.isDirectory()) {
+						targetJsonDir = outDirFile;
+						
+					}
+					
+				}
+				
+
+
+			}
+			
+			
+			if(targetJsonDir == null) {
+				System.out.println("当前 没有指定 "+ jsonFileName+" json文件的输出目录 目前输出到当前shell目录:"+curDirPath);
+			
+				targetJsonDir  = new File(curDirPath);
+			} else {
+				
+				System.out.println("当前指定的"+jsonFileName+" 文件输出目录:"+ targetJsonDir.getAbsolutePath());
+			}
+			
+			
+			targetJsonFile = new File(targetJsonDir.getAbsolutePath()+File.separator+jsonFileName);
+			
+			System.out.println("输出Json文件路径: "+ targetJsonFile.getAbsolutePath() );
+			
+			
+			if(inputDirFileList.size() != 0) {
+				isDirInput = true;
+				
+				for (int i = 0; i < inputDirFileList.size(); i++) {
+					File dirFile = inputDirFileList.get(i);
+					System.out.println("SearchDir统计文件夹列表["+i+"]["+inputDirFileList.size()+"] = "+  dirFile.getAbsolutePath());
+				}
+			} else {
+				
+				System.out.println("当前没有 指定输入文件夹! 将把Shell目录 "+curDirPath+" 作为输入参数 统计文件情况 并输出json文件!");
+			}
+			
+			// TODO Auto-generated method stub
+			return super.initParamsWithInputList(inputParamList);
+		}
+
+		
+		
+		void filesummary_operation(ArrayList<File> inputDirFileList) {
+			
+			
+			for (int i = 0; i < inputDirFileList.size(); i++) {
+				File dirFile = inputDirFileList.get(i);
+				System.out.println("_____SearchDir统计文件夹列表["+i+"]["+inputDirFileList.size()+"] _____"  );
+			
+				
+				
+			ArrayList<File> allSubDir = 	getAllSubDirFile(dirFile);
+			
+//			System.out.println("SearchDir["+i+"]["+inputDirFileList.size()+"] _____allSubDir.size()="+allSubDir.size()+" dirPath:"+dirFile.getAbsolutePath()  );
+				
+			RootDirFile rootDirFile_Item = new RootDirFile(dirFile.getName());
+			System.out.println("RootDirFile["+i+"]["+inputDirFileList.size()+"] _____allSubDir.size()="+allSubDir.size()+" dirPath:"+dirFile.getAbsolutePath()  +"  rootDirFile_ItemName="+dirFile.getName());
+
+			
+			for (int j = 0; j < allSubDir.size(); j++) {
+				ArrayList<File> subRealFileList = new ArrayList<File>();
+				ArrayList<String> subRealFileNameList = new ArrayList<String>();
+	
+				
+				File subDirFle = allSubDir.get(j);
+				
+				
+				// 当前子目录的路径 应该是相对于 根目录后剩下的目录
+				
+				// subDirRelativeFileName 为空的话 标识 是 自身root目录
+			String subDirRelativeFileName = getRelativeSubDirName(subDirFle.getAbsolutePath() , dirFile.getAbsolutePath() );
+				
+				SubDirFile subDirFile  = new SubDirFile(subDirRelativeFileName);
+//				System.out.println("SearchDir["+i+"]["+inputDirFileList.size()+"] _____allSubDir["+j+"]["+allSubDir.size()+"] = "+ subDirFle.getAbsolutePath()  );
+//				System.out.println("SubDirFile subDirRelativeFileName="+subDirRelativeFileName);
+				System.out.println("SubDirFile["+i+"]["+inputDirFileList.size()+"] _____allSubDir["+j+"]["+allSubDir.size()+"] = "+ subDirFle.getAbsolutePath()  +" subDirRelativeFileName="+subDirRelativeFileName );
+
+				File[] subFileArr = subDirFle.listFiles();
+				
+				if(subFileArr == null || subFileArr.length == 0) {
+					continue;
+				}
+				
+				for(File fileitem_in_subFileArr:subFileArr ) {
+					if(fileitem_in_subFileArr.isFile()) {
+						subRealFileList.add(fileitem_in_subFileArr);
+						subRealFileNameList.add(fileitem_in_subFileArr.getName());
+						subDirFile.realfilenamelist.add(fileitem_in_subFileArr.getName());
+					}
+				}
+				
+				System.out.println("SubDirFile["+i+"]["+inputDirFileList.size()+"] ____realfilenamelist.size()="+subDirFile.realfilenamelist.size());
+
+				rootDirFile_Item.allsubdir.add(subDirFile);
+				
+				
+			}
+			
+			mFileSummary.rootdirlist.add(rootDirFile_Item);
+			
+			}
+			
+			System.out.println("_____"+"rootDirList.size()="+mFileSummary.rootdirlist.size()+"_____");
+			
+			if(mFileSummary.rootdirlist.size() == 0) {
+				System.out.println("当前没有检测到 文件夹  请检出 输入的文件夹!");
+				return ;
+			}
+			
+			String dir_json_summary = build_dir_json_summary(mFileSummary);
+			
+			System.out.println();
+			System.out.println("_____________________ json summary _____________________");
+			System.out.println();
+			System.out.println();
+			
+			System.out.println(dir_json_summary);
+			
+			if(dir_json_summary != null) {
+				
+				writeContentToFile(targetJsonFile, dir_json_summary);
+				
+				System.out.println("输出json文件名称:  "+jsonFileName);
+				System.out.println("输出json文件路径:  "+targetJsonFile.getAbsolutePath());
+				
+			}
+			System.out.println();
+			
+		}
+		
+
+		@Override
+		ArrayList<File> applyDir_SubFileListRule5(ArrayList<File> allSubDirFileList,
+				ArrayList<File> allSubRealFileList) {
+
+			
+			
+			if(isDirInput) {   // 对输入的 目录 进行统计 
+				
+				filesummary_operation(inputDirFileList);
+
+			} else {  //  对自身Shell 路径进行统计 
+				
+				System.out.println("当前没有 指定遍历的目录 对当前shell路径进行遍历:"+ curDirPath);
+
+				ArrayList<File> searchDirFileList = new ArrayList<File> ();
+				
+				searchDirFileList.add(new File(curDirPath));
+				
+				filesummary_operation(searchDirFileList);
+				System.out.println("当前没有 指定遍历的目录 对当前shell路径进行遍历:"+ curDirPath);
+
+			}
+
+
+              
+			return super.applyDir_SubFileListRule5(allSubDirFileList, allSubRealFileList);
+		}
+
+	
+		String getRelativeSubDirName(String subDirAbsPath , String rootDirAbsPath) {
+			String relative_name = subDirAbsPath.replace(rootDirAbsPath, "");
+			
+			return relative_name;
+		}
+		
+		String build_dir_json_summary(FileSummary fileSummary) {
+
+			
+			 String jsonString = JSONUtil.toJsonStr(fileSummary);
+		
+			 if(jsonString != null) {
+				 jsonString = 	 JSONUtil.formatJsonStr(jsonString);
+			 }
+		
+			 
+			
+			return jsonString;
+			
+		}
+
+		class FileSummary {
+			String password;
+//			ArrayList<String> allowidlist;   // 设备id
+			
+			ArrayList<RootDirFile> rootdirlist;
+			
+			FileSummary(){
+			}
+			
+			FileSummary(String pwd){
+				password = pwd;
+				rootdirlist = new ArrayList<RootDirFile>();
+			}
+
+			public String getPassword() {
+				return password;
+			}
+
+			public void setPassword(String password) {
+				this.password = password;
+			}
+
+			public ArrayList<RootDirFile> getRootdirlist() {
+				return rootdirlist;
+			}
+
+			public void setRootdirlist(ArrayList<RootDirFile> rootdirlist) {
+				this.rootdirlist = rootdirlist;
+			}
+
+		
+			
+			
+		}
+		
+		
+		class RootDirFile{         //  当前的 一个指定的 输入的目录 
+			String rootdirname ;   //  根目录的文件夹名称  
+			ArrayList<SubDirFile> allsubdir;
+			
+			RootDirFile(){
+			}
+
+			RootDirFile(String rootname ){
+				rootdirname = rootname;
+				allsubdir = new ArrayList<SubDirFile> ();
+			}
+			
+			public String getRootdirname() {
+				return rootdirname;
+			}
+
+			public void setRootdirname(String rootdirname) {
+				this.rootdirname = rootdirname;
+			}
+
+			public ArrayList<SubDirFile> getAllsubdir() {
+				return allsubdir;
+			}
+
+			public void setAllsubdir(ArrayList<SubDirFile> allsubdir) {
+				this.allsubdir = allsubdir;
+			}
+			
+		}
+		
+		
+		class SubDirFile{
+			String subdirname;    // 当前的目录的名称
+			ArrayList<String> realfilenamelist;  //  当前目录下的实体文件名称的集合
+			
+			SubDirFile(){
+			}
+
+			SubDirFile(String subname ){
+				subdirname = subname;
+				realfilenamelist = new ArrayList<String> ();
+				
+			}
+			
+			public String getSubdirname() {
+				return subdirname;
+			}
+
+			public void setSubdirname(String subdirname) {
+				this.subdirname = subdirname;
+			}
+
+			public ArrayList<String> getRealfilenamelist() {
+				return realfilenamelist;
+			}
+
+			public void setRealfilenamelist(ArrayList<String> realfilenamelist) {
+				this.realfilenamelist = realfilenamelist;
+			}
+			
+			
+		}
+		
+	}
+	
+	
+    static String Rule_57_TAG = "zukgit_"+getTimeStampyyyyMMdd_HHmmss();
+    static String Rule_57_LogTypeStr = "log";   // log   slog   syso  三种类型的打印
+    static ArrayList<ZClass> Rule_57_ZClassList = new ArrayList<ZClass>();
+    static String curProjectPath = System.getProperty("user.dir");
+    
+	class AddLog_CompileCheck_For_File_Rule_57 extends Basic_Rule {
+
+
+
+
+		
+		File aosp_wpa_supplicant_c_file;
+		File aosp_settings_wifienabler_file;
+		File aosp_build_device_bash_file ;
+		File aosp_build_msi_device_sh_file ;
+		File aosp_vendor_qcom_build_nonhlos_sh_file ;
+		
+		File aosp_kernel_platform_build_kernel_sh_file ;		
+		File aosp_vendor_qcom_nonhlos_dir;    //  当前AOSP的 Qcom 的 编译目录 需要查找它下面的 文件夹 是否存在 common/build.sh  文件  , 有就添加 echo 
+		// 如果 没有操作逻辑  以及类型处理  是java的话  添加Log  默认android.util.Log  可以通过 java_systemout_style 改为 system.out 输出
+		ArrayList<File> inputFileList ;   // 输入文件的集合 
+		
+		
+		// 判断当前路径是否是 AOSP 路径   直接检测 WifiEnable 是否存在
+		boolean isCurPath_AOSP = false;  // 当前的目录是否是
+		
+		String timestamp_yyyymmdd_hhmmss;  // 时间戳   统一 使用 
+		
+		//  addlog_aosp_wifienable_java 检测是否是AOSP 如果是就把对应的 WifiEnable 文件 添加echo
+		boolean isAddLog_AOSP_WifiEnable_Operation; //  addlog_aosp_wifienable_java
+		String AOSP_WifiEnable_Version_Tip ;   // 当前的版本的 描述
+		
+		boolean isAddLog_SystemOut_Style; //  java_systemout_style
+		
+		//  addecho_aosp_devicebuild_bash   检测是否是AOSP 如果是就把对应的 devicebuild_bash 添加echo
+		boolean isAddLog_AOSP_Bash_Operation;       //  addecho_aosp_devicebuild_bash     .bash  .sh  添加 埋点 
+		
+		 // 【 compile_check_java    xxxx.java 对指定文件检测编译错误】
+        //  【compile_check_java      对当前的目录下的 java 文件进行 检测测试】
+		boolean isJava_Compile_Check_Operation;    
+		
+		boolean isBashEchoBatch;  // sh_echo_batch         // 搜局搜索 当前目录下的 bash sh 生成全局的   sh_echo_batch_时间戳 文件夹
+		
+		
+		AddLog_CompileCheck_For_File_Rule_57() {
+			super("#", 57, 4);
+
+			inputFileList = new ArrayList<File>();
+			AOSP_WifiEnable_Version_Tip ="";
+			
+			timestamp_yyyymmdd_hhmmss = getTimeStamp_yyyyMMdd_HHmmss();
+		}
+
+		
+		boolean isCurPathAOSP () {
+			 
+			String shellpath = curDirPath ;
+			
+			File shellFile = new File(shellpath);
+			
+			aosp_settings_wifienabler_file = new File(shellFile.getAbsolutePath()+File.separator+"packages/apps/Settings/src/com/android/settings/wifi/WifiEnabler.java");
+			
+			aosp_build_device_bash_file = new File(shellFile.getAbsolutePath()+File.separator+"motorola/build/bin/build_device.bash");
+			
+			aosp_build_msi_device_sh_file = new File(shellFile.getAbsolutePath()+File.separator+"device/moto/msi/build_msi_device.sh");
+
+			aosp_vendor_qcom_build_nonhlos_sh_file = new File(shellFile.getAbsolutePath()+File.separator+"vendor/qcom/nonhlos/build_support/bin/build_nonhlos.sh");
+
+			aosp_vendor_qcom_nonhlos_dir = new File(shellFile.getAbsolutePath()+File.separator+"vendor/qcom/nonhlos/");
+
+			aosp_kernel_platform_build_kernel_sh_file = new File(shellFile.getAbsolutePath()+File.separator+"kernel_platform/build/build_kernel.sh");
+
+			aosp_wpa_supplicant_c_file = new File(shellFile.getAbsolutePath()+File.separator+"external/wpa_supplicant_8/wpa_supplicant/wpa_supplicant.c");
+
+			
+			
+			
+		
+			
+			
+			
+			return  aosp_settings_wifienabler_file.exists() && aosp_settings_wifienabler_file.length() > 100;
+		}
+	
+		@Override
+		boolean initParamsWithInputList(ArrayList<String> inputParamList) {
+			boolean Flag = true;
+			isCurPath_AOSP = isCurPathAOSP();
+			for (int i = 0; i < inputParamList.size(); i++) {
+
+
+				String strInput = inputParamList.get(i);
+
+				File tempFile = new File(curDirPath + File.separator + strInput);
+				if (tempFile.exists() && !tempFile.isDirectory()) {
+					String inputFileName = tempFile.getName().toLowerCase();
+					inputFileList.add(tempFile);
+					continue;
+				}
+
+				File inputDir = new File(strInput);
+				if (inputDir.exists() && !inputDir.isDirectory()) {
+					inputFileList.add(inputDir);
+					continue;
+				}
+				
+				
+				String paramItem = inputParamList.get(i);
+				String paramItem_lower_trim = paramItem.toLowerCase().trim();
+				
+				
+				if (paramItem_lower_trim.startsWith("java_systemout_style")) {
+					isAddLog_SystemOut_Style = true;
+					continue;
+				}
+				
+				
+				if (paramItem_lower_trim.startsWith("sh_echo_batch")) {
+					isBashEchoBatch = true;
+					continue;
+				}
+				
+				if (paramItem_lower_trim.startsWith("wifitip_")) {
+					AOSP_WifiEnable_Version_Tip = paramItem_lower_trim.replace("wifitip_", "");
+					Rule_57_TAG = Rule_57_TAG +"_"+AOSP_WifiEnable_Version_Tip;
+					continue;
+				}
+				
+
+				// ----------------------  简洁的 执行命令 Begin --------------------
+				if (paramItem_lower_trim.startsWith("tip_")) {   //  简洁的 执行 命令参数
+					AOSP_WifiEnable_Version_Tip = paramItem_lower_trim.replace("tip_", "");
+					Rule_57_TAG = Rule_57_TAG +"_"+AOSP_WifiEnable_Version_Tip;
+					continue;
+				}
+				
+				if (paramItem_lower_trim.equals("1")) {
+					isAddLog_AOSP_Bash_Operation = true;
+					continue;
+				}
+				if (paramItem_lower_trim.startsWith("2")) {
+					isAddLog_AOSP_WifiEnable_Operation = true;
+					continue;
+				}
+				// ----------------------  简洁的 执行命令 End --------------------
+				
+				
+				
+
+				if (paramItem_lower_trim.startsWith("compile_check_java")) {
+					isJava_Compile_Check_Operation = true;
+					continue;
+				}
+
+				if (paramItem_lower_trim.startsWith("addecho_aosp_devicebuild_bash")) {
+					isAddLog_AOSP_Bash_Operation = true;
+					continue;
+				}
+				
+		
+				if (paramItem_lower_trim.startsWith("addlog_aosp_wifienable_java")) {
+					isAddLog_AOSP_WifiEnable_Operation = true;
+					continue;
+				}
+				
+			
+		
+			}
+			System.out.println("");
+			System.out.println("非非非 Operation_Type 操作");
+			System.out.println("isCurPath_AOSP___________: "+ isCurPath_AOSP + "  【true: 当前根目录是AOSP目录】 【fasle: 当前不是AOSP 工程的根目录】 ");
+			System.out.println("WifiEnabler______________:"+aosp_settings_wifienabler_file);
+			System.out.println("build_device.bash________:"+aosp_build_device_bash_file);
+			System.out.println("build_msi_device.sh______:"+aosp_build_msi_device_sh_file);
+			System.out.println("isAddLog_SystemOut_Style_: "+ isAddLog_SystemOut_Style+"  【true: Java 使用 System.out.println()打印】  【false : 标识 Java 文件使用 android.util.Log 】");
+			System.out.println("WifiEnable_Version_Tip___: "+AOSP_WifiEnable_Version_Tip+"  【true: WifiEnable的提示信息 一般用来说明版本的目的】  【false :】");
+
+
+			
+			
+			System.out.println("");
+			System.out.println("Operation_Type 操作");
+			System.out.println("1.isBashEchoBatch____________________:"+ isBashEchoBatch                +"  【true: 当前操作是批量生成对bash sh的修改操作 输出文件夹 sh_echo_batch_"+getTimeStampyyyyMMdd_HHmmss()+"文件夹】 【false:不操作类型】");
+			System.out.println("2.compile_check_java_________________:"+ isJava_Compile_Check_Operation +"  【true:  对当前输入的文件 或者 当前子目录(非递归)所有的java文件查看是否有 编译错误(无法检查运行错误)】 【false: 无Opeartion_Type时 进行 添加Log的操作】");
+			System.out.println("3.addecho_aosp_devicebuild_bash______:"+ isAddLog_AOSP_Bash_Operation   +"  【true:  指定AOSP目录的 build_msi_device.sh 和 build_device.bash 添加埋点 】 【false:不操作类型】");
+			System.out.println("4.addlog_aosp_wifienable_java________:"+ isAddLog_AOSP_WifiEnable_Operation +"  【true:  指定AOSP目录的 WifiEnabler.java 添加Log 埋点 】 【false:不操作类型】");
+			System.out.println("5.没有指定操作类型 那么将按照 文件类型 进行 处理 sh_bash(默认添加埋点) Java(默认添加Log)");
+			
+			System.out.println("");
+			for (int i = 0; i < inputFileList.size(); i++) {
+				System.out.println("输入文件["+i+"]____"+inputFileList.get(i).getAbsolutePath());
+			}
+			
+			
+			if(isAddLog_AOSP_WifiEnable_Operation || isAddLog_AOSP_Bash_Operation) {
+				if(!isCurPath_AOSP) {
+					System.out.println("当前目录 不是 AOSP 根 目录 无法进行 AOSP的 先关 固定路径  如 WifiEnaabler 的 操作!  请在 AOSP目录执行 aosp操作!");
+					return false;
+				}
+				
+			}
+			
+			if(isAddLog_SystemOut_Style) {
+				Rule_57_LogTypeStr = "syso";
+			}
+			
+			if(inputFileList.size() == 0 &&
+					isBashEchoBatch == false && 
+					isJava_Compile_Check_Operation == false && 
+					isAddLog_AOSP_Bash_Operation == false && 
+					isAddLog_AOSP_WifiEnable_Operation == false 
+					) {
+				
+				System.out.println("当前 输入的操作类型为空 并且 也没有输入参数文件  执行规则未知 无法执行 请检查!");
+				return false;
+			}
+
+			return super.initParamsWithInputList(inputParamList) && Flag;
+		}
+		@Override
+		String simpleDesc() {
+			return "  \n"
+					+ Cur_Bat_Name  + " #_"+rule_index+"  addecho_aosp_devicebuild_bash  ### 在AOSP工程根目录的 build_device.bash  和 build_msi_device.sh  两个 编译文件 添加 修改 埋点 \n"
+					+ Cur_Bat_Name  + " #_"+rule_index+"  1    (同 addecho_aosp_devicebuild_bash)  ### 在AOSP工程根目录的 build_device.bash  和 build_msi_device.sh  两个 编译文件 添加 修改 埋点 \n"
+
+					+ Cur_Bat_Name + " #_"+rule_index+ " addlog_aosp_wifienable_java ### AOSP目录的 WifiEnabler.java 添加Log 埋点 \n"
+				   	+ Cur_Bat_Name  + " #_"+rule_index+"  2    (同 addlog_aosp_wifienable_java)  ### 在AOSP工程根目录的 build_device.bash  和 build_msi_device.sh  两个 编译文件 添加 修改 埋点 \n"
+
+				   	+ Cur_Bat_Name  + " #_"+rule_index+"  2  tip_message  (同 addlog_aosp_wifienable_javawifitip_ xx)  ### 在AOSP工程根目录的 build_device.bash  和 build_msi_device.sh  两个 编译文件 添加 修改 埋点 \n"
+
+				   	+ Cur_Bat_Name  + " #_"+rule_index+" 1  2  tip_message  (同时执行 sh 修改 wifienable 以及标记操作 )  ### 在AOSP工程根目录的 build_device.bash  和 build_msi_device.sh  两个 编译文件 添加 修改 埋点 \n"
+
+					+ Cur_Bat_Name + " #_"+rule_index+ " addlog_aosp_wifienable_java  wifitip_qcom_mtk_version_tip   ### AOSP目录的 WifiEnabler.java 添加Log 埋点 并加入 wifienable_【提示信息(qcom_mtk_version_tip)】 \n"
+
+					+ Cur_Bat_Name + " #_"+rule_index+ " compile_check_java    ### 把当前目录下的 java 文件进行 编译错误的检测 \n"
+				    + Cur_Bat_Name + " #_"+rule_index+ " compile_check_java   <xxx.java>  ### 把当前输入 java 文件进行 编译错误的检测 \n"
+					+ Cur_Bat_Name + " #_"+rule_index+ " sh_echo_batch   ### 当前操作是批量生成对bash sh的add echo 修改操作 输出文件夹 sh_echo_batch_"+getTimeStampyyyyMMdd_HHmmss()+"文件夹  \n"
+					+ Cur_Bat_Name + " #_"+rule_index+ " <xxxx.java>     ###  对输入java 文件 输出 android.util.Log.i(); 的 埋点打印  \n"
+					+ Cur_Bat_Name + " #_"+rule_index+ " java_systemout_style  <xxxx.java>     ###  对输入java 文件 输出 system.out.println(); 的 埋点打印  \n"
+					+ Cur_Bat_Name + " #_"+rule_index+ " <xxxx.sh>   <xxxx.bash>   ###  对输入bash 文件本身进行修改 输出 echo 的 埋点打印  \n"
+
+					;
+		}
+
+
+	
+		@Override
+		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
+			
+			
+			if(isAddLog_AOSP_Bash_Operation) {
+				aosp_devicebuild_bash_add_echo();
+	
+			}
+			
+			if(isAddLog_AOSP_WifiEnable_Operation) {	
+				aosp_wifi_enable_add_log();
+				aosp_wpasupplicant_add_log();
+			}
+			
+			
+
+
+			return null;
+		}
+		
+		
+		void aosp_wpa_supplicant_cha_zhuang() {
+			
+			ArrayList<String> wpasupplicant_file_contentlist = ReadFileContentAsList(aosp_wpa_supplicant_c_file);
+			
+			
+			ArrayList<String> newCodeList = new ArrayList<String> ();
+			
+			for (int i = 0; i < wpasupplicant_file_contentlist.size(); i++) {
+				
+				String oneLine = wpasupplicant_file_contentlist.get(i);
+				
+				if(oneLine.contains("zukgit")) {
+					continue;
+				}
+				
+				// I wpa_supplicant: wlan0: CTRL-EVENT-CONNECTED - Connection to 78:e9:cf:23:b5:ee completed
+		
+//				wpa_msg(wpa_s, MSG_INFO, WPA_EVENT_CONNECTED "- Connection to "
+//						MACSTR " completed [id=%d id_str=%s%s]",
+//						MAC2STR(wpa_s->bssid),
+//						ssid ? ssid->id : -1,
+//						ssid && ssid->id_str ? ssid->id_str : "",
+//						fils_hlp_sent ? " FILS_HLP_SENT" : "");
+				
+				if(oneLine.contains("- Connection to") && oneLine.contains("wpa_msg") ) {
+					
+				//	wpa_msg(wpa_s, MSG_INFO, "Authentication with timed out.MAC2STR(bssid)");
+					newCodeList.add("wpa_msg(wpa_s, MSG_INFO, \"wpa_zukgit_"+aosp_wpa_supplicant_c_file.getAbsolutePath()+"_"+timestamp_yyyymmdd_hhmmss+"_【"+AOSP_WifiEnable_Version_Tip+"】 【- Connection to 】" +"\");");		
+					newCodeList.add(oneLine);
+					
+					continue;
+				}
+				
+				// wpa_supplicant: wlan0: Own MAC address: c8:58:95:d8:9a:4b
+				// wpa_dbg(wpa_s, MSG_DEBUG, "Own MAC address: " MACSTR,MAC2STR(wpa_s->own_addr));
+				if(oneLine.contains("Own MAC address:")  ) {
+					
+				//	wpa_msg(wpa_s, MSG_INFO, "Authentication with timed out.MAC2STR(bssid)");
+					newCodeList.add("wpa_msg(wpa_s, MSG_INFO, \"wpa_zukgit_"+aosp_wpa_supplicant_c_file.getAbsolutePath()+"_"+timestamp_yyyymmdd_hhmmss+"_【"+AOSP_WifiEnable_Version_Tip+"】 【 Own MAC address: 】"+"\");");		
+					newCodeList.add(oneLine);
+					
+					continue;
+				}
+				
+
+				
+				
+				newCodeList.add(oneLine);
+				
+			}
+			
+			writeContentToFile(aosp_wpa_supplicant_c_file, newCodeList);
+			System.out.println(""+aosp_wpa_supplicant_c_file.getAbsolutePath()+" 插桩成功!");
+		}
+		
+		void aosp_wifi_enable_cha_zhuang() {
+			
+			ArrayList<String> wpasupplicant_file_contentlist = ReadFileContentAsList(aosp_settings_wifienabler_file);
+			
+			
+			ArrayList<String> newCodeList = new ArrayList<String> ();
+			
+			for (int i = 0; i < wpasupplicant_file_contentlist.size(); i++) {
+				
+				String oneLine = wpasupplicant_file_contentlist.get(i);
+				
+				if(oneLine.contains("zukgit")) {
+					continue;
+				}
+				
+
+				
+				if(oneLine.contains("onSwitchToggled(boolean isChecked)") ) {
+//					 android.util.Log.i("zoggled", "this_i2");
+			
+					
+					newCodeList.add(oneLine);
+					newCodeList.add("android.util.Log.i(\"wifienabler_zukgit\", \""+aosp_settings_wifienabler_file.getAbsolutePath()+"_"+timestamp_yyyymmdd_hhmmss+"_【"+AOSP_WifiEnable_Version_Tip+"】【 WifiEnabler_onSwitchToggled isChecked=\"+isChecked+\"】\");");		
+
+					
+					continue;
+				}
+
+				newCodeList.add(oneLine);
+				
+			}
+			
+			writeContentToFile(aosp_settings_wifienabler_file, newCodeList);
+			System.out.println(""+aosp_settings_wifienabler_file.getAbsolutePath()+" 插桩成功!");
+		}
+		
+		
+		
+		void aosp_wpasupplicant_add_log(){
+			
+			if(aosp_wpa_supplicant_c_file.exists()) {
+	
+				aosp_wpa_supplicant_cha_zhuang();
+				
+			}else {
+				
+				System.out.println(" aosp_wpa_supplicant_c_file 文件不存在: "+ aosp_wpa_supplicant_c_file.getAbsolutePath());
+			}
+
+		}
+		
+		void aosp_wifi_enable_add_log(){
+			aosp_wifi_enable_cha_zhuang();
+			
+		// 对 Java 文件 进行 添加注释用   不适合 插装
+//        ZAndroidAPPClass mZAndroidAPPClass = new ZAndroidAPPClass(aosp_settings_wifienabler_file.getAbsolutePath());
+//        ArrayList<ZMethod> methodList = new ArrayList<ZMethod>();
+//        //boolean  onSwitchToggled(boolean isChecked)
+//        methodList.add(new ZMethod(mZAndroidAPPClass, "boolean", "onSwitchToggled", "boolean isChecked "));
+//        mZAndroidAPPClass.addZMethod(methodList);
+//        //   Rule_57_LogTypeStr = "log";   // slog  //syso 三种打印方式
+//        Rule_57_ZClassList.add(mZAndroidAPPClass);
+//        Begin_Java_Parser();
+        
+        
+		}
+		
+	    public  void Begin_Java_Parser()  {
+
+
+	        //  如果当前的路径没有获得参数 那么 默认对ZClassList 执行操作
+	        if (isCurPath_AOSP) {  //   static ArrayList<ZClass> ZClassList = new  ArrayList<ZClass>();
+	            //  判断当前的 路径是否是AOSP 路径
+	            // curProjectPath
+	            if (isCurPath_AOSP) {
+	       
+	                int classSize = Rule_57_ZClassList.size();
+	                System.out.println(" 总共需要解析文件的个数  classSize = " + classSize);
+
+	                String newClassCode = "";  //
+	                String originClassCode = "";
+	                String formatNewClassCode = "";
+	                for (int i = 0; i < classSize; i++) {
+	                    System.out.println(" 开始解析第  " + i + "个文件    文件名为: " + Rule_57_ZClassList.get(i).path);
+	                    newClassCode = Rule_57_ZClassList.get(i).toNewClassCode();
+
+	                    if(newClassCode == null || "".equals(newClassCode)){
+	                        continue;
+	                    }
+	                    // 构建新的方法的内容  zukgitlog_2
+	                    System.out.println("═══════ 新构建的类文件的内容 如下: newClassCode :  \n" + newClassCode);
+
+	                    //  在newClassCode中加入新的Log方法   找到最后一个 { 的位置
+	                    int lastBlock = newClassCode.lastIndexOf("}");
+	                    //     System.out.println(" 最后{ 的位置 " +lastBlock );
+	                    String newClassCodeFix = "";
+
+	                    if (!Rule_57_ZClassList.get(i).alreadyAddPrintMethod) {
+	                        if (Rule_57_ZClassList.get(i).isIDEClass) {
+	                            //  newClassCodeFix = newClassCode.substring(0,lastBlock)+ "    " +IDEA_PRINT_METHOD + "}";
+	                            newClassCodeFix = newClassCode.substring(0, lastBlock) + "    " + Rule_57_ZClassList.get(i).GetRealPrintMethod() + "}";
+	                        } else if (Rule_57_ZClassList.get(i).isAPP) {
+	                            //      newClassCodeFix = newClassCode.substring(0,lastBlock) + "    " +APP_PRINT_METHOD + "}";
+	                            newClassCodeFix = newClassCode.substring(0, lastBlock) + "    " + Rule_57_ZClassList.get(i).GetRealPrintMethod() + "}";
+	                        } else if (Rule_57_ZClassList.get(i).isFramework) {
+	                            //  newClassCodeFix = newClassCode.substring(0,lastBlock) + "    " +Framework_PRINT_METHOD + "}";
+	                            newClassCodeFix = newClassCode.substring(0, lastBlock) + "    " + Rule_57_ZClassList.get(i).GetRealPrintMethod() + "}";
+	                        }
+
+	                    } else {  // 已经 添加过 MethodPrint的 类
+	                        newClassCodeFix = newClassCode;
+	                    }
+
+
+	                    // System.out.println("  添加 打印Log 的 字符串 newClassCodeFix  \n " +newClassCodeFix );
+	                    formatNewClassCode = JavaParser.parse(newClassCodeFix).toString();
+	                    //  System.out.println("═══════ 格式化文件 如下: formatNewClassCode :" + formatNewClassCode);
+	                    // 把当前的新构建的文件重新写入 .java 文件
+	                    writeContentToFile(Rule_57_ZClassList.get(i).classFile, formatNewClassCode);
+	                }
+
+
+	            } else {
+	                //  当前并不是AOSP是主页
+	                System.out.println("当前并不是AOSP主页，必须提供 【Java文件路径】 或者 【文件夹路径】！");
+	                return;
+	            }
+
+
+	        } 
+	    }
+	    
+		void aosp_devicebuild_bash_add_echo(){
+
+			if(aosp_build_device_bash_file.exists()) {
+				
+				 ArrayList<String> add_echo_list = 	Bash_Sh_File_Add_Echo(aosp_build_device_bash_file);
+				
+					writeContentToFile(aosp_build_device_bash_file, add_echo_list);
+					
+					  System.out.println("当前已经把 AOSP_bash文件:"+aosp_build_device_bash_file.getAbsolutePath()+"  添加完成 echo 埋点! ");
+					  
+			} else {
+				
+				  System.out.println("当前已经把 AOSP_bash文件:"+aosp_build_device_bash_file.getAbsolutePath()+"不存在   echo 埋点操作失败! ");
+
+			}
+			
+			
+			
+			
+			
+			
+			if(aosp_build_msi_device_sh_file.exists()) {
+				 ArrayList<String> add_echo_list = 	Bash_Sh_File_Add_Echo(aosp_build_msi_device_sh_file);
+				
+					writeContentToFile(aosp_build_msi_device_sh_file, add_echo_list);
+
+		  System.out.println("当前已经把 AOSP_sh文件:"+aosp_build_msi_device_sh_file.getAbsolutePath()+"  添加完成 echo 埋点! ");
+					
+			}else {
+				
+				  System.out.println("当前已经把 AOSP_sh文件:"+aosp_build_msi_device_sh_file.getAbsolutePath()+"不存在   echo 埋点操作失败! ");
+
+			}
+			
+			
+			if(aosp_kernel_platform_build_kernel_sh_file.exists()) {
+				 ArrayList<String> add_echo_list = 	Bash_Sh_File_Add_Echo(aosp_kernel_platform_build_kernel_sh_file);
+				
+			writeContentToFile(aosp_kernel_platform_build_kernel_sh_file, add_echo_list);
+
+		  System.out.println("当前已经把 AOSP_sh文件:"+aosp_kernel_platform_build_kernel_sh_file.getAbsolutePath()+"  添加完成 echo 埋点! ");		
+			}else {
+				  System.out.println("当前已经把 AOSP_sh文件:"+aosp_kernel_platform_build_kernel_sh_file.getAbsolutePath()+"不存在   echo 埋点操作失败! ");
+
+			}
+			
+			
+			if(aosp_vendor_qcom_build_nonhlos_sh_file.exists()) {
+				
+				 ArrayList<String> add_echo_list = 	Bash_Sh_File_Add_Echo(aosp_vendor_qcom_build_nonhlos_sh_file);
+				
+					writeContentToFile(aosp_vendor_qcom_build_nonhlos_sh_file, add_echo_list);
+					
+					  System.out.println("当前已经把 AOSP_bash文件:"+aosp_vendor_qcom_build_nonhlos_sh_file.getAbsolutePath()+"  添加完成 echo 埋点! ");
+					  
+			} else {
+				
+				  System.out.println("当前已经把 AOSP_bash文件:"+aosp_vendor_qcom_build_nonhlos_sh_file.getAbsolutePath()+"不存在   echo 埋点操作失败! ");
+
+			}
+			
+			
+			if(aosp_vendor_qcom_nonhlos_dir.exists() && aosp_vendor_qcom_nonhlos_dir.isDirectory()) {
+				
+			File[] nonhlos_file_arr = 	aosp_vendor_qcom_nonhlos_dir.listFiles();
+			
+			if(nonhlos_file_arr != null) {
+				for (int i = 0; i < nonhlos_file_arr.length; i++) {
+					File nonhlos_item_file = nonhlos_file_arr[i];
+					
+					if(nonhlos_item_file.isDirectory()) {
+						
+						File nonhlos_common_build_sh_file = new File(nonhlos_item_file.getAbsolutePath()+File.separator+"common/build.sh");
+			
+						
+						if(nonhlos_common_build_sh_file.exists()) {
+							ArrayList<String> add_echo_list = 	Bash_Sh_File_Add_Echo(nonhlos_common_build_sh_file,true);
+							writeContentToFile(nonhlos_common_build_sh_file, add_echo_list);
+							System.out.println("当前已经把 AOSP_bash文件:"+nonhlos_common_build_sh_file.getAbsolutePath()+"  添加完成 echo 埋点! ");
+						}
+						
+						File nonhlos_boot_images_build_sh_file = new File(nonhlos_item_file.getAbsolutePath()+File.separator+"boot_images/build.sh");
+						
+						if(nonhlos_boot_images_build_sh_file.exists()) {
+							ArrayList<String> add_echo_list = 	Bash_Sh_File_Add_Echo(nonhlos_boot_images_build_sh_file,true);
+							writeContentToFile(nonhlos_boot_images_build_sh_file, add_echo_list);
+							System.out.println("当前已经把 AOSP_bash文件:"+nonhlos_boot_images_build_sh_file.getAbsolutePath()+"  添加完成 echo 埋点! ");
+						}
+						
+						
+						
+						File nonhlos_common_build_build_py_file = new File(nonhlos_item_file.getAbsolutePath()+File.separator+"common/build/build.py");
+						
+				
+						if(nonhlos_common_build_build_py_file.exists()) {
+							ArrayList<String> python_log_list = 	PythonFile_Add_Log_Echo(nonhlos_common_build_build_py_file,true);
+							writeContentToFile(nonhlos_common_build_build_py_file, python_log_list);
+							System.out.println("当前已经把 AOSP_bash文件:"+nonhlos_common_build_build_py_file.getAbsolutePath()+"  添加完成 打印 埋点! ");
+						}
+	
+						
+					}
+				}
+				
+				
+			}
+				
+				
+		}
+			  
+			
+		}
+		
+		
+		public  ArrayList<String> PythonFile_Add_Log_Echo(File srcFile) {
+
+			return PythonFile_Add_Log_Echo(srcFile,false);
+		}
+		
+		
+		public  ArrayList<String> PythonFile_Add_Log_Echo(File srcFile , boolean isFullname) {
+			ArrayList<String> newListContent = new ArrayList<String>();
+
+			File curFile = srcFile;
+
+			String file_name = curFile.getName();
+			if(isFullname) {
+				file_name =  curFile.getAbsolutePath();
+			}
+			String operation_timestamp =getTimeStamp_yyyyMMdd_HHmmss();
+			
+			
+			ArrayList<String> python_rawList = ReadFileContentAsList(srcFile);
+			
+			// lg.log  和 print 
+			// print("════════════════"+"System Info Begin"+"════════════════")
+			
+			if(python_rawList == null) {
+				System.out.println("读取文件 "+srcFile.getAbsolutePath()+" 失败! ");
+				return newListContent;
+			}
+			
+			
+			boolean isLogPrint_Flag = isContainInStrList(python_rawList,"lg.log");
+			int mOneStepCount = calculPythonOneEmptyStep(python_rawList);
+			
+			String print_line_pre = "print(\"";
+			String print_line_end = "\")";
+			if(isLogPrint_Flag) {
+//				 print_line_pre = "lg.log(\"";
+//				 print_line_end = "\")";
+				
+				 print_line_pre = "print(\"";
+				 print_line_end = "\")";
+				
+			}
+			
+			int print_count = 1;
+			String print_tag = "zukgit ";
+			 
+			
+			for (int i = 0; i < python_rawList.size(); i++) {
+				
+				String preLine = "";
+				String curLine = python_rawList.get(i);
+				String nextLine = "";
+				int pre_line_num = i;
+				if(i >= 1 &&  i <= python_rawList.size() -2 ) {
+					
+					do  {
+					//	System.out.println("pre_line_num = "+pre_line_num);
+						preLine = python_rawList.get(pre_line_num-1);
+						pre_line_num = pre_line_num -1;
+					
+					} while((pre_line_num) > 1 && "".equals(preLine.trim()));
+					
+					
+					int next_line_num = i;
+					do  {
+						nextLine = python_rawList.get(next_line_num+1);
+						next_line_num = next_line_num + 1;
+						
+					} while((next_line_num) < (python_rawList.size() -2)  && "".equals(nextLine.trim()));
+					
+					
+				}
+				
+				if(curLine.contains(print_tag.trim())) {
+					//	System.out.println("已经 包含 tag["+print_tag+"]  跳过该行!");
+			
+						continue;
+					}
+				
+
+			
+				
+				if(curLine.trim().startsWith("#") || curLine.trim().startsWith("====") || curLine.trim().startsWith("\\") 
+						|| curLine.trim().endsWith("\\")  || curLine.trim().endsWith(",")   ) {
+				//	System.out.println("以 # 号 ==== 号 \\\\号  开头 那么是注释  那么 跳过");
+					newListContent.add(curLine);
+					continue;
+				}
+				
+				
+	
+				
+				
+	
+				
+				
+				int emptyCount = getEmptyBeginCount(curLine);
+				int emptyCount_next = getEmptyBeginCount(nextLine);
+				int emptyCount_pre = getEmptyBeginCount(preLine);
+				
+			
+				if(curLine.trim().startsWith("for ") && curLine.trim().contains("in ")) {
+					String var_item = curLine.substring(0,curLine.indexOf("in ")).trim();
+					var_item = 	var_item.replace("for ", "").replace(" ", "");
+					
+					if(curLine.trim().endsWith("]")) {
+						// System.out.println("不是正常的 for 循环  不执行打印!");
+						newListContent.add(curLine);   // 先打印 原始 数据
+						continue;
+					}
+					
+
+//				    for i in range(1, 4):
+//				            print("zukgit  _887_ D:\1A\1\build_old.py\Z9_prule.py_20221202_174509_i="+i+"")
+//				            enemy = Rule5_EnemyTank(i)
+			            
+					int for_space_count = emptyCount+mOneStepCount;
+					if(for_space_count !=  emptyCount_next && emptyCount_next != 0 ) {  //  两者 不一致时 和 下一行 保持一致 
+						for_space_count = emptyCount_next;
+					}
+				//	System.out.println("pre_line="+preLine+"【emptyCount_pre】="+emptyCount_pre);
+				//	System.out.println("curLine="+curLine+"【emptyCount】="+emptyCount);
+				//	System.out.println("nextLine="+nextLine+"【emptyCount_pre】="+emptyCount_next);
+					
+					var_item = "str("+var_item+")";
+					
+					String print_code_py = getRepeatString(" ", for_space_count)+print_line_pre+
+							print_tag+" _"+print_count+"_ "+file_name+"_"+operation_timestamp+"_"+var_item+"="+"\"+"+var_item+"+\""     // 打印的数据 
+					+print_line_end;
+				
+					print_count++;
+					
+					newListContent.add(curLine);   // 先打印 原始 数据
+					
+					newListContent.add(print_code_py);  //  再 打印输出 
+					
+			
+					
+					continue;
+					
+				}
+				
+				//  进入方法 的 打印 
+				if(curLine.trim().startsWith("def ")  && curLine.contains(":")
+						 && curLine.contains("(")  && curLine.contains(")")) {
+					String func_name = curLine.substring(0,curLine.indexOf("(")).trim();	
+					func_name = func_name.replace("def ", "").trim();	
+					
+					String func_params= curLine.substring(curLine.indexOf("("), curLine.indexOf(")")).trim();	
+					func_params = func_params.replace("(","").trim();	
+					func_params = func_params.replace(")","").trim();	
+					
+					ArrayList<String> param_list = new ArrayList<String>();
+					if(func_params.equals("")) {  // 为 空的参数 
+						param_list.add("");
+					} else if(!func_params.contains(",")) {
+				
+						if(!func_params.contains("*")) {
+							
+							func_params = "str("+func_params+")";
+							
+							param_list.add(func_params);
+						}
+						
+						
+					} else if(func_params.contains(",")) {
+						String[] param_arr = func_params.split(",");
+						
+						if(param_arr != null) {
+							
+							for (int j = 0; j < param_arr.length; j++) {
+								String param_item = param_arr[j].trim();
+								// copytree(src, dst, symlinks=False, ignore=None)
+								// __init__(self, length = 3, headPos = [5,3], direction = 'right')
+								
+							
+								if(!param_item.contains("]") &&  !param_item.contains("[")
+										&& !param_item.contains(")") &&  !param_item.contains("(") 
+										&&  !param_item.contains("*")) {
+									String param_name = param_item;
+									if(param_item.contains("=")) {
+										param_name =  param_name.substring(0,param_name.indexOf("="));	
+									}
+									
+									param_name  = "str("+param_name+")";
+									param_list.add(param_name);
+						
+								}
+		
+								
+							}
+							
+							
+						}
+
+					}
+		
+					
+					StringBuilder param_sb = new StringBuilder();
+					for (int j = 0; j < param_list.size(); j++) {
+					String param_name_item =	param_list.get( j).trim();
+		
+					if(!"".equals(param_name_item)) {
+						param_sb.append("+\"  "+param_name_item+"=\"+"+param_name_item);
+					}
+					
+					}
+					
+					param_sb.append(");");  // print_line_end
+					
+					
+					
+					String print_code_py = getRepeatString(" ", emptyCount+mOneStepCount)+print_line_pre+
+							print_tag+" _"+print_count+"_ "+file_name+"_"+operation_timestamp+"_[ method_in "+func_name+" ] \""+param_sb.toString();      // 打印的数据 
+//					+print_line_end;
+			
+					print_count++;
+					
+			
+					newListContent.add(curLine);   // 先打印 原始 数据
+					
+					newListContent.add(print_code_py);  //  再 打印输出 
+					continue;
+					
+					
+					
+				}
+				
+				
+				
+				if(curLine.contains("=") && !curLine.trim().endsWith("{") ) {
+					String var_item = curLine.substring(0,curLine.indexOf("=")).trim();
+					
+					// 如果 变量 还包含 空格  括号 那么 不打印 var  
+					if(var_item.contains(" ") || var_item.contains("\"") ||
+							var_item.contains("(") || var_item.contains(")")) {
+						newListContent.add(curLine);
+						continue;
+					}
+					
+//			        texts = [font.render(str(letter[i]), True, (0, 255, 0))
+//			                 for i in range(len(letter))]    // 多行 表达式时   不打印 
+			                		 
+					if(nextLine.contains("]") && !nextLine.contains("[") ) {
+						newListContent.add(curLine);
+						continue;
+					}
+	
+					
+					
+					var_item  = "str("+var_item+")";
+					
+					
+					// ['exec_dir']    在 字符串里 去掉 '  变为 空
+			String print_code_py = getRepeatString(" ", emptyCount)+print_line_pre+
+						print_tag+" _"+print_count+"_ "+file_name+"_"+operation_timestamp+"_ "+var_item.replace("'", "")+"="+"\"+"+var_item+"+\""     // 打印的数据 
+				+print_line_end;
+				print_count++;
+				
+
+				
+				newListContent.add(curLine);   // 先打印 原始 数据
+				
+				newListContent.add(print_code_py);  //  再 打印输出 
+				continue;
+				}
+				
+				newListContent.add(curLine);   // 先打印 原始 数据
+				
+			}
+			
+			
+			
+			return newListContent;
+		}
+		
+		
+		
+		
+		public  ArrayList<String> Bash_Sh_File_Add_Echo(File srcFile ) {
+			
+			return Bash_Sh_File_Add_Echo(srcFile,true); //  默认 所有的显示 全局的路径  会更清晰
+			
+		}
+		
+		
+		public  ArrayList<String> Bash_Sh_File_Add_Echo(File srcFile , boolean isFullname) {
+			ArrayList<String> newListContent = new ArrayList<String>();
+
+			File curFile = srcFile;
+
+			String file_name = curFile.getName();
+			if(isFullname) {
+				file_name =  curFile.getAbsolutePath();
+			}
+			String operation_timestamp =timestamp_yyyymmdd_hhmmss;
+			
+			int echo_count = 1;
+			if (curFile != null) {
+
+				FileReader curReader;
+				try {
+
+					curReader = new FileReader(curFile);
+
+					BufferedReader curBR = new BufferedReader(new InputStreamReader(new FileInputStream(curFile), "utf-8"));
+					String oldOneLine = "";
+					String newOneLine = "";
+					String pre_one_line = "";
+					
+
+					while (oldOneLine != null) {
+
+						oldOneLine = curBR.readLine();
+						
+						if(!newOneLine.contains("zukgit")) {  // 修改 老的 上一句  会被 echo代替 
+							pre_one_line = newOneLine;
+						}
+						
+						if (oldOneLine == null || oldOneLine.trim().isEmpty()) {
+							newListContent.add("");
+							continue;
+						}
+
+//	                    System.out.println(" \"this is test string\" ");
+//	                    System.out.println("adb shell am broadcast -a com.Android.test --es<string> test_string \"this is test string\" —ei<int> test_int 100 —ez<boolean> test_boolean true");
+						newOneLine = new String(oldOneLine).trim();
+
+						//1.注释
+						if(newOneLine.contains("zukgit")) {  //  如果当前行 包含 zukgit  那么是旧的 打印  不理它 直接跳过  继续检测下一行
+							continue;
+						}
+				
+						//1.注释
+						if(newOneLine.startsWith("#")) {  // 以 # 开头 是注释  直接 跳过 
+							
+							newListContent.add(newOneLine);
+							continue;
+						}
+						
+						
+						// 最后是以 " 或者 \ 结尾的  不操作
+						//echo zukgit_build_device_old.bash_479  "$ {build_int_files}=${build_int_files}"
+						// ramdisk-recovery.img \
+						
+						//1. 不包含 等号 而且是以 \ 和  为 结尾 说明 可能是 多行操作   不执行 打印操作 
+						// fuck 这里 " 为结尾 不能 这样写 
+						if( (newOneLine.endsWith("\\") ))   {  // 以 \   为 结尾 开头 是多行  直接 跳过 
+							
+							newListContent.add(newOneLine);
+							continue;
+						}
+				
+						// 当前 只有 一个 引号  那么 也 跳过
+						if( (newOneLine.endsWith("\"")) && ( newOneLine.indexOf("\"") == newOneLine.lastIndexOf("\"") ))   {  // 以 \   为 结尾 开头 是多行  直接 跳过 
+							
+							newListContent.add(newOneLine);
+							continue;
+						}
+	
+		
+				
+ 
+						
+						
+						// 只对 包含 = 等号的 变量进行输出 
+						//  script_name=$(basename ${script_path})   不以 if 开头  只有 一个 等号
+						//2. 只有一个等号的 赋值 的 表达式的处理
+						if(!newOneLine.startsWith("if") 
+								&& !newOneLine.contains("!=") 
+								&& newOneLine.contains("=")
+								&& newOneLine.indexOf("=") == newOneLine.lastIndexOf("=") ) {
+							String equal_var_str = newOneLine.substring(0,newOneLine.indexOf("=")).trim();
+							
+							if(equal_var_str.contains(" ")) {  //  // 如果 变量名称中 含有 空格那么 就不打印它了 
+								newListContent.add(newOneLine);
+								continue;
+							}
+							
+							String echo_var_command = "echo zukgit_"+file_name+"_"+echo_count+"_"+operation_timestamp+"  "+"\"$ {"+equal_var_str+"}=${"+equal_var_str+"}\"";
+							echo_count++;
+							newListContent.add(newOneLine);
+							newListContent.add(echo_var_command);
+							continue;
+						}
+						
+						
+						//3. 方法的内部  那么打印调用的方法 
+						//function release_build_info {    并且是 以 { 为结尾的 方法  否则 报错 
+						if(newOneLine.startsWith("function ") && newOneLine.endsWith("{")) {
+				
+							String function_name = newOneLine.replace("{", "").replace("}", "").replace("(", "").replace(")", "").replace("function", "zfunc").trim();
+							String method_echo_command =  "echo zukgit_"+file_name+"_"+echo_count+"_"+operation_timestamp+"  "+" ______func_begin___________ "+function_name+" ___________";
+							echo_count++;
+							newListContent.add(newOneLine);
+							newListContent.add(method_echo_command);
+							continue;
+						}
+						
+						
+						// 如果当前语句中有变量  那么 获取 所有的变量的名字  并打印
+						//          cp ${RBE_log_dir}/rbe_metrics.* ${build_info_dir}/ || true
+						//4. 
+					// 4.1 如果当前 不是以 \ 为 结尾  但 包含${   , 那么 要
+					// 	cp -f ${BUILD_SCRIPT_DIR}/boot/QcomPkg/SocPkg/Palima/Common/uefipil_oneli.cfg \
+					//	${BUILD_SCRIPT_DIR}/boot/QcomPkg/SocPkg/Palima/Common/uefipil.cfg
+						
+						if(newOneLine.contains("${")) {
+							String[] var_arr = newOneLine.split("\\$\\{");
+							if(var_arr == null) {
+								newListContent.add(newOneLine);
+								continue;
+							}
+							
+							ArrayList<String> var_list = new ArrayList<String>();
+							for (int i = 0; i < var_arr.length; i++) {
+								String varItem = var_arr[i]+" ";;
+								
+								if(i == 0) {   // 第一个分隔项 是 没有匹配的
+									continue;
+								}
+								
+								if(varItem.contains("}")) {
+									String var_name = varItem.trim().substring(0,varItem.indexOf("}"));
+									
+									if(var_name.contains(" ")) {  // 如果 变量名称中 含有 空格那么 就不打印它了 
+										continue;
+									}
+									
+									String echo_var_command =  "echo zukgit_"+file_name+"_"+echo_count+"_"+operation_timestamp+"  "+"  "+"\"$ {"+var_name+"}=${"+var_name+"}\"";
+									echo_count++;
+//									newListContent.add(echo_var_command);
+									var_list.add(echo_var_command);
+									
+									
+								}
+							}
+							
+							if(pre_one_line != null && pre_one_line.endsWith("\\")) {
+								 // 如果 当前行的上一行 是 \ 结尾的话  当前行 说明是多行的最后一行 那么先输出当前行 再 打印
+//								System.out.println("______");
+//								System.out.println("newOneLine_A = "+ newOneLine );
+//								System.out.println("pre_one_line_A = "+ pre_one_line );
+//								System.out.println("end_with__\\_A  =  " + pre_one_line.endsWith("\\"));
+//								System.out.println("______");
+								
+								newListContent.add(newOneLine);  
+								newListContent.addAll(var_list);
+							
+								
+							}else {
+								
+//								System.out.println("______");
+//								System.out.println("newOneLine_B = "+ newOneLine );
+//								System.out.println("pre_one_line_B = "+ pre_one_line );
+//								System.out.println("end_with__\\_B  =  " + pre_one_line.endsWith("\\"));
+//								System.out.println("______");
+								// 先打印  再 输出
+								newListContent.addAll(var_list);
+								newListContent.add(newOneLine);
+							}
+							
+							continue;
+						}
+						
+						//5. 
+						// generate_product_graph $NINJA_BUILD_FILE $MSI_TARGET  没有 括号 扩起的 变量 
+						if(newOneLine.contains("$") && !newOneLine.contains("${") && !newOneLine.contains(")")   ) {
+							String[] var_arr = newOneLine.split("\\$");
+							if(var_arr == null) {
+								newListContent.add(newOneLine);
+								continue;
+							}
+							
+							
+							
+							for (int i = 0; i < var_arr.length; i++) {
+								String varItem = var_arr[i]+" ";
+								
+								if(i == 0) {   // 第一个分隔项 是 没有匹配的
+									continue;
+								}
+								
+								String var_name = "";
+								if(varItem.contains(" ")) {
+									var_name = varItem.trim().substring(0,varItem.indexOf(" "));
+									
+									
+									if(var_name.contains(" ") || var_name.contains("/") || var_name.contains(".") ) {  // 如果 变量名称中 含有 空格那么 就不打印它了 
+										continue;
+									}
+									var_name = var_name.replace("\\", "").replace("/", "").replace("\"", "").replace(",", "").replace(" ", "");
+									String echo_var_command =  "echo zukgit_"+file_name+"_"+echo_count+"_"+operation_timestamp+"  "+"  "+"\"$ {"+var_name+"}=${"+var_name+"}\"";
+									echo_count++;
+									newListContent.add(echo_var_command);
+									
+								}
+							}
+							newListContent.add(newOneLine);
+							continue;
+							
+							
+						}
+						
+						
+						
+						newListContent.add(newOneLine.trim());
+					}
+					curBR.close();
+
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			} else {
+				System.out.println("Failed !");
+			}
+			return newListContent;
+		}
+		
+
+
+		
+	}
+	
+	
+    static String calculIndexFlag(Node curNode) {
+        String indexFlag = "";
+        if (curNode != null && curNode.getMetaModel().getType() == com.github.javaparser.ast.body.MethodDeclaration.class) {
+            return "[0]";
+        } else {  // 把自己在
+            List<Node> curChildList = curNode.getParentNode().get().getChildNodes();
+            for (int i = 0; i < curChildList.size(); i++) {
+                if (curNode == curChildList.get(i)) {
+                    indexFlag = "[" + i + "]";
+                    break;
+                }
+            }
+        }
+        indexFlag = calculIndexFlag(curNode.getParentNode().get()) + indexFlag;
+        return indexFlag;
+    }
+	
+    static void NodeMapPrint(Map<String, ArrayList<Node>> sameNodeMap) {
+        Map.Entry<String, ArrayList<Node>> entry;
+        if (sameNodeMap != null) {
+            Iterator iterator = sameNodeMap.entrySet().iterator();
+            while (iterator.hasNext()) {
+                entry = (Map.Entry<String, ArrayList<Node>>) iterator.next();
+                String key = entry.getKey();  //Map的Value
+                ArrayList<Node> sameNodeList = entry.getValue();  //Map的Value
+                System.out.println("════════Same Node Begin════════");
+                for (int i = 0; i < sameNodeList.size(); i++) {
+
+                    Node sameNodeitem = sameNodeList.get(i);
+                    String indexIdentify = calculIndexFlag(sameNodeitem);
+                    System.out.println(" 相同Node 索引:" + i + " Content = " + sameNodeitem + "indexIdentify = " + indexIdentify + "   FatherType = " + sameNodeitem.getParentNode().get().getMetaModel().getType());
+
+                }
+                System.out.println("════════Same Node End════════");
+            }
+        }
+
+
+    }
+	
+    static class ZAndroidAPPClass extends ZAndroidClass {
+        ZAndroidAPPClass(String path, ArrayList<ZMethod> methodList) {
+            super(path, methodList);
+            isAPP = true;
+        }
+
+        ZAndroidAPPClass(String path) {
+            super(path);
+            isAPP = true;
+        }
+
+
+    }
+    
+    static class ZAndroidClass extends ZCommonClass {
+        ZAndroidClass(String path, ArrayList<ZMethod> methodList) {
+            super(path, methodList);
+            isIDEClass = false;
+            isAndroidClass = true;
+        }
+
+        ZAndroidClass(String path) {
+            super(path);
+            isIDEClass = false;
+            isAndroidClass = true;
+        }
+
+
+    }
+    
+    static class ZCommonClass extends ZClass {
+        ZCommonClass(String path, ArrayList<ZMethod> methodList) {
+            super(path, methodList);
+        }
+
+        ZCommonClass(String path) {
+            super(path);
+        }
+
+    }
+    
+    
+    static abstract class ZClass {
+        CompilationUnit zCompilationUnit;
+        ClassOrInterfaceDeclaration zClassOrInterfaceDeclaration;
+        ArrayList<ZMethod> zmethodList;
+        String originClassContent;  // 类的完整代码
+        String newClassContent;    // 经过修改后的代码
+        String className;
+        String path;    // 类的路径
+        File classFile;   // 类对应的文件
+        boolean alreadyAddPrintMethod;
+        boolean isAPP;
+        boolean isFramework;
+        boolean isAndroidClass;     //  是否是安卓项目的类
+        boolean isIDEClass;       // 是否是IDE 项目的 类
+        boolean isInterfaceFile;   // 当前的文件是一个java 接口文件
+
+        ZClass() {
+
+        }
+
+        ZClass(String path) {
+            this.path = path;
+            if (this.path == null || this.path.equals("") || this.path.equals(".java")) {
+                System.out.println(" 解析文件出错！ 文件为空 或者不是Java文件   文件 = " + this.path);
+                return;
+            }
+            String javaName = this.path.substring(this.path.lastIndexOf(File.separator) + 1, this.path.lastIndexOf(".java"));
+            if (javaName == null) {
+                System.out.println(" 文件名解析出错！");
+                return;
+            }
+            this.className = javaName;
+            this.classFile = new File(path);
+            alreadyAddPrintMethod = false;
+            // zukgitlog_3
+            //   System.out.println("ZClass(String path) = "+ classFile.getAbsolutePath() +"   className="+className);  //  接口 public interface
+
+            if (this.classFile.exists()) {
+                try {
+                    zCompilationUnit = JavaParser.parse(this.classFile);
+                    this.originClassContent = zCompilationUnit.toString();
+
+                    Optional<ClassOrInterfaceDeclaration> classOrInterfaceDeclaration_OPT = zCompilationUnit.getClassByName(this.className);
+
+//                    System.out.println(" this.className = "+ this.className);  // C:\Users\zhuzj5\IdeaProjects\JavaParser\src\Main
+                    if (classOrInterfaceDeclaration_OPT != null && classOrInterfaceDeclaration_OPT.isPresent()) {
+                        zClassOrInterfaceDeclaration = classOrInterfaceDeclaration_OPT.get();
+                    } else {
+//                        System.out.println(" 解析 ClassOrInterfaceDeclaration 出错 ！");
+                        System.out.println("══════════════════════════");
+                        System.out.println("PATH接口Interface文件:" + "    无法通过 javaparser解析 ！");
+                        System.out.println("Name=" + this.className + "   Path:" + path);
+                        System.out.println("══════════════════════════");
+                        this.isInterfaceFile = true;
+                        return;
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    System.out.println(" 解析文件出错！ 可能是Lambda表达式  文件 = " + this.path);
+                    this.isInterfaceFile = true;  // 标记为interface文件  不解析
+
+                }
+            } else {
+                System.out.println(" 文件  " + this.path + " 不存在无法解析！ ");
+            }
+        }
+
+
+        void InitZmethodFromJavaFile(File javaFIle, ZClass zCurZClass) {
+            this.zmethodList = new ArrayList<ZMethod>();
+            if(this.isInterfaceFile){
+                return;
+            }
+            ArrayList<ZMethod> curMethod = ParserJavaMethod(javaFIle, zCurZClass);
+            this.zmethodList.addAll(curMethod);
+
+        }
+
+        ArrayList<ZMethod> ParserJavaMethod(File javaFile, ZClass zCurZClass) {
+            ArrayList<ZMethod> zMethodList = new ArrayList<ZMethod>();
+
+            String javaName = javaFile.getName();
+            if (javaName.endsWith(".java")) {
+                javaName = javaName.substring(0, javaName.length() - ".java".length());
+            }
+
+
+            try {
+                CompilationUnit mCompilationUnit = JavaParser.parse(javaFile);
+                Optional<ClassOrInterfaceDeclaration> class_opt = mCompilationUnit.getClassByName(javaName);
+                ClassOrInterfaceDeclaration mClassDeclaration = null;
+                if (class_opt.isPresent()) {
+                    mClassDeclaration = class_opt.get();
+                }
+
+                if (mClassDeclaration != null) {
+
+
+                    List<MethodDeclaration> CurMethodList = mClassDeclaration.getMethods();
+
+                    ArrayList<MethodDeclaration> methodDecList_arr = new ArrayList<MethodDeclaration>();
+                    for (MethodDeclaration mMethodDec : CurMethodList) {
+                        methodDecList_arr.add(mMethodDec);
+                    }
+
+//                    methodDecList_arr.sort(FieldMethod_Compare);
+
+                    int index = 0;
+                    for (MethodDeclaration methodDec : methodDecList_arr) {
+
+
+                        boolean isStaticMethod = methodDec.isStatic();
+                        boolean isNativeMethod = methodDec.isNative();
+                        boolean isSyncMethod = methodDec.isSynchronized();
+                        boolean isAbstractMethod = methodDec.isAbstract();
+                        boolean isFinalMethod = methodDec.isFinal();
+                        String modifyWord = "";
+                        if (isNativeMethod || isAbstractMethod) {   // 过滤 native方法 和  abstract 抽象方法
+                            continue;
+                        }
+                        modifyWord = modifyWord.trim();
+
+//                        methodDec.isThrown("Exception");
+
+
+                        String methodName = methodDec.getNameAsString(); // 函数名称
+                        NodeList<Parameter> methodParamList = methodDec.getParameters();
+                        String paramStr = "";    // 函数的参数
+
+
+                        String methodDecStr = methodDec.getDeclarationAsString(false, false, false);
+                        int returnIndex = methodDecStr.indexOf(methodName);
+                        String returnString = "";
+                        if (returnIndex > 0) {
+                            returnString = methodDecStr.substring(0, returnIndex);
+                        }
+                        //  System.out.println("Signature =  "+  methodDec.getSignature().asString());
+                        //        System.out.println("getDeclarationAsString =  "+  methodDec.getDeclarationAsString());
+                        //       System.out.println("getDeclarationAsString2 =  "+  methodDec.getDeclarationAsString(false,false,false));
+                        for (Parameter param : methodParamList) {
+                            //  System.out.println("param = "+ param.toString());
+                            paramStr = paramStr + "," + param.toString();
+                        }
+                        paramStr = paramStr.trim();
+                        while (paramStr.startsWith(",")) {
+
+                            paramStr = paramStr.substring(1);
+                        }
+
+                        while (paramStr.endsWith(",")) {
+                            paramStr = paramStr.substring(1, paramStr.length());
+                        }
+
+                        //  System.out.println("returnString = " + returnString + "         methodName = " + methodName + "  paramStr = " + paramStr);
+                        //  methodDec.g
+                        // 继续点
+                        String resultStr = "方法索引" + index + ": " + returnString + " " + methodName + "(" + paramStr + ")";
+
+//                        arrMethodList.add(resultStr);
+                        ZMethod curZMtthod = new ZMethod(zCurZClass, returnString.trim(), methodName.trim(), paramStr.trim());
+//                        new ZMethod(mZAndroidAPPClass,"boolean","onSwitchToggled","boolean isChecked ")
+                        zMethodList.add(curZMtthod);
+                        index++;
+
+                    }
+
+
+                }
+
+            } catch (Exception e) {
+                   System.out.println("X Exception ");
+                System.out.println("解析文件失败! 可能是接口 可能是 lamdaba表达式");
+                e.printStackTrace();
+            }
+
+            return zMethodList;
+        }
+
+        ZClass(String path, ArrayList<ZMethod> methodList) {
+            this.path = path;
+            this.zmethodList = methodList;
+            this.classFile = new File(path);
+            if (this.classFile.exists()) {
+                try {
+                    zCompilationUnit = JavaParser.parse(this.classFile);
+                    this.originClassContent = zCompilationUnit.toString();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    System.out.println(" 解析文件出错！  文件 = " + this.path);
+                }
+            } else {
+                System.out.println(" 文件  " + this.path + " 不存在无法解析！ ");
+            }
+
+        }
+
+
+        //计算字符串在给定字符串出现的次数
+        public static int calculSrcCount(String src, String des) {
+            int index = 0;
+            int count = 0;
+            while ((index = src.indexOf(des, index)) != -1) {
+                count++;
+                index = index + des.length();
+            }
+            System.out.println(des + "出现了 " + count + " 次");
+            return count;
+        }
+
+
+        public static int getCharacterPosition(String originStr, String src, int orderIndex) {
+//这里是获取"/"符号的位置
+            int resultValue = -1;
+            try {
+                Matcher slashMatcher = Pattern.compile(src).matcher(originStr);
+                int mIdx = 0;
+                while (slashMatcher.find()) {
+                    mIdx++;
+                    if (mIdx == orderIndex) {
+                        break;
+                    }
+                }
+                resultValue =  slashMatcher.start();
+
+                return resultValue;
+            } catch (Exception e){
+                System.out.println("getCharacterPosition 检索 "+ src +"第"+orderIndex+"次出现位置失败!");
+            }finally {
+                return resultValue;
+            }
+
+        }
+
+
+        static String replaceWithIndex(String oriStr, String src, String dest, int index) {
+            String curResultStr = oriStr;
+            if (!curResultStr.contains(src)) {   //  如果没有包含src  那么 原样返回
+                System.out.println("原样返回1  不包含！src");
+                return oriStr;
+            }
+            int order = index + 1;
+
+            int srcCount = calculSrcCount(oriStr, src);
+            if (order <= 0 || order > srcCount) {  //  如果给出的索引为负数 或者 索引+1 > 大于 字符串个数 那么返回原样
+                System.out.println("原样返回2   order=" + order + "  srcCount= " + srcCount);
+                return oriStr;
+            }
+
+            int curPlaceIndex = getCharacterPosition(oriStr, src, order);
+            if (curPlaceIndex < 0) {
+                System.out.println("原样返回3   curPlaceIndex=" + curPlaceIndex);
+
+                return oriStr;
+            }
+
+            int beginIndex = oriStr.indexOf(src, curPlaceIndex);
+            int length = src.length();
+            int endIndex = beginIndex + length;
+            if (beginIndex < 0) {
+                System.out.println("原样返回4   beginIndex=" + beginIndex);
+
+                return oriStr;
+            }
+
+            if (endIndex > oriStr.length()) {
+                System.out.println("原样返回5   endIndex=" + endIndex + "  oriStr.length()=" + oriStr.length());
+
+                return oriStr;
+            }
+            curResultStr = oriStr.substring(0, beginIndex) + dest + oriStr.substring(endIndex);
+
+//            curResultStr.indexOf()
+
+
+            return curResultStr;
+        }
+
+        // 把原有的Class代码转为新替换的Class的代码
+        String toNewClassCode() {
+            String originClassCode = "";
+            String newClassCode = "";
+            String originMethodCode = "";
+            String newMethodCode = "";
+
+            if (this.originClassContent == null || this.originClassContent.equals("")) {
+                System.out.println("解析文件出现错误: originClassContent 为空");
+                return null;
+            }
+            // zukgitlog_4  原始类的内容
+            //  System.out.println("═══════ originClassContent ═══════\n"+this.originClassContent);
+            originClassCode = new String(this.originClassContent);
+
+            if (originClassCode.contains("zukgit")) {
+                System.out.println(" 该类已经添加了Log 不再添加Log的打印方法 MetodPrint!");
+                this.alreadyAddPrintMethod = true;
+            }
+
+            newClassCode = new String(originClassCode);
+            int mMethodIndex = 1;
+            for (ZMethod zmethod : this.zmethodList) {
+                //System.out.println("  当前解析Method: = "+ zmethod.methodName);
+                //  curClassCode.replaceAll(zmethod.originCodeString,)
+                int allNodeSize = zmethod.checkAllNode(zmethod.methodDeclaration);   //  获取总共Method 中多少个结点
+                if (allNodeSize == 0) {
+                    continue;
+                }
+
+                if (zmethod.originCodeString.contains("@Test")) {
+                    continue;
+                }
+
+                // 去掉方法的注释   //  //  //
+                zmethod.logOnlyParam_originCodeString = tryToClearHeadCommandB(zmethod.originCodeString);
+
+                // 如果方法中包含 @Test   那么也不解析 zukgit_log zukgit1_log zukgitlog_1
+                //  System.out.println("zmethod.originCodeString 去除方法头部注释后 = \n"+ zmethod.logOnlyParam_originCodeString);
+
+                int expressNodeSize = zmethod.expressNodeList.size();    //  每个表达式 前面 添加一些 log 以此 来观察 程序 运行
+                // zukgitlog_5
+                //      System.out.println(" allNodeSize = "+ allNodeSize +"       表达式结点 expressNodeSize = "+ expressNodeSize);
+                originMethodCode = zmethod.originCodeString;
+                //       System.out.println("第" + mMethodIndex+" 个方法开始解析 methodName =:" +zmethod.methodName);
+                mMethodIndex++;
+                
+                //   去掉 zukgit 
+//                if (zmethod.originCodeString.contains("zukgit")) {  // 对已经添加过Log的方法不再处理
+//                    //  System.out.println(" 该方法已经添加了Log 不再添加Log 添加log!"+zmethod.methodName);
+//                    //  System.out.println(" 该方法已经添加了Log  需要进行修正 Log 打印的时间点);
+//                    zmethod.belongClass.alreadyAddPrintMethod = true;
+//                    continue;
+//                }
+                
+                
+                
+                newMethodCode = new String(zmethod.logOnlyParam_originCodeString);
+
+                NodeMapPrint(zmethod.sameExpressNodeMap);
+                Object[] sameSetKey = zmethod.sameExpressNodeMap.keySet().toArray();
+                for (int i = 0; i < sameSetKey.length; i++) {
+                    ArrayList<Node> sameNodeList = zmethod.sameExpressNodeMap.get(sameSetKey[i]);
+                    for (int j = 0; j < sameNodeList.size(); j++) {
+                        int nodeIndex = j;
+                        Node curNode = sameNodeList.get(j);
+                        boolean needBlock = curNode.getParentNode().get().getMetaModel().getType() == com.github.javaparser.ast.stmt.IfStmt.class;
+
+                        String code1 = zmethod.fixExpressNodeString(curNode.toString());  //  需要对这里进行fix  去除空格与注释
+                        String[] analysysCode = zmethod.tryAnalysisExpressNodeString(curNode.toString());
+
+                        //  如果父类不为空  并且父类是 com.github.javaparser.ast.stmt.IfStmt   并且父类的子项只有两个
+                        String log = zmethod.buildIndexLog();
+                        String codePre1 = "";
+                        String codeBack1 = "";
+                        if (analysysCode != null && analysysCode.length == 2) {
+                            codePre1 = analysysCode[0];
+                            codeBack1 = analysysCode[1];
+                        }
+
+                        if (checkExceptionFlag(codePre1)) {
+                            codePre1 = "";
+                        }
+                        if (checkExceptionFlag(codeBack1)) {
+                            codeBack1 = "";
+                        }
+                        String code2 = log + codePre1 + "  " + code1 + codeBack1;
+
+                        Node fatherNode = curNode.getParentNode().get();
+
+                        if (needBlock) {
+                            code2 = "{" + code2 + "}";
+                        }
+                        System.out.println("═══════════map-same-code-begin══════════");
+                        System.out.println("index: " + j + "  sameCode oldMethodCode = " + newMethodCode);
+                        String oldMethodCode = new String(newMethodCode);
+                        // 原始的已经变化了  之前的替换已经被 "  test1 = 11;" 已经被替换为 "test1 = 11;" 所以 需要减1
+                        newMethodCode = replaceWithIndex(oldMethodCode, "  " + code1, code2, nodeIndex);
+                        System.out.println("index:" + j + "  sameCode code1 = " + "  " + code1);
+                        System.out.println("index:" + j + "  sameCode code2 = " + code2);
+                        System.out.println("index: " + j + "  sameCode newMethodCode = " + newMethodCode);
+                        System.out.println("old == new  " + oldMethodCode.equals(newMethodCode));
+                        System.out.println("═══════════map-same-code-end══════════");
+                        System.out.println();
+                    }
+
+
+                }
+
+                for (int j = 0; j < expressNodeSize; j++) {
+                    //  Node node =  zmethod.expressNodeList.get(j);
+                    Node node = (Node) zmethod.expressNodeList.toArray()[j];
+                    String code1 = zmethod.fixExpressNodeString(node.toString());  //  需要对这里进行fix  去除空格与注释
+                    String[] analysysCode = zmethod.tryAnalysisExpressNodeString(node.toString());  // 对参数进行分析  String[2]  === type和typename
+//Line 695: ══════=== fixStr = Toast.makeText(mContext, R.string.wifi_in_airplane_mode, Toast.LENGTH_SHORT).show();
+//Line 700: ══════=== fixStr = mSwitchWidget.setChecked(false);
+//Line 705: ══════=== fixStr = mMetricsFeatureProvider.action(mContext, MetricsEvent.ACTION_WIFI_ON);
+//Line 710: ══════=== fixStr = mMetricsFeatureProvider.action(mContext, MetricsEvent.ACTION_WIFI_OFF, mConnected.get());
+//Line 715: ══════=== fixStr = mSwitchWidget.setEnabled(true);
+//Line 720: ══════=== fixStr = Toast.makeText(mContext, R.string.wifi_error, Toast.LENGTH_SHORT).show();
+
+                    //  如果父类不为空  并且父类是 com.github.javaparser.ast.stmt.IfStmt   并且父类的子项只有两个
+                    String log = zmethod.buildIndexLog();
+                    String codePre1 = "";
+                    String codeBack1 = "";
+                    if (analysysCode != null && analysysCode.length == 2) {
+                        codePre1 = analysysCode[0];
+                        codeBack1 = analysysCode[1];
+                    }
+//                    codeBackXXX =   报错的
+//                            zPrintLog(>);
+                    //   System.out.println(" codePreXXX   = "+ codePre1);
+                    //   System.out.println(" codeBackXXX = "+ codeBack1);
+
+//                    expected one of "!=" "%" "%=" "&" "&&" "&=" "(" ")" "*" "*=" "+" "+=" "," "-" "-=" "->"
+//                    "/" "/=" "::" "<" "<<=" "<=" "=" "==" ">" ">=" ">>=" ">>>=" "?" "^" "^="
+//                    "instanceof" "|" "|=" "||"
+
+                    if (checkExceptionFlag(codePre1)) {
+                        codePre1 = "";
+                    }
+
+
+                    if (checkExceptionFlag(codeBack1)) {
+                        codeBack1 = "";
+                    }
+                    //  System.out.println(" codePreXXX_B   = "+ codePre1);
+                    // System.out.println(" codeBackXXX_B = "+ codeBack1);
+
+
+                    String code2 = log + codePre1 + code1 + codeBack1;
+
+                    Node fatherNode = node.getParentNode().get();
+
+                    if (fatherNode != null && fatherNode.getMetaModel().getType() == com.github.javaparser.ast.stmt.IfStmt.class) {
+                        code2 = "{" + code2 + "}";   //  对于  if()   int = aa  ;    // 这样的表达式处理
+                        //System.out.println(" fatherNode.getChildNodes().size = "+ fatherNode.getChildNodes().size());
+                    }
+/*                    else if(fatherNode != null && fatherNode.getMetaModel().getType() == com.github.javaparser.ast.stmt.BlockStmt.class && fatherNode.getChildNodes().size() == 1){
+                        code2 = "{" + code2 + "}" ;   //  对于  if()   int = aa  ;    // 这样的表达式处理
+
+                    }*/
+
+
+                    System.out.println();
+                    System.out.println();
+//                    System.out.println("═════════════════════════Begin════════════════════");
+                    Node grandFatherNode = fatherNode.getParentNode().get();
+                    System.out.println("code2 = " + code2);
+
+
+//                    System.out.println("node.getMetaModel().getType() = "+ node.getMetaModel().getType());
+//                         System.out.println("node.tostring = "+node.toString());
+//                         for (int i = 0; i < node.getChildNodes().size(); i++) {
+//                            System.out.println("curNode-child["+i+"] = "+ node.getChildNodes().get(i).getMetaModel().getType() );
+//                         }
+//                    System.out.println("fatherNode.tostring = "+fatherNode.toString());
+//                        System.out.println("fatherNode.getMetaModel().getType() = "+ fatherNode.getMetaModel().getType());
+//                    System.out.println("father-child-size="+fatherNode.getChildNodes().size());
+//                    for (int i = 0; i < fatherNode.getChildNodes().size(); i++) {
+//                        System.out.println("child["+i+"] = "+ fatherNode.getChildNodes().get(i).getMetaModel().getType() );
+//                    }
+//
+//                        if(grandFatherNode != null){
+//                            System.out.println("grandFatherNode.getMetaModel().getType() = "+ grandFatherNode.getMetaModel().getType());
+//                            System.out.println("grandFatherNode = "+ grandFatherNode.toString());
+//                        }
+//                    System.out.println("═════════════════════════End════════════════════");
+
+
+                    System.out.println();
+                    System.out.println();
+
+                    //System.out.println("############## index="+j+"     原有的Log node.toString() = "+code1);
+                    //System.out.println("############## index="+j+"     现有的Log code2 = "+code2);
+
+                    //  当前的 code1 是否是  某个 expressNode 的 子集
+                    //  判断 当前的 code1 是否含有多个子项
+                    newMethodCode = newMethodCode.replace("  " + code1, code2);     //  继续点  这里因为空格的原因无法匹配到
+// ############## index=0     原有的Log node.toString() = Toast.makeText(mContext, R.string.wifi_in_airplane_mode, Toast.LENGTH_SHORT).show();
+//############## index=0     现有的Log code2 =
+// android.util.Log.i("zukgit_onSwitchToggled","this is indexLog index= 0");
+// Toast.makeText(mContext, R.string.wifi_in_airplane_mode, Toast.LENGTH_SHORT).show();
+                    //System.out.println("############## index="+j+"     现有的  newMethodCode  = "+newMethodCode);
+
+                }
+
+                //System.out.println("！！！！！！！！！！新构建的方法 Method的方法 如下: 原始方法 :" + zmethod.originCodeString);  // 构建新的方法的内容
+                //System.out.println("！！！！！！！！！！新构建的方法 Method的方法 如下: newMethodCode :" + newMethodCode);  // 构建新的方法的内容
+                String addBlankOriginCodeString = "";
+                if (zmethod.originCodeString.startsWith("/*")) {
+                    String originCodeStringWithOutZhuShi = zmethod.originCodeString.substring(zmethod.originCodeString.indexOf("*/") + 2).trim();
+                    addBlankOriginCodeString = originCodeStringWithOutZhuShi.replaceAll("\n", "\n    ");
+                    //System.out.println("Method 开头包含注释 /***/ ！！");
+                } else {
+                    addBlankOriginCodeString = zmethod.originCodeString.replaceAll("\n", "\n    ");
+                    //System.out.println("Method 开头不包含注释 /***/ ！！");
+                }
+
+
+                if (addBlankOriginCodeString.startsWith("@Override")) {
+                    addBlankOriginCodeString = "    " + addBlankOriginCodeString;
+                }
+                addBlankOriginCodeString = addBlankOriginCodeString.replace("    * ", "* ");
+                addBlankOriginCodeString = addBlankOriginCodeString.replace("    */", "*/");
+
+                if (zmethod.buildIndexLogList != null) {
+
+                    for (int i = 0; i < zmethod.buildIndexLogList.size(); i++) {
+                        String index = zmethod.buildIndexLogList.get(i);
+                        //System.out.println("序号 : "+ i  + "   出现的序号: +" + (index) );
+                    }
+
+                }
+
+                newMethodCode = zmethod.fixnewMethodCode(newMethodCode); // 把  this_is_indexLog_index=0  依次设置序号
+                // System.out.println("═════════=   newMethodCode  Begin═════════==");
+                //  System.out.println(newMethodCode);
+                //  System.out.println("═════════=   newMethodCode  End═════════==");
+                //  System.out.println("═════════=   newClassCode  Begin═════════==");
+
+                newClassCode = newClassCode.replace(addBlankOriginCodeString, newMethodCode); // 构建新类文件内容
+
+                if (!newClassCode.contains(newMethodCode)) {
+                    //System.out.println("第一次匹配失败 在 addBlankOriginCodeString 和 newClassCode中的方法 格式问题不对称");
+                    //System.out.println("1.newClassCode 中的格式无法查询  需要查看Log ");
+                    //System.out.println("2.当前去匹配去适应的method字符串是:\n"+ addBlankOriginCodeString);
+
+                    String classCodeTemplate = "class ZTemplate {" + addBlankOriginCodeString + " }";
+
+                    CompilationUnit compileUtil = JavaParser.parse(classCodeTemplate);
+
+                    String strCode1 = compileUtil.toString();
+                    //System.out.println(strCode1);
+                    String sreCode2 = strCode1.substring("class ZTemplate {".length());
+                    String strCode3 = sreCode2.substring(0, sreCode2.lastIndexOf("}"));
+                    String firstCode = "";
+                    firstCode = strCode3.substring(0, 1);
+                    //    System.out.println("firstCode1 = "+ firstCode);
+                    while (!strCode3.startsWith(" ")) {
+                        firstCode = strCode3.substring(0, 1);
+                        //System.out.println("firstCode2 = "+ firstCode);
+                        strCode3 = strCode3.substring(1);
+                    }
+                    if (newClassCode.contains(strCode3)) {
+                        // System.out.println("第二次匹配成功 在 strCode3 和 newClassCode中的方法 格式问题对称");
+                        newClassCode = newClassCode.replace(strCode3, newMethodCode);
+
+                    } else {
+                        // System.out.println("第二次匹配失败 在 strCode3 和 newClassCode中的方法 格式问题不对称");
+                    }
+                } else {
+                    //System.out.println("第一次匹配成功 在 addBlankOriginCodeString 和 newClassCode中的方法 格式对称");
+
+                }
+                // System.out.println(newClassCode);
+                //  System.out.println("═════════=   newClassCode  End═════════==");
+                //   System.out.println("═════════=   addBlankOriginCodeString  Begin═════════==");
+                //  System.out.println(addBlankOriginCodeString);
+                //  System.out.println("═════════=   addBlankOriginCodeString  End═════════==");
+                newMethodCode = null;
+            }
+            // System.out.println("！！！！！！！！！！  原始类的内容 :" + originClassCode);  // 构建新的方法的内容
+            //  System.out.println("！！！！！！！！！！新类的内容 :" + newClassCode);  // 构建新的方法的内容
+            return newClassCode;
+        }
+
+        void addZMethod(ArrayList<ZMethod> zmethodList) {
+            this.zmethodList = zmethodList;
+        }
+        /*fafa*/
+
+
+        static String tryToClearHeadCommandB(String originMethodContent) {
+            String methodOnly = originMethodContent.trim();
+            String resultCode = originMethodContent;
+            if (!methodOnly.startsWith("//")) {
+                return originMethodContent;
+            } else {
+                String[] codeArr = originMethodContent.split("\n");
+                StringBuilder sb = new StringBuilder();
+                int beginIndex = 0;
+                for (int i = 0; i < codeArr.length; i++) {
+                    if (!codeArr[i].trim().startsWith("//")) {
+                        beginIndex = i;
+//                        System.out.println("头部注释:  i"+i+"    " + codeArr[i]);
+                        break;
+                    }
+                    
+                    if (codeArr[i].trim().contains("zukgit")) {   // 包含 zukgit 的 去掉
+                        beginIndex = i;
+//                        System.out.println("头部注释:  i"+i+"    " + codeArr[i]);
+                        break;
+                    }
+                    
+                }
+
+                for (int i = 0; i < codeArr.length; i++) {
+//                    System.out.println("所有分割情况 i="+i+ "  value = "+codeArr[i]);
+                }
+                for (int j = beginIndex; j < codeArr.length; j++) {
+                    sb.append(codeArr[j] + "\n");
+
+                }
+
+                resultCode = sb.toString();
+//                System.out.println("去除Head注释的方法字符:"+ resultCode );
+            }
+
+
+            return resultCode;
+
+        }
+
+        static ArrayList<File> initJavaFileFromParam(ArrayList<String> keyList) {
+            ArrayList<File> curJavaFileList = new ArrayList<File>();
+
+            //  如果当前的文件是以./ 文件开头的话 那么说明 传入的参数是 相对路径  需要转为绝对路径
+            for (int i = 0; i < keyList.size(); i++) {
+                String itemStr = keyList.get(i);
+                String absItemStr = "";
+                if (itemStr.startsWith("./") || itemStr.startsWith(".\\")) {
+                    itemStr = itemStr.replace("./", "");
+                    itemStr = itemStr.replace(".\\", "");
+                    absItemStr = curProjectPath + File.separator + itemStr;
+                } else {
+                    absItemStr = itemStr;    // 传递过来的就是绝对路径
+                }
+
+
+                File cuAabsItemStrFile = new File(absItemStr);
+                if (cuAabsItemStrFile.exists() && cuAabsItemStrFile.getName().endsWith(".java")) {
+                    // 文件存在 并且是以  .java 文件为结尾的 文件
+                    curJavaFileList.add(cuAabsItemStrFile);
+                }
+            }
+
+
+            return curJavaFileList;
+
+        }
+
+
+
+        String GetRealPrintMethod() {
+            String methodPrint = new String(COMMON_PRINT_METHOD);
+            String holdStr = "ZukgitHoldPlace";
+            String MethodStr = "";
+//            if (isIDEClass) {
+//                MethodStr = "System.out.println(";
+//            } else if (isAPP) {
+//                MethodStr = "android.util.Log.i(\"" + TAG + "_" + className + "\",";
+//            } else if (isFramework) {
+//                MethodStr = "android.util.SLog.i(\"" + TAG + "_" + className + "\",";
+//            } else {
+//                MethodStr = "System.out.println(";
+//            }
+            
+            
+            if (Rule_57_LogTypeStr.equals("syso")) {
+                MethodStr = "System.out.println(";
+            } else if (Rule_57_LogTypeStr.equals("log")) {
+                MethodStr = "android.util.Log.i(\"" + Rule_57_TAG + "_" + className + "\",";
+            } else if (Rule_57_LogTypeStr.equals("slog")) {
+                MethodStr = "android.util.SLog.i(\"" + Rule_57_TAG + "_" + className + "\",";
+            } else {
+                MethodStr = "System.out.println(";
+            }
+            
+
+            String returnStr = methodPrint.replaceAll(holdStr, MethodStr);
+
+
+//            boolean isAPP;
+//            boolean isFramework;
+//            boolean isAndroidClass;     //  是否是安卓项目的类
+//            boolean isIDEClass;       // 是否是IDE 项目的 类
+
+
+            return returnStr;
+        }
+    }
+
+    
+    static class ZMethod {
+        MethodDeclaration methodDeclaration;
+        NodeList<Parameter> methodParamList;
+        String paramLogString;   //  参数的打印字符串
+        ZClass belongClass;
+        Set<Node> expressNodeList;   //  表达式结点的集合( 不重复 )
+        Map<String, ArrayList<Node>> sameExpressNodeMap; // 表达式 相同的结点 但是父节点不同  比如 { int a =3  ; a=2; if(xxx) a=2;}
+        String methodIdentify;   // 方法的唯一标识
+        String returnString;   // 方法返回值
+        String methodName;  // 方法名称
+        String paramString;  // 方法参数字符串
+        String ownerClassName;   // 方法拥有类名称
+        String originCodeString;  // 方法的字符串集合
+        String logOnlyParam_originCodeString;  //
+        int methodLogIndex;
+        String newCodeString;    // 已替换方法的集合
+        ArrayList<String> buildIndexLogList;
+
+
+        String fixnewMethodCode(String newMethodContent) {
+            String flagStr = "this_is_indexLog_index=0";
+            if (!newMethodContent.contains(flagStr)) {
+                return newMethodContent;
+            }
+            String curMethodContent = newMethodContent;
+            int addIntValue = 1;
+            int flagIndex = newMethodContent.indexOf(flagStr);
+            while (flagIndex > 0) {
+
+                String currentLog = "this_is_indexLog_index=" + addIntValue;
+                curMethodContent = curMethodContent.substring(0, flagIndex) + currentLog + curMethodContent.substring(flagIndex + flagStr.length());
+                flagIndex = curMethodContent.indexOf(flagStr);
+                addIntValue++;
+                //System.out.println(" addIntValue = "+ addIntValue +  "   flagIndex = "+ flagIndex);
+
+//                addIntValue = 905   flagIndex = 1398
+//                addIntValue = 906   flagIndex = 1398
+//                addIntValue = 907   flagIndex = 1398
+
+            }
+
+
+            return curMethodContent;
+        }
+
+
+        String[] tryAnalysisExpressNodeString(String nodeString) {
+            String checkCode = "";
+//            System.out.println(" 表达式分析 返回分析代码 " );
+//            System.out.println(" 表达式:  "+  nodeString);
+            // 表达式 以 // 开头 那么 就不解析
+            if (nodeString.trim().startsWith("//")) {
+                return null;
+            }
+
+
+            //   System.out.println('=');
+            //   intValue = -10;  (处理)
+            //   int xxx = 10;
+            //  System.out.println("method1   intValue =  ge" + intValue);
+            // 对于那些事赋值语句的句子 进行 代码的分析
+            // 有些表达式 内的 字符串 里面 包含 等号 这些表达式 不处理
+            // 1.判断是否包含等号  2.以等号分割的长度 必须等于2
+            // 3. 等号前面的数值不能包含空格 不能包含双引号  单引号“ ‘
+//  Map<String, String> map = new HashMap<String, String>();
+            if (nodeString.contains("=")) {
+                String strArr[] = nodeString.split("=");
+                if (strArr.length != 2) {
+                    return null;
+                }  // 确保只分出两个 子subString
+                //   wifiConfig = Method.xxxxx();      type = 1
+                //  WifiGraturation wifiConfig = Method.xxxxx();    typ2 = 2
+                // final int wifiApState = mWifiManager.getWifiApState();  type3 =3
+                String variableName = "";
+
+                String str1 = strArr[0].trim();
+                String str2 = strArr[1].trim();
+                variableName = str1;
+                // 继续点
+                if (str1.contains("\"") || str1.contains("\'")) {
+                    //  不能包含双引号  单引号“ ‘
+                    return null;
+                }  // intValue = -10;
+                int type = 1;
+
+                if (str1.contains(" ")) {
+                    String[] arrStrTest = str1.split(" ");
+                    if (arrStrTest != null && arrStrTest.length == 2) {
+                        type = 2;
+                        variableName = arrStrTest[1].trim();
+                    } else if (arrStrTest != null && arrStrTest.length == 3 && str1.contains(",") && !arrStrTest[2].contains("<") && !arrStrTest[2].contains(">")) {
+// 第二种类型   //  Map<String, String> map
+                        // final int wifiApState
+                        type = 2;
+                        variableName = arrStrTest[2].trim();
+
+                    } else if (arrStrTest != null && arrStrTest.length == 3 && arrStrTest[0].trim().equals("final")) {
+                        //   // final int wifiApState = mWifiManager.getWifiApState();
+                        type = 2;
+                        variableName = arrStrTest[2].trim();
+                    } else {
+
+                        return null;
+                    }
+
+                }
+                //  泛华的打印Log的方法
+                // variableName  指向变量名称   type标识当前的表达形式 1 2
+
+                //  0 是打印前的Log
+                // 1  是 执行后的Log
+                String strShuZu[] = new String[2];
+
+                if (type == 1) {  //  wifiConfig = Method.xxxxx();      type = 1
+                    String code1 = "\nzPrintLog(" + variableName + ");\n";
+                    String code2 = "\nzPrintLog(" + variableName + ");\n";
+                    strShuZu[0] = code1;
+                    strShuZu[1] = code2;
+                    // 是否有对称的() 的 括号
+                    if (!hasDoubleBlock(code1.trim()) || !hasDoubleBlock(code2.trim()) ||
+                            !hasDoubleMiddleBlock(code1.trim()) || !hasDoubleMiddleBlock(code2.trim())) {
+                        return null;
+                    }
+
+                } else if (type == 2) {   //  WifiGraturation wifiConfig = Method.xxxxx();    typ2 = 2
+                    strShuZu[0] = "\n";
+                    String code1 = "\nzPrintLog(" + variableName + ");\n";
+                    strShuZu[1] = code1;
+
+                    // 是否有对称的() 的 括号
+                    if (!hasDoubleBlock(code1.trim()) || !hasDoubleMiddleBlock(code1.trim())) {
+                        return null;
+                    }
+                }
+
+                return strShuZu;
+
+
+            } else {
+                return null;
+            }
+
+
+        }
+
+        static boolean hasDoubleMiddleBlock(String express) {
+            boolean flag = false;
+            int getStrCharNumA = calculStrCount(express, '[');
+            int getStrCharNumB = calculStrCount(express, ']');
+
+            if (getStrCharNumA == getStrCharNumB) {
+                flag = true;
+            }
+
+            return flag;
+
+        }
+
+        static boolean hasDoubleBlock(String express) {
+            boolean flag = false;
+            int getStrCharNumA = calculStrCount(express, '(');
+            int getStrCharNumB = calculStrCount(express, ')');
+
+            if (getStrCharNumA == getStrCharNumB) {
+                flag = true;
+            }
+
+            return flag;
+
+        }
+
+        static int calculStrCount(String src, char charTarget) {
+            int count = 0;
+            String curFixStr = src.trim();
+
+            for (int i = 0; i < curFixStr.length(); i++) {
+                char charitem = curFixStr.charAt(i);
+
+                if (charitem == charTarget) {
+                    count++;
+                }
+            }
+
+            return count;
+        }
+
+        String fixExpressNodeString(String nodeString) {
+            String fixStr = "";
+            if (nodeString.contains("\n")) {
+
+                String[] strArr = nodeString.split("\n");
+                for (int i = 0; i < strArr.length; i++) {
+                    if (!strArr[i].trim().startsWith("//")) {
+                        fixStr = fixStr + strArr[i].trim();
+                    }
+                }
+
+            } else {
+                fixStr = nodeString;
+            }
+
+// Log if user was connected at the time of switching off.
+//mMetricsFeatureProvider.action(mContext, MetricsEvent.ACTION_WIFI_OFF, mConnected.get());
+
+
+            // Log if user was connected at the time of switching off.
+            // mMetricsFeatureProvider.action(mContext, MetricsEvent.ACTION_WIFI_OFF, mConnected.get());
+            // System.out.println("══════=== fixStr = "+ fixStr);
+            return fixStr;
+        }
+
+        int getNodeLength(Node node) {
+            int nodelength = 0;
+            if (node.getChildNodes().size() == 0) {
+//                System.out.println(" 叶子结点的类型: "+  node.getMetaModel().getType() + " 内容为: "+ node.toString());
+
+                return 0;
+            } else {
+//                System.out.println(" 非叶子结点的类型: "+  node.getMetaModel().getType() + " 内容为: "+ node.toString()  );
+                if (node.getMetaModel().getType() == com.github.javaparser.ast.stmt.ExpressionStmt.class) {
+//                    System.out.println("═════════=表达式类型 ExpressionStmt :"+  node.getMetaModel().getType() + " 内容为: "+ node.toString()+"═════════=");
+
+                    Node fatherNode = node.getParentNode().get();
+                    int fatherNodeChildSize = 0;
+                    String fatherType = "";
+                    Node yeyeNode;
+                    String yeyeType = "";
+                    System.out.println("═══════════════════开始═════════════════════");
+                    if (fatherNode != null) {
+
+
+                        System.out.println("当前表达式:" + node.toString() + "   type = " + node.getMetaModel().getType());
+                        System.out.println("当前表达式的子表达式大小:" + node.getChildNodes().size());
+                        fatherType = fatherNode.getMetaModel().getType().toString();
+                        fatherNodeChildSize = fatherNode.getChildNodes() != null ? fatherNode.getChildNodes().size() : 0;
+                        System.out.println("父类的表达式: " + fatherNode.toString() + " type = " + fatherNode.getMetaModel().getType());
+                        System.out.println("父类的Child-Size = " + fatherNode.getChildNodes().size());
+                        for (int i = 0; i < fatherNode.getChildNodes().size(); i++) {
+                            System.out.println("child[" + i + "]  str = " + fatherNode.getChildNodes().get(i).toString());
+                            System.out.println("child[" + i + "]  type = " + fatherNode.getChildNodes().get(i).getMetaModel().getType());
+                        }
+                        yeyeNode = fatherNode.getParentNode().get();
+                        if (yeyeNode != null) {
+                            yeyeType = yeyeNode.getMetaModel().getType().toString();
+                            System.out.println("爷爷类的表达式: " + yeyeNode.toString() + "   type = " + yeyeType);
+                        }
+
+                    }
+
+                    System.out.println("═══════════════════结束═════════════════════");
+                    int index = expressNodeList.size();
+                    //   System.out.println("索引:"+index+"   *************表达式的父类表达式类型为 FatherExpressionStmt : fatherType="+fatherType+"     yeyeType="+yeyeType   + "  fatherNodeChildSize = "+ fatherNodeChildSize  );
+
+                    // 表达式的node相同   字符串也相同的情况的处理
+                    // 表达式相同  但是上下文件不同   如果在   if  表达式 ; else  表达的情况下 那么可能会造成 语法错误
+
+                    // 对于表达式相同的node 通过ArrayList<Node> 来进行保存  通过判断父节点的类型来 得到是否添加{}
+                    // 由于添加Log 是字符串匹配   对于node相同的表达式  字符串都会去匹配 replace
+                    // 对于 不需要{}的 表达式  添加了 {} 导致上下文语法不通过
+                    // 对于 需要{} 的 表达式  只有添加了 {} 才能使得语法通过
+
+                    //  如果当前的表达式  不包含 这个 node  并且这个Node也包含在 相同Map 的Key中 那么 添加这个node
+                    // 如果这个表达式也是 IF 下的单独表达式 那么 也需要替换
+                    if (!expressNodeList.contains(node) && !sameExpressNodeMap.keySet().contains(node.toString()) &&
+                            node.getParentNode().get().getMetaModel().getType() != com.github.javaparser.ast.stmt.IfStmt.class) {   // 如果有两个相同的sameExpress 那么它们仍然保存在 ArrayList<Node>无法区分
+                        expressNodeList.add(node);
+                    } else {
+
+                        // 检测当前ArrayList是否为空 为空话 就创建这样的Map
+                        ArrayList<Node> nodeList = sameExpressNodeMap.get(node.toString());
+                        if (nodeList == null) {
+                            nodeList = new ArrayList<Node>();
+                        }
+
+                        Node preSameNode = null;
+                        if (expressNodeList.contains(node)) {   //  如果是第一次检测到相同  那么需要拿到之前的保存在Set的Node
+                            Iterator<Node> it = expressNodeList.iterator();
+                            while (it.hasNext()) {   // 拿到之前  SET 中保存的那个 表达式Node
+                                Node setNode = it.next();
+                                if (setNode != null && node.toString().equals(setNode.toString())) {
+                                    preSameNode = setNode;
+                                    break;
+                                }
+
+                            }//判断是否有下一个
+                            expressNodeList.remove(node);  // 拿到之前的Node  再从Set中删除它
+                        }
+
+                        if (preSameNode != null) {   //  如果之前的Node 不为空 那么 把它取出来 放到List
+                            nodeList.add(preSameNode);
+                        }
+
+                        nodeList.add(node);   //  填充当前的Node
+                        sameExpressNodeMap.put(node.toString(), nodeList);
+
+                        //  如果已经包含了这个node  那么 检查这个node是否是 if xxx ; else  xxx ; 的 情况
+                        //  如果这个 node 满足 if  ; else 的 情况 需要给它 过滤 去除
+                    }
+                }
+                List<Node> listNode = node.getChildNodes();
+                nodelength = listNode.size();
+                for (Node itemNode : listNode) {
+                    nodelength = nodelength + getNodeLength(itemNode);
+
+                }
+
+            }
+            return nodelength;
+
+        }
+
+        int checkAllNode(MethodDeclaration method) {
+            if (method == null) {
+                return 0;
+            }
+            int num = 0;
+            List<Node> curList = method.getChildNodes();
+            if (curList == null) {
+                return 0;
+            }
+            num = curList.size();
+            if (num == 0) {
+                return 0;
+            }
+
+            for (Node itemNode : curList) {
+                num = num + getNodeLength(itemNode);
+
+            }
+            return num;
+        }
+
+
+        synchronized String buildIndexLog() {
+            String codeStr =
+                    "";
+            if (buildIndexLogList == null) {
+                buildIndexLogList = new ArrayList<String>();
+            }
+
+            codeStr = CommonCodePrint("\"this_is_indexLog_index=" + 0 + "\"");
+            // codeStr = CommonCodePrint("this_is_indexLog_index=0");
+            methodLogIndex++;
+
+            buildIndexLogList.add("this is indexLog index=" + 0);
+            return codeStr;
+        }
+
+
+        ZMethod(ZClass parentClass, String returnString, String methodName, String paramString) {
+            this.belongClass = parentClass;
+            this.returnString = returnString;
+            this.methodName = methodName;
+            this.paramString = paramString;
+            if (paramString.trim().endsWith(")") && paramString.trim().startsWith("(")) {
+                this.paramString = paramString;
+            } else {
+                this.paramString = "(" + paramString.trim() + ")";
+            }
+            methodLogIndex = 0;
+            this.paramString = tryFixParamFormat(this.paramString);
+            this.methodIdentify = (this.returnString + " " + this.methodName + this.paramString).trim();
+            this.ownerClassName = this.belongClass.className;
+
+            this.methodDeclaration = getMethodDeclarationFromCompilationUnit(this.belongClass.zClassOrInterfaceDeclaration, methodIdentify);
+            if (this.methodDeclaration == null) {
+                System.out.println("解析Method为空! 程序退出");
+                return;
+            }
+            this.methodParamList = this.methodDeclaration.getParameters();
+            this.originCodeString = this.methodDeclaration.toString();
+            if (this.methodParamList != null) {
+                paramLogString = makeMethodParamLog(this.methodParamList);
+//                System.out.println("依据参数生成的打印Log的代码如下:\n"+ paramLogString);
+                // @Override public boolean onSwitchToggled(boolean isChecked, int int1, String str1, ArrayList<String> strArr, String[] strArr1, int[] arrInt)
+
+
+//  @Override public boolean onSwitchToggled()  获取到这样的字符串  没有考虑到 方法头包含 /**/的情况
+                String preCode = "";
+                if (originCodeString.trim().startsWith("/*") && originCodeString.trim().contains("*/")) {  // 如果包含注释的话
+                    String fixOriginCodeString = originCodeString.substring(originCodeString.indexOf("*/") + 2);
+                    preCode = fixOriginCodeString.substring(0, fixOriginCodeString.indexOf("{") + 1).trim();
+//                    System.out.println("包含 包头部含注释 preCode  :\n"+ preCode);
+                } else {
+
+                    preCode = originCodeString.substring(0, originCodeString.indexOf("{") + 1);
+//                    System.out.println("不包头部含注释 preCode  :\n"+ preCode);
+                }
+                //  public void enableVerboseLogging(int verbose) {
+                //  包含注释
+                logOnlyParam_originCodeString = originCodeString.replace(preCode, preCode + "\n" + paramLogString);  //  添加了对 参数的打印的代码
+
+                //  把包含的 注释 /***/  去掉
+                if (logOnlyParam_originCodeString.trim().startsWith("/*") && logOnlyParam_originCodeString.trim().contains("*/")) {
+                    logOnlyParam_originCodeString = logOnlyParam_originCodeString.substring(logOnlyParam_originCodeString.indexOf("*/") + 2);
+                }
+
+            }
+//            System.out.println("方法的原始字符串:\n"+ originCodeString);
+//            System.out.println("加入参数Log的字符串:\n"+ logOnlyParam_originCodeString);
+
+            expressNodeList = new HashSet<Node>();
+            //  开始处理表达式的打印
+            sameExpressNodeMap = new HashMap<String, ArrayList<Node>>();
+        }
+
+        static String tryFixParamFormat(String param) {
+            if (!param.contains(",")) {
+                while (param.contains("  ")) {
+                    param = param.replace("  ", " ");
+                }
+                return param.trim();
+            }
+            String fixParam = "";
+            String[] strArr = param.split(",");
+            int size = strArr.length;
+
+            for (int i = 0; i < size; i++) {
+                String curStr = strArr[i].trim();
+                while (curStr.contains("  ")) {
+                    curStr = curStr.replace("  ", " ");
+                }
+                fixParam = fixParam + curStr + ", ";
+            }
+            fixParam = fixParam.trim();
+            while (fixParam.endsWith(",")) {
+                fixParam = fixParam.substring(0, fixParam.length() - 1);
+
+            }
+
+
+//            System.out.println("fixParam = "+ fixParam);
+            return fixParam;
+
+        }
+
+
+        // 1 判断基本的数据类型    基本的数据类型不用盘空  直接打印
+// 2. 判断是否是基本类型的数组(该数组有多少层级)
+// 3 判断如果为 对象类型  那么  需要判空  并打印
+// 4.判断是否为对象的集合 (该集合内部是否还包含有集合  集合的层级) 并打印
+
+
+        String makeMethodParamLog(NodeList<Parameter> paramList) {
+            // 决定选择哪一种打印Log的代码
+            String paramLogCode = "";
+            String itemCode = "";
+            for (Parameter paramItem : paramList) {
+                //paramItem = boolean isChecked
+                //paramItem = int int1
+
+                if (isBasicType(paramItem.toString())) {  // 基本的 boolean  byte char  short int  long float double  8种类型
+
+                    String Code1 = BaseTypeCode(paramItem.toString());
+                    itemCode = Code1;
+                    //      System.out.println(" 当前的参数是基本数据类型 boolean  byte char  short int  long float double      paramItem = "+ paramItem.toString() +"代码："+ Code1);
+                } else if (isBasicShuZu(paramItem.toString())) {
+
+                    String Code2 = BaseTypeListCode(paramItem.toString());
+                    itemCode = Code2;
+                    //       System.out.println(" 当前的参数是基本数据类型数组[]    paramItem = "+ paramItem.toString() +"代码："+ Code2);
+                } else if (isSingleObject(paramItem.toString())) {  //  String xx  Object XX  Integer XXX
+                    String Code3 = SingleObjectPrintCode(paramItem.toString());
+                    itemCode = Code3;
+                    // System.out.println(" 当前的参数是单个类Object类型   paramItem ="+ paramItem.toString() +"代码："+ Code3);
+                } else if (isObjectArr(paramItem.toString())) {    //  String[]
+                    String Code4 = ArrObjectPrintCode(paramItem.toString());
+                    itemCode = Code4;
+                    //     System.out.println(" 当前的参数是类的集合 类似于ArrayList<Object> Object[]   paramItem ="+ paramItem.toString()+"代码："+ Code4);
+                }
+
+                paramLogCode = paramLogCode + itemCode;
+
+            }
+            while (paramLogCode.contains("\n ")) {
+                paramLogCode = paramLogCode.replaceAll("\n ", "\n");
+            }
+            return CommonRuntimeExceptionCodePrint() + CommonProcessAndThreadCodePrint() + paramLogCode;  // 添加所有Log的地方
+        }
+
+
+        static Set<String> ListTypeList = new HashSet<String>();
+
+        {
+
+            ListTypeList.add("Collection");
+            ListTypeList.add("List");
+            ListTypeList.add("Vector");
+            ListTypeList.add("Stack");
+            ListTypeList.add("Deque");
+            ListTypeList.add("LinkedBlockingDeque");
+            ListTypeList.add("Queue");
+            ListTypeList.add("ArrayDeque");
+            ListTypeList.add("BlockingQueue");
+            ListTypeList.add("LinkedTransferQueue");
+            ListTypeList.add("LinkedBlockingQueue");
+            ListTypeList.add("PriorityQueue");
+            ListTypeList.add("ArrayList");
+            ListTypeList.add("LinkedList");
+            ListTypeList.add("SortedList");
+            ListTypeList.add("Map");
+            ListTypeList.add("HashMap");
+            ListTypeList.add("TreeMap");
+            ListTypeList.add("LinkedHashMap");
+            ListTypeList.add("SortedMap");
+            ListTypeList.add("WeakHashMap");
+            ListTypeList.add("ConcurrentHashMap");
+            ListTypeList.add("Set");
+            ListTypeList.add("EnumSet");
+            ListTypeList.add("SortedSet");
+            ListTypeList.add("HashSet");
+            ListTypeList.add("TreeSet");
+            ListTypeList.add("LinkedHashSet");
+            ListTypeList.add("CopyOnWriteArraySet");
+            ListTypeList.add("Hashtable");
+            ListTypeList.add("Iterator");
+            ListTypeList.add("Iterable");
+
+
+            //  Iterable<String>  itable;
+            //   Iterator<String> itStr;
+            //     ConcurrentHashMap cMap;
+            //  BlockingQueue blockque;
+            //      CopyOnWriteArraySet arrayset;
+//            LinkedHashMap<String,String>  linkMap;
+//            LinkedBlockingDeque<String> lk;
+//            LinkedTransferQueue<String> lt;
+            // Hashtable<String,String> strtable;
+            // WeakHashMap<String,String> weekMap;
+            //   SortedMap<String,String> sortedMap ;
+            //  SortedSet<String> sortedSet ;
+            // EnumSet<String> enumSet;
+            //    Queue<String> q ;
+            //    Vector<String> vec;
+            //   Stack<String> stack;
+            //   Deque<String> deque;
+            //  ArrayDeque<String> arrDeq;
+            //  PriorityQueue<String> queue;
+        }
+
+
+        static boolean isObjectArr(String params) {
+            boolean isObjectArr = false;
+            if (!params.contains(" ")) { // 并不包含空格说明这个参数的格式错误
+                //  System.out.println(" 当前参数字符串不符合   参数类型_空格_参数名  的格式 !  解析错误！ params="+ params);
+                return false;
+
+            }
+            String[] paramArr = params.split(" ");
+            if (paramArr.length == 2 && !params.contains(",")) {  // ArrList<Object> arr   ArrayList<List<XX>> map;
+                isObjectArr = isArrObjectTypeString(paramArr[0]);           //   paramItem =Map<String, Object> mapValue
+            } else if (params.contains(",") && params.contains("<") && params.contains(">")) { // param = Map<String, Object> mapValue
+
+                isObjectArr = isArrObjectTypeString(params.substring(0, params.lastIndexOf(">") + 1).replace(" ", ""));
+            } else {
+
+                //   System.out.println(" ═══==当前参数字符串 !  解析错误！══════==");
+            }
+
+
+            return isObjectArr;
+
+        }
+
+
+        static boolean isArrObjectTypeString(String type) {  //     String xx  Object XX  Integer XXX
+            boolean isArrObjectTypeString = false;
+            if (!basicTypeList.contains(type.trim()) || type.contains("[]")) {   // ArrayList
+                isArrObjectTypeString = true;
+                return isArrObjectTypeString;
+            }
+
+            for (String curListType : ListTypeList) {
+                if (type.contains(curListType)) {
+                    isArrObjectTypeString = true;
+                    break;
+                }
+            }
+            return isArrObjectTypeString;
+        }
+
+
+        static boolean isSingleObject(String params) {
+            boolean isSingleObject = false;
+            if (!params.contains(" ")) { // 并不包含空格说明这个参数的格式错误
+                System.out.println(" 当前参数字符串不符合   参数类型_空格_参数名  的格式 !  解析错误！");
+                return false;
+
+            }
+            String[] paramArr = params.split(" ");
+            if (paramArr.length != 2) {
+                //  System.out.println(" 当前参数字符串不符合   参数类型_空格_参数名  的格式  解析的长度不为2 !  解析错误！");
+                return false;
+            }
+
+            isSingleObject = isSingleObjectTypeString(paramArr[0]);
+
+            return isSingleObject;
+
+        }
+
+        static boolean isSingleObjectTypeString(String type) {  //     String xx  Object XX  Integer XXX
+            boolean isSingleObjectTypeString = true;
+            if (!basicTypeList.contains(type.trim()) && !type.contains("[]")) {   // ArrayList
+                for (String curListType : ListTypeList) {
+                    if (type.contains(curListType)) {
+                        isSingleObjectTypeString = false;
+                        break;
+                    }
+                }
+            } else if (type.contains("[]")) {
+                isSingleObjectTypeString = false;  // 对象数组   不是单独的对象
+            }
+            return isSingleObjectTypeString;
+        }
+
+
+        static boolean isBasicShuZu(String params) {
+            boolean isBasic = false;
+            if (!params.contains(" ")) { // 并不包含空格说明这个参数的格式错误
+                System.out.println(" 当前参数字符串不符合   参数类型_空格_参数名  的格式 !  解析错误！");
+                return false;
+
+            }
+            String[] paramArr = params.split(" ");
+            if (paramArr.length != 2) {
+                //    System.out.println(" 当前参数字符串不符合   参数类型_空格_参数名  的格式  解析的长度不为2 !  解析错误！");
+                return false;
+            }
+
+            isBasic = isBasicShuzuTypeString(paramArr[0]);
+
+            return isBasic;
+
+        }
+
+        static boolean isBasicShuzuTypeString(String type) {  // byte[] int[]  long[]
+            boolean isBasicShuZu = false;
+            String curType = new String(type);
+            curType = curType.replace("[]", "").trim();  // byte[] ->  byte
+            if (basicTypeList.contains(curType.trim()) && type.contains("[]")) {
+                isBasicShuZu = true;
+            }
+            return isBasicShuZu;
+        }
+
+
+        static boolean isBasicType(String params) {
+            boolean isBasic = false;
+            if (!params.contains(" ")) { // 并不包含空格说明这个参数的格式错误
+                System.out.println(" 当前参数字符串不符合   参数类型_空格_参数名  的格式 !  解析错误！");
+                return false;
+
+            }
+            String[] paramArr = params.split(" ");
+            if (paramArr.length != 2) {
+                //   System.out.println(" 当前参数字符串不符合   参数类型_空格_参数名  的格式  解析的长度不为2 !  解析错误！");
+                return false;
+            }
+
+            isBasic = isBasicTypeString(paramArr[0]);
+
+            return isBasic;
+        }
+
+        static Set<String> basicTypeList = new HashSet<String>();
+
+        {
+            basicTypeList.add("boolean");
+            basicTypeList.add("byte");
+            basicTypeList.add("char");
+            basicTypeList.add("short");
+            basicTypeList.add("int");
+            basicTypeList.add("long");
+            basicTypeList.add("float");
+            basicTypeList.add("double");
+        }
+
+        static boolean isBasicTypeString(String type) {
+            boolean isBasic = false;
+            if (basicTypeList.contains(type.trim())) {
+                isBasic = true;
+            }
+            return isBasic;
+        }
+
+
+        String ArrObjectPrintCode(String paramString) {
+            String[] param = paramString.split(" ");
+            String baseType = param[0];
+            String bsseTypeName = param[1];
+//            String[] strArr = {"A","B"};
+//            int zBaseListSize = strArr.length;
+//            for (int zindex = 0 ; zindex < zBaseListSize ; zindex++ ){
+//                System.out.println("zindex "+zindex +" : " + strArr[zindex].toString());
+//            }
+
+            if (baseType.contains("[]")) {  // String[]  Object[]
+
+                //String code1 = "\nint zBaseListSize = " + bsseTypeName+".length;";
+                // String code2 = "\nfor (int zindex = 0 ; zindex < zBaseListSize ; zindex++ ){";
+                String code1 = "\n  if( " + bsseTypeName + " != null ){";
+                String code2 = "\nfor (int zindex = 0 ; zindex < " + bsseTypeName + ".length" + " ; zindex++ ){";
+                String code3 = "\"" + paramString + "  zindex = \" + zindex +\"   :  value= \" + " + bsseTypeName + "[zindex].toString()";      //  " zindex "+zindex +" : " + intArr[zindex]
+                String code3_code = CommonCodePrint(code3);
+                String code4 = "}  \n";
+                String code5 = "}  \nelse { ";
+                String code6 = CommonCodePrint("\"" + bsseTypeName + " is null !\"");
+                String code7 = "} \n";
+
+                return code1 + code2 + code3_code + code4 + code5 + code6 + code7;
+            }
+            String codeStr = "";
+            if (paramString.contains("<") && paramString.contains(">") && !paramString.contains(",") &&
+                    !paramString.contains("map") && !paramString.contains("Map")) {    // List 类型
+                codeStr = getCodePrintForCollect(baseType, bsseTypeName);
+            } else if (paramString.contains("<") && paramString.contains(">") && paramString.contains(",")) {
+                //  map的类型
+                // paramString  MAP类型 = Map<String, Object> mapValue
+                //   System.out.println("paramString  MAP类型 = "+ paramString );
+                String type = paramString.substring(0, paramString.lastIndexOf(">") + 1).replace(" ", "");
+                String typeName = paramString.substring(paramString.lastIndexOf(">") + 1);
+                codeStr = getCodePrintForCollect(type, typeName);
+            }
+
+
+            //  String codeStr = CommonCodePrint(bsseTypeName+".toString()");
+            return codeStr;
+        }
+
+        String getCodePrintForCollect(String param1, String param2) {
+            String paramName = param1.trim() + " " + param2.trim();
+            String baseType = param1;
+            String baseTypeName = param2;
+//            System.out.println(" baseType ="+ baseType + "    bsseTypeName="+ baseTypeName );
+
+// HashMap 例子
+//HashMap map =new HashMap<>();
+//map.entrySet().iterator();
+
+// TreeMap 例子
+//TreeMap map =new TreeMap<>();
+//map.entrySet().iterator();
+
+// LinkedHashMap 例子
+//LinkedHashMap map =new LinkedHashMap<>();
+//map.entrySet().iterator();
+
+// SortedMap 例子  SortedMap 是抽象类
+//SortedMap map  = null;
+//map.entrySet().iterator();
+
+
+// WeakHashMap 例子
+//WeakHashMap map =new WeakHashMap<>();
+//map.entrySet().iterator();
+
+
+// ConcurrentHashMap 例子
+//ConcurrentHashMap map =new ConcurrentHashMap<>();
+//map.entrySet().iterator();
+
+
+// Hashtable 例子
+//Hashtable linkQueue = null ;
+//Iterator iterator =    linkQueue.entrySet().iterator();
+//iterator.hasNext();
+//Map.Entry<String , String> entrya = (Map.Entry<String , String>) iterator.next();
+//entrya.getKey();
+//entrya.getValue();
+            String paramType = "";
+            String keyStringType = "";
+            String valueStringType = "";
+            if (param1.contains("<") && param1.contains(">") && param1.contains(",")) {  //  Map 包含 <String, String>
+                paramType = param1.substring(0, param1.indexOf("<"));
+                if (param1.contains("Map") || param1.contains("map")) {
+                    keyStringType = param1.substring(param1.indexOf("<") + 1, param1.indexOf(","));
+                    valueStringType = param1.substring(param1.indexOf(",") + 1, param1.lastIndexOf(">"));
+                } else {
+                    // 是List的 情况
+                    valueStringType = param1.substring(param1.indexOf("<") + 1, param1.indexOf(">"));
+                }
+
+            } else if (param1.contains("<") && param1.contains(">") && !param1.contains(",")) {  //   paramItem =ArrayList<String> strArr   param1=ArrayList<String>
+                paramType = param1.substring(0, param1.indexOf("<"));
+                keyStringType = "";
+                valueStringType = param1.substring(param1.indexOf("<") + 1, param1.indexOf(">"));
+            } else {
+                paramType = param1.trim();
+                valueStringType = baseTypeName;
+            }
+
+            String code0 = "\n  if( " + baseTypeName + " != null ){";
+            if (paramType.endsWith("Map") || "Hashtable".equals(paramType)) {   // 当前 类型是 Map的类型
+                String code1 = "";
+                if (!keyStringType.isEmpty() && !valueStringType.isEmpty()) {
+                    code1 = "\nMap.Entry<" + keyStringType + " , " + valueStringType + "> entry = null;";
+                } else {
+                    System.out.println("获取到的Map中的key 和 value 为空  出现错误 将退出！  param1 = " + param1);
+                    return null;
+                }
+                //   String code2 = "\n if("+bsseTypeName+" != null){";
+                String code3 = "\n java.util.Iterator iterator = " + baseTypeName + ".entrySet().iterator();";
+                String code3_1 = "\n int mZindex = 0 ;";
+                String code4 = "\n while( iterator.hasNext() ){";
+
+                String code5 = "\n entry = (Map.Entry<" + keyStringType + "," + valueStringType + ">) iterator.next();";
+                String code6 = "\"" + baseTypeName + "    index =" + "\"+ mZindex + \"   " + "  entry.Key= \"" + "+ entry.getKey() +" + " \" entry.Value=\"" + "+ entry.getValue()";  // 继续点
+                String code6_fix = CommonCodePrint(code6);
+                String code6_1 = " mZindex ++ ;";
+                String code7 = " }";
+                // String code8 = "\n }";
+
+                String code9 = "}  \nelse { ";
+                String code10 = CommonCodePrint("\"" + baseTypeName + " is null !\"");
+                String code11 = "} \n";
+
+//  Map.Entry<String , ArrayList<String> > entry;
+// Map 的 例子
+//            Map<String,String> map = null;
+//            Map.Entry<String , String> entry;
+//            if(map != null){
+//                Iterator iterator = map.entrySet().iterator();
+//                while( iterator.hasNext() ){
+//                    entry = (Map.Entry<String , String>) iterator.next();
+//                    entry.getKey();  //Map的Value
+//                    entry.getValue();  //Map的Value
+//                    System.out.println("zukgit0725"+"entry.getKey()= "+entry.getKey() +" ----entry.getValue()="+entry.getValue());
+//                }
+//            }
+
+                return code0 + code1 + code3 + code3_1 + code4 + code5 + code6_fix + code6_1 + code7 + code9 + code10 + code11;
+
+            } else if (paramType.endsWith("Set") || paramType.endsWith("List") || paramType.endsWith("Queue") || paramType.endsWith("Deque") ||
+                    paramType.endsWith("Stack") || paramType.endsWith("Vector") || paramType.endsWith("Collection")) {
+// 当前的是一个List<>   valueStringType 代表当前《》 中的内容
+// CopyOnWriteArraySet linkQueue = null ;
+//Object[] objectList  = linkQueue.toArray();
+//for(int zindex =0 ; zindex < linkQueue.size(); zindex ++){
+//System.out.println("zindex "+zindex +" : " + objectList[zindex].toString());
+//}
+                String code0_list = "\n  if( " + baseTypeName + " != null ){";
+                String code1 = "\n Object[] objectList  =" + baseTypeName + ".toArray();";
+                String code2 = "\n  for(int zindex =0 ; zindex < " + baseTypeName + ".size(); zindex ++){";
+                String code3 = " \"" + paramName + "  index =\"+zindex +" + "\" value :\" + " + "objectList[zindex].toString()";
+                String code3_fix = CommonCodePrint(code3);
+                String code4 = " }";
+                String code5 = "\n}  \nelse { ";
+                String code6 = CommonCodePrint("\"" + paramName + " is null !\"");
+                String code7 = "} \n";
+
+
+                return code0_list + code1 + code2 + code3_fix + code4 + code5 + code6 + code7;  // 继续点
+            } else {
+                // 其余以外的数组关键字  直接  toString 了
+                // paramType=Map<String,  valueStringType =Object>
+                //    System.out.println("无法判断集合的类型  paramType="+paramType.toString() +"  valueStringType ="+ valueStringType);
+
+                if (checkValueStringType(valueStringType.trim())) {
+                    //  包含 .>
+                    return CommonCodePrint("\"" + baseTypeName + "=\"+" + baseTypeName + ".toString()");
+                }
+                // PemessionState>
+                return CommonCodePrint(valueStringType.trim() + ".toString()");
+            }
+
+            //  Map 需要获取 Key 和 Value的 类型  否则无法转换
+            // ═══════════════=   通用 ════════════===
+
+            //    return "";
+        }
+
+        static boolean checkValueStringType(String typeStr) {
+            boolean flag = true;
+
+            if (typeStr.contains(".>") || typeStr.contains(">.")) {
+
+                flag = false;
+            }
+
+            return flag;
+
+        }
+
+
+
+
+        String SingleObjectPrintCode(String paramString) {
+            String[] param = paramString.split(" ");
+            String baseType = param[0];
+            String bsseTypeName = param[1];
+            String code1 = "\n if(" + bsseTypeName + " != null ) {";
+            String code2 = CommonCodePrint("\"" + paramString + " = \" + " + bsseTypeName + ".toString()");
+            String code3 = " } \nelse { ";
+            String code4 = CommonCodePrint("\"" + paramString + " ==  null\"  ");
+            String code5 = "}\n";
+            return code1 + code2 + code3 + code4 + code5;
+        }
+
+
+        public static void getKeyAndValue(Map<String, String> map) {
+            Map.Entry<String, String> entry;
+            if (map != null) {
+                Iterator iterator = map.entrySet().iterator();
+                while (iterator.hasNext()) {
+                    entry = (Map.Entry<String, String>) iterator.next();
+                    entry.getKey();  //Map的Value
+                    entry.getValue();  //Map的Value
+                    //  System.out.println("zukgit0725"+"entry.getKey()= "+entry.getKey() +" ----entry.getValue()="+entry.getValue());
+                }
+            }
+        }
+
+        String BaseTypeListCode(String paramString) {
+//            int[] intArr = {1,2,4};
+//            int zBaseListSize = intArr.length;
+//            for (int zindex = 0 ; zindex < zBaseListSize ; zindex++ ){
+//                System.out.println("zindex "+zindex +" : " + intArr[zindex]);
+//            }
+
+
+            String[] param = paramString.split(" ");
+            String baseType = param[0];
+            String bsseTypeName = param[1];
+            //  String code1 = "\nint zBaseListSize = " + bsseTypeName+".length;";
+            String code1 = "";
+            String code2 = "\nfor (int zindex = 0 ; zindex < " + bsseTypeName + ".length" + " ; zindex++ ){";
+            String code3 = "\"" + paramString + "----index = \" + zindex +\" : \" +  \"  value = \" + " + bsseTypeName + "[zindex]";      //  " zindex "+zindex +" : " + intArr[zindex]
+            String code3_code = CommonCodePrint(code3);
+            String code4 = "}\n";
+
+            return code1 + code2 + code3_code + code4;
+        }
+
+
+        String BaseTypeCode(String paramString) {
+            String[] param = paramString.split(" ");
+            String baseType = param[0];
+            String bsseTypeName = param[1];
+            String code = "\"" + paramString + " = \" + " + bsseTypeName;
+            return CommonCodePrint(code);
+        }
+
+
+        String getRuntimeExceptionCode() {
+            String excepCode = "";
+            return excepCode;
+
+        }
+
+        String CommonCodePrint(String paramString) {    //  boolean  falg |  String like  | ArrayList List  | XXX xClass
+            String realPrintCode = "";
+            //  String tagMethod = TAG+"_"+this.methodName;
+            String tagMethod = Rule_57_TAG + "_" + this.belongClass.className + "_" + this.methodName;
+        
+//            if (this.belongClass.isIDEClass) {
+//                realPrintCode = "\nSystem.out.println( " + "\" " + tagMethod + "   \" + " + paramString + ");\n";
+//            } else if (this.belongClass.isAndroidClass && this.belongClass.isAPP) {
+//                // android.util.Log.i
+//                realPrintCode = "\nandroid.util.Log.i(\"" + tagMethod + "\"," + paramString + ");\n";
+//            } else if (this.belongClass.isAndroidClass && this.belongClass.isFramework) {
+//                realPrintCode = "\nandroid.util.Slog.i(\"" + tagMethod + "\"," + paramString + ");\n";
+//            }
+            
+            
+            
+            if (Rule_57_LogTypeStr.equals("syso")) {
+                realPrintCode = "\nSystem.out.println( " + "\" " + tagMethod + "   \" + " + paramString + ");\n";
+
+            }else if(Rule_57_LogTypeStr.equals("log")) {
+                realPrintCode = "\nandroid.util.Log.i(\"" + tagMethod + "\"," + paramString + ");\n";
+
+            }else if(Rule_57_LogTypeStr.equals("slog")) {
+                realPrintCode = "\nandroid.util.Slog.i(\"" + tagMethod + "\"," + paramString + ");\n";
+
+            }else {
+                realPrintCode = "\nSystem.out.println( " + "\" " + tagMethod + "   \" + " + paramString + ");\n";
+
+            }
+
+            
+            
+            
+//            if (LogTypeStr.equals("syso")) {
+//            	
+//            }else if(LogTypeStr.equals("log")) {
+//            	
+//            }else if(LogTypeStr.equals("slog")) {
+//            	
+//            }else {
+//        
+//            }
+            
+            
+            return realPrintCode;
+        }
+
+
+        // IDEA 打印
+//        RuntimeException re = new RuntimeException();
+//        re.fillInStackTrace();
+//        re.printStackTrace();
+
+        //  APP层面 安卓打印
+//        RuntimeException re = new RuntimeException();
+//        re.fillInStackTrace();
+//        android.util.Log.v("zukgit", "RuntimeException", re);
+
+        //  Framework层面 安卓打印
+//        RuntimeException re = new RuntimeException();
+//        re.fillInStackTrace();
+//        android.util.SLog.v("zukgit", "RuntimeException", re);
+
+        String CommonProcessAndThreadCodePrint() {
+            String strCode1 = "";
+            String strCode2 = "";
+            String strCode3 = "";
+
+            String tagMethod = Rule_57_TAG + "_" + this.belongClass.className + "_" + this.methodName;
+      
+//            if (this.belongClass.isIDEClass) {
+//                String re_Name = "re" + System.currentTimeMillis();
+//                strCode1 = "\nRuntimeException " + re_Name + " = new RuntimeException();";
+//                strCode2 = "\n" + re_Name + ".fillInStackTrace();";
+//                String tag = "\nSystem.out.println( " + "\" " + tagMethod + "   RuntimeException.fillInStackTrace() \" );";
+//                strCode3 = tag + "\n" + re_Name + ".printStackTrace();\n";
+//
+//            } else if (this.belongClass.isAndroidClass && this.belongClass.isAPP) {
+//                // android.util.Log.i
+//                String re_Name = "re" + System.currentTimeMillis();
+//                strCode1 = "\nRuntimeException " + re_Name + " = new RuntimeException();";
+//                strCode2 = "\n" + re_Name + ".fillInStackTrace();";
+//                strCode3 = "\nandroid.util.Log.i(\"" + tagMethod + "\", \"RuntimeException\", " + re_Name + " );\n";
+//            } else if (this.belongClass.isAndroidClass && this.belongClass.isFramework) {
+//                String re_Name = "re" + System.currentTimeMillis();
+//                strCode1 = "\nRuntimeException " + re_Name + " = new RuntimeException();";
+//                strCode2 = "\n" + re_Name + ".fillInStackTrace();";
+//                strCode3 = "\nandroid.util.SLog.i(\"" + tagMethod + "\", \"RuntimeException\", " + re_Name + " );\n";
+//            }
+
+            
+       if (Rule_57_LogTypeStr.equals("syso")) {
+              String re_Name = "re" + System.currentTimeMillis();
+              strCode1 = "\nRuntimeException " + re_Name + " = new RuntimeException();";
+              strCode2 = "\n" + re_Name + ".fillInStackTrace();";
+              String tag = "\nSystem.out.println( " + "\" " + tagMethod + "   RuntimeException.fillInStackTrace() \" );";
+              strCode3 = tag + "\n" + re_Name + ".printStackTrace();\n";
+
+        }else if(Rule_57_LogTypeStr.equals("log")) {
+        	
+            // android.util.Log.i
+            String re_Name = "re" + System.currentTimeMillis();
+            strCode1 = "\nRuntimeException " + re_Name + " = new RuntimeException();";
+            strCode2 = "\n" + re_Name + ".fillInStackTrace();";
+            strCode3 = "\nandroid.util.Log.i(\"" + tagMethod + "\", \"RuntimeException\", " + re_Name + " );\n";
+      
+            
+        }else if(Rule_57_LogTypeStr.equals("slog")) {
+        	
+            String re_Name = "re" + System.currentTimeMillis();
+            strCode1 = "\nRuntimeException " + re_Name + " = new RuntimeException();";
+            strCode2 = "\n" + re_Name + ".fillInStackTrace();";
+            strCode3 = "\nandroid.util.SLog.i(\"" + tagMethod + "\", \"RuntimeException\", " + re_Name + " );\n";
+  
+            
+        }else {
+    
+            String re_Name = "re" + System.currentTimeMillis();
+            strCode1 = "\nRuntimeException " + re_Name + " = new RuntimeException();";
+            strCode2 = "\n" + re_Name + ".fillInStackTrace();";
+            String tag = "\nSystem.out.println( " + "\" " + tagMethod + "   RuntimeException.fillInStackTrace() \" );";
+            strCode3 = tag + "\n" + re_Name + ".printStackTrace();\n";
+
+     
+        }
+            
+            
+//       if (LogTypeStr.equals("syso")) {
+//        	
+//        }else if(LogTypeStr.equals("log")) {
+//        	
+//        }else if(LogTypeStr.equals("slog")) {
+//        	
+//        }else {
+//    
+//        }
+            
+            return strCode1 + strCode2 + strCode3;
+        }
+
+
+        String CommonRuntimeExceptionCodePrint() {    //  boolean  falg |  String like  | ArrayList List  | XXX xClass
+            String tagMethod = Rule_57_TAG + "_" + this.belongClass.className + "_" + this.methodName;
+            String stackName = "stacks" + System.currentTimeMillis();
+            String strCode1 = "\njava.util.Map<Thread, StackTraceElement[]> " + stackName + " = Thread.getAllStackTraces();";
+            String threadSet_Name = "threadSet" + System.currentTimeMillis();
+            String strCode2 = "\njava.util.Set<Thread> " + threadSet_Name + " = " + stackName + ".keySet();";
+            String strCode3 = "";
+            String getProcessStr = "";
+            String threadNum_Name = "threadNum" + System.currentTimeMillis();
+            String strCode4 = "\nint " + threadNum_Name + " = 1;";
+            String strCode5 = "\nfor (Thread key : " + threadSet_Name + ") {";
+
+            String strCode6 = "\nStackTraceElement[] stackTraceElements = " + stackName + ".get(key);";
+            String strCode6_fix = "";
+            String strCode7 = "\nfor (StackTraceElement st : stackTraceElements) {";
+            String strCode7_fix = "";
+            String strCode8 = "\n}";
+            String strCode8_fix = "";
+            String strCode9 = "\n}";
+
+
+//                for (Thread key : threadSet) {
+//                    StackTraceElement[] stackTraceElements = stacks.get(key);
+//                    System.out.println("\n════════════ 线程名称threadName:【 " + key.getName() + "】  进程ID-ProcessID:【"+mProcessId + "】  线程ID-ThreadId:【"+key.getId()+ "】  线程序号-indexId: 【"+ (threadNum++)+ "】 start ══════════");
+//                    for (StackTraceElement st : stackTraceElements) {
+//                        System.out.println( "StackTraceElement: " + st.toString());
+//                    }
+//                    System.out.println("════════════ 线程名称threadName: 【" + key.getName() + "】 end ════════════\n");
+//                }
+
+            
+            
+
+//            if (this.belongClass.isIDEClass) {
+//                String runtimeMXBean_Name = "runtimeMXBean" + System.currentTimeMillis();
+//                getProcessStr = "\njava.lang.management.RuntimeMXBean  " + runtimeMXBean_Name + " = java.lang.management.ManagementFactory.getRuntimeMXBean();";
+//                String mProcessId_Name = "mProcessId" + System.currentTimeMillis();
+//                String pCodeStr1 = "\nint " + mProcessId_Name + "  =  Integer.valueOf(" + runtimeMXBean_Name + ".getName().split(\"@\")[0]).intValue();";
+//                getProcessStr = getProcessStr + pCodeStr1;
+//                // System.out.println("\n════════════ 线程名称threadName:【 " + key.getName() + "】  进程ID-ProcessID:【"+mProcessId + "】  线程ID-ThreadId:【"+key.getId()+ "】  线程序号-indexId: 【"+ (threadNum++)+ "】 start ══════════");
+//                //    双引号包住愿有的引号
+//                strCode6_fix = "\nSystem.out.println( " + "\" " + tagMethod + " \" +" + "\" \\n  线程索引序号下标 【 \"" + " + (" + threadNum_Name + ") +" + "\" 】════════════ 线程名称threadName:【\"" + " + key.getName() + " + " \"  】  进程ID-ProcessID:【 \"" + "+ " + mProcessId_Name + " +  " + " \" 】  线程ID-ThreadId:【 \" " + "+key.getId()+ " + " \" 】 \" );";
+//                strCode7_fix = "\nSystem.out.println( st.toString() );";
+//                strCode8_fix = "\nSystem.out.println( " + "\" " + tagMethod + " \" + " + "\" \\n  线程索引序号下标 【 \"" + " + (" + threadNum_Name + "++)+ " + "\"  】════════════\" );";
+//            } else if (this.belongClass.isAndroidClass && this.belongClass.isAPP) {
+//                // android.util.Log.i  int mProcessId = android.os.Process.myPid();
+//                String mProcessId_Name = "mProcessId" + System.currentTimeMillis();
+//                getProcessStr = "\n int " + mProcessId_Name + " = android.os.Process.myPid();";
+//                String strCode6_fix_1 = "\" " + tagMethod + " \" +" + "\" \\n  线程索引序号下标 【 \"" + " +(" + threadNum_Name + ") +" + "\" 】════════════ 线程名称threadName:【\"" + " + key.getName() + " + " \"  】  进程ID-ProcessID:【 \"" + "+ " + mProcessId_Name + " +  " + " \" 】  线程ID-ThreadId:【 \" " + "+key.getId()+ " + " \" 】 \" ";
+//                strCode6_fix = "\nandroid.util.Log.i(\"" + tagMethod + "\"," + strCode6_fix_1 + ");\n";
+//                strCode7_fix = "\nandroid.util.Log.i(\"" + tagMethod + "\"," + " \"StackTraceElement:\"  + " + strCode6_fix_1 + ");\n";
+//                String strCode8_fix_1 = "\" " + tagMethod + " \" +" + "\" \\n  线程索引序号下标 【 \"" + "+ (" + threadNum_Name + "++) +" + "\" 】════════════打印结束\" ";
+//                strCode8_fix = "\nandroid.util.Log.i(\"" + tagMethod + "\"," + " \"StackTraceElement:\"  + " + strCode8_fix_1 + ");\n";
+//            } else if (this.belongClass.isAndroidClass && this.belongClass.isFramework) {
+//                // android.util.SLog.i
+//                String mProcessId_Name = "mProcessId" + System.currentTimeMillis();
+//                getProcessStr = "\n int " + mProcessId_Name + " = android.os.Process.myPid();";
+//                String strCode6_fix_1 = "\" " + tagMethod + " \" + " + "\" \\n  线程索引序号下标 【 \"" + " +(" + threadNum_Name + ")+ " + "\" 】════════════ 线程名称threadName:【\"" + " + key.getName() + " + " \"  】  进程ID-ProcessID:【 \"" + "+ " + mProcessId_Name + " +  " + " \" 】  线程ID-ThreadId:【 \" " + "+key.getId()+ " + " \" 】 \" ";
+//                strCode6_fix = "\nandroid.util.SLog.i(\"" + tagMethod + "\"," + strCode6_fix_1 + ");\n";
+//                strCode7_fix = "\nandroid.util.Sog.i(\"" + tagMethod + "\"," + " \"StackTraceElement:\"  + " + strCode6_fix_1 + ");\n";
+//                String strCode8_fix_1 = "\" " + tagMethod + " \" + " + "\" + \\n  线程索引序号下标 【 \"" + " +(" + threadNum_Name + "++)+ " + "\" 】════════════打印结束\" ";
+//                strCode8_fix = "\nandroid.util.Sog.i(\"" + tagMethod + "\"," + " \"StackTraceElement:\"  + " + strCode8_fix_1 + ");\n";
+//            }
+//            
+            
+            
+            
+       if (Rule_57_LogTypeStr.equals("syso")) {
+           String runtimeMXBean_Name = "runtimeMXBean" + System.currentTimeMillis();
+           getProcessStr = "\njava.lang.management.RuntimeMXBean  " + runtimeMXBean_Name + " = java.lang.management.ManagementFactory.getRuntimeMXBean();";
+           String mProcessId_Name = "mProcessId" + System.currentTimeMillis();
+           String pCodeStr1 = "\nint " + mProcessId_Name + "  =  Integer.valueOf(" + runtimeMXBean_Name + ".getName().split(\"@\")[0]).intValue();";
+           getProcessStr = getProcessStr + pCodeStr1;
+           // System.out.println("\n════════════ 线程名称threadName:【 " + key.getName() + "】  进程ID-ProcessID:【"+mProcessId + "】  线程ID-ThreadId:【"+key.getId()+ "】  线程序号-indexId: 【"+ (threadNum++)+ "】 start ══════════");
+           //    双引号包住愿有的引号
+           strCode6_fix = "\nSystem.out.println( " + "\" " + tagMethod + " \" +" + "\" \\n  线程索引序号下标 【 \"" + " + (" + threadNum_Name + ") +" + "\" 】════════════ 线程名称threadName:【\"" + " + key.getName() + " + " \"  】  进程ID-ProcessID:【 \"" + "+ " + mProcessId_Name + " +  " + " \" 】  线程ID-ThreadId:【 \" " + "+key.getId()+ " + " \" 】 \" );";
+           strCode7_fix = "\nSystem.out.println( st.toString() );";
+           strCode8_fix = "\nSystem.out.println( " + "\" " + tagMethod + " \" + " + "\" \\n  线程索引序号下标 【 \"" + " + (" + threadNum_Name + "++)+ " + "\"  】════════════\" );";
+  
+    	   
+        	
+        }else if(Rule_57_LogTypeStr.equals("log")) {
+        	
+            // android.util.Log.i  int mProcessId = android.os.Process.myPid();
+            String mProcessId_Name = "mProcessId" + System.currentTimeMillis();
+            getProcessStr = "\n int " + mProcessId_Name + " = android.os.Process.myPid();";
+            String strCode6_fix_1 = "\" " + tagMethod + " \" +" + "\" \\n  线程索引序号下标 【 \"" + " +(" + threadNum_Name + ") +" + "\" 】════════════ 线程名称threadName:【\"" + " + key.getName() + " + " \"  】  进程ID-ProcessID:【 \"" + "+ " + mProcessId_Name + " +  " + " \" 】  线程ID-ThreadId:【 \" " + "+key.getId()+ " + " \" 】 \" ";
+            strCode6_fix = "\nandroid.util.Log.i(\"" + tagMethod + "\"," + strCode6_fix_1 + ");\n";
+            strCode7_fix = "\nandroid.util.Log.i(\"" + tagMethod + "\"," + " \"StackTraceElement:\"  + " + strCode6_fix_1 + ");\n";
+            String strCode8_fix_1 = "\" " + tagMethod + " \" +" + "\" \\n  线程索引序号下标 【 \"" + "+ (" + threadNum_Name + "++) +" + "\" 】════════════打印结束\" ";
+            strCode8_fix = "\nandroid.util.Log.i(\"" + tagMethod + "\"," + " \"StackTraceElement:\"  + " + strCode8_fix_1 + ");\n";
+        
+            
+        }else if(Rule_57_LogTypeStr.equals("slog")) {
+        	
+            // android.util.SLog.i
+            String mProcessId_Name = "mProcessId" + System.currentTimeMillis();
+            getProcessStr = "\n int " + mProcessId_Name + " = android.os.Process.myPid();";
+            String strCode6_fix_1 = "\" " + tagMethod + " \" + " + "\" \\n  线程索引序号下标 【 \"" + " +(" + threadNum_Name + ")+ " + "\" 】════════════ 线程名称threadName:【\"" + " + key.getName() + " + " \"  】  进程ID-ProcessID:【 \"" + "+ " + mProcessId_Name + " +  " + " \" 】  线程ID-ThreadId:【 \" " + "+key.getId()+ " + " \" 】 \" ";
+            strCode6_fix = "\nandroid.util.SLog.i(\"" + tagMethod + "\"," + strCode6_fix_1 + ");\n";
+            strCode7_fix = "\nandroid.util.Sog.i(\"" + tagMethod + "\"," + " \"StackTraceElement:\"  + " + strCode6_fix_1 + ");\n";
+            String strCode8_fix_1 = "\" " + tagMethod + " \" + " + "\" + \\n  线程索引序号下标 【 \"" + " +(" + threadNum_Name + "++)+ " + "\" 】════════════打印结束\" ";
+            strCode8_fix = "\nandroid.util.Sog.i(\"" + tagMethod + "\"," + " \"StackTraceElement:\"  + " + strCode8_fix_1 + ");\n";
+    
+        }else {
+    
+            String runtimeMXBean_Name = "runtimeMXBean" + System.currentTimeMillis();
+            getProcessStr = "\njava.lang.management.RuntimeMXBean  " + runtimeMXBean_Name + " = java.lang.management.ManagementFactory.getRuntimeMXBean();";
+            String mProcessId_Name = "mProcessId" + System.currentTimeMillis();
+            String pCodeStr1 = "\nint " + mProcessId_Name + "  =  Integer.valueOf(" + runtimeMXBean_Name + ".getName().split(\"@\")[0]).intValue();";
+            getProcessStr = getProcessStr + pCodeStr1;
+            // System.out.println("\n════════════ 线程名称threadName:【 " + key.getName() + "】  进程ID-ProcessID:【"+mProcessId + "】  线程ID-ThreadId:【"+key.getId()+ "】  线程序号-indexId: 【"+ (threadNum++)+ "】 start ══════════");
+            //    双引号包住愿有的引号
+            strCode6_fix = "\nSystem.out.println( " + "\" " + tagMethod + " \" +" + "\" \\n  线程索引序号下标 【 \"" + " + (" + threadNum_Name + ") +" + "\" 】════════════ 线程名称threadName:【\"" + " + key.getName() + " + " \"  】  进程ID-ProcessID:【 \"" + "+ " + mProcessId_Name + " +  " + " \" 】  线程ID-ThreadId:【 \" " + "+key.getId()+ " + " \" 】 \" );";
+            strCode7_fix = "\nSystem.out.println( st.toString() );";
+            strCode8_fix = "\nSystem.out.println( " + "\" " + tagMethod + " \" + " + "\" \\n  线程索引序号下标 【 \"" + " + (" + threadNum_Name + "++)+ " + "\"  】════════════\" );";
+   
+        }
+            
+            
+            return strCode1 + strCode2 + strCode3 + getProcessStr + strCode4 + strCode5 + strCode6 + strCode6_fix + strCode7 + strCode7_fix + strCode8 + strCode8_fix + strCode9;
+        }
+
+
+        static MethodDeclaration getMethodDeclarationFromCompilationUnit(ClassOrInterfaceDeclaration mClassOrInterfaceDeclaration, String methodIdentify) {
+            MethodDeclaration returnMethod = null;
+            List<MethodDeclaration> methodList = mClassOrInterfaceDeclaration.getMethods();
+            int methodSize = methodList.size();
+            String getDeclarationAsString = "";
+            for (int i = 0; i < methodSize; i++) {
+//                System.out.println("═════════第 "+ i +"个Method方法开始解析═══════════════");
+                MethodDeclaration curMethodDeclaration = methodList.get(i);
+
+
+//                String getName = curMethodDeclaration.getName().toString();
+//                System.out.println("MethodDeclaration.getName().toString() = "+ getName);
+//
+//                String getNameAsString = curMethodDeclaration.getNameAsString();
+//                System.out.println("MethodDeclaration.getNameAsString() = "+ getNameAsString);
+//
+//                String getIdentifier =  curMethodDeclaration.getName().getIdentifier();
+//                System.out.println("MethodDeclaration.getName().getIdentifier() = "+ getIdentifier);
+//
+//                String getDeclarationAsString2=     curMethodDeclaration.getDeclarationAsString();
+//                System.out.println("MethodDeclaration.getDeclarationAsString() = "+ getDeclarationAsString2);
+
+                // String MethodDeclaration_toString =  curMethodDeclaration.toString();
+                // System.out.println("MethodDeclaration_toString = "+ MethodDeclaration_toString);
+
+                getDeclarationAsString = curMethodDeclaration.getDeclarationAsString(false, false, true);
+//                System.out.println("MethodDeclaration.getDeclarationAsString(false,false,true) = "+ getDeclarationAsString);
+//                System.out.println("methodIdentify = "+ methodIdentify);
+
+                // 匹配方法   检索当前的方法与解析的方法是否相同   Zukgit1
+//                System.out.println("索引:"+i+"    methodIdentify 返回 MethodDeclaration  methodIdentify= " +methodIdentify);
+//                System.out.println("索引:"+i+"    methodIdentify 返回 MethodDeclaration  getDeclarationAsString= " + getDeclarationAsString );
+//                System.out.println("--------------------------------------------");
+
+                if (methodIdentify.trim().toLowerCase().equals(getDeclarationAsString.trim().toLowerCase())) {
+                    NodeList<Parameter> methodParamList = curMethodDeclaration.getParameters();
+//                    System.out.println("═════════参数列表Begin═══════════════");
+                    for (Parameter param : methodParamList) {
+//                        System.out.println("param = "+ param.toString());
+                    }
+//                    System.out.println("═════════参数列表End═══════════════");
+
+                    returnMethod = curMethodDeclaration;
+                    //  System.out.println("索引:"+i+"相等 将返回!  methodIdentify "+ methodIdentify + " getDeclarationAsString ="+ getDeclarationAsString);
+                    return returnMethod;
+                }
+//                System.out.println("══════════════第 "+ i +"个Method方法解析结束══════════════");
+            }
+
+
+            System.out.println(" 没匹配到 methodIdentify 返回null");
+
+            System.out.println("methodIdentify         =: " + methodIdentify + "   methodSize=" + methodSize);
+            System.out.println("getDeclarationAsString =: " + getDeclarationAsString + "   methodSize=" + methodSize);
+            System.out.println("══════════════");
+
+            return returnMethod;
+        }
+    }
+
+
+    static String COMMON_PRINT_METHOD = "    public final static <T> boolean isListType(T t) {        if (t == null) {            return false;        }        String typeInfo = t.getClass().getName();        ZukgitHoldPlace\"isListType  typeInfo =  \" + typeInfo);        String[] zListTypeArr = {\"java.util.Set\",                \"java.util.ArrayList\",                \"java.util.Collection\",                \"java.util.List\",                \"java.util.Vector\",                \"java.util.Stack\",                \"java.util.LinkedList\",                \"javafx.collections.transformation.SortedList\"        };        for (String curStr : zListTypeArr) {                        if (curStr.equals(typeInfo)) {                return true;            }        }        return false;    }    public final static <T> boolean isSetType(T t) {        if (t == null) {            return false;        }        String typeInfo = t.getClass().getName();        ZukgitHoldPlace\"isMapType  typeInfo =  \" + typeInfo);        String[] zSetTypeArr = {\"java.util.EnumSet\",                \"java.util.SortedSet\",                \"java.util.concurrent.CopyOnWriteArraySet\",                \"java.util.LinkedHashSet\",                \"java.util.HashSet\",                \"java.util.TreeSet\",                \"android.util.SparseArray\",                \"android.util.ArraySet\"        };        for (String curStr : zSetTypeArr) {            if (curStr.equals(typeInfo)) {                return true;            }        }        return false;    }    public final static <T> boolean iQueueType(T t) {        if (t == null) {            return false;        }        String typeInfo = t.getClass().getName();        ZukgitHoldPlace\"isMapType  typeInfo =  \" + typeInfo);        String[] zQueueTypeArr = {                \"java.util.concurrent.LinkedBlockingDeque\",                \"java.util.Queue\",                \"java.util.ArrayDeque\",                \"java.util.concurrent.BlockingQueue\",                \"java.util.concurrent.LinkedTransferQueue\",                \"java.util.PriorityQueue\",                \"java.util.concurrent.LinkedBlockingQueue\",        };        for (String curStr : zQueueTypeArr) {            if (curStr.equals(typeInfo)) {                return true;            }        }        return false;    }    public final static <T> boolean isShuZuType(T t) {        if (t == null) {            return false;        }        String typeInfo = t.getClass().getName();        ZukgitHoldPlace\"isMapType  typeInfo =  \" + typeInfo);        String[] zMapTypeArr = {\"[Ljava.lang.String;\",                  \"[Ljava/lang/Object;\",                  \"[I\",                 \"[B\",                  \"[C\",                 \"[S\",                 \"[J\",                 \"[F\",                \"[D\"            };        if(typeInfo.startsWith(\"[L\")){            return true;        }        for (String curStr : zMapTypeArr) {            if (curStr.equals(typeInfo)) {                return true;            }        }        return false;    }    public final static <T> boolean isMapType(T t) {        if (t == null) {            return false;        }        String typeInfo = t.getClass().getName();        ZukgitHoldPlace\"isMapType  typeInfo =  \" + typeInfo);        String[] zMapTypeArr = {\"java.util.HashMap\",                \"java.util.TreeMap\",                \"java.util.LinkedHashMap\",                \"java.util.WeakHashMap\",                \"java.util.concurrent.ConcurrentHashMap\",                \"java.util.Hashtable\",                \"android.util.ArrayMap\"};        for (String curStr : zMapTypeArr) {            if (curStr.equals(typeInfo)) {                return true;            }        }        return false;    }    public final static <T> void zPrintLog(T t) {      if( t ==null){return ;}        ZukgitHoldPlace\" 当前类型:   \" + t.getClass().getName());        if (isListType(t)) {            ZukgitHoldPlace\"List数据类型类型   \");            if (t != null) {                Object[] objectList = ((java.util.List) t).toArray();                for (int zindex = 0; zindex < objectList.length; zindex++) {                    ZukgitHoldPlace\" List   \" + \"ArrayList<Date> dateList  index =\" + zindex + \" value :\" + objectList[zindex].toString());                }            } else {                ZukgitHoldPlace\" List   \" + \"ArrayList<Date> dateList is null !\");            }        } else if (isSetType(t)) {            ZukgitHoldPlace\"Set数据类型类型   \");            if (t != null) {                Object[] objectList = ((java.util.Set) t).toArray();                for (int zindex = 0; zindex < objectList.length; zindex++) {                    ZukgitHoldPlace\" Set   \" + \"ArrayList<Date> dateList  index =\" + zindex + \" value :\" + objectList[zindex].toString());                }            } else {                ZukgitHoldPlace\" Set   \" + \"ArrayList<Date> dateList is null !\");            }        } else if (iQueueType(t)) {            if (t != null) {                Object[] objectList = ((java.util.Queue) t).toArray();                for (int zindex = 0; zindex < objectList.length; zindex++) {                    ZukgitHoldPlace\" Queue :   \" + \"ArrayList<Date> dateList  index =\" + zindex + \" value :\" + objectList[zindex].toString());                }            } else {                ZukgitHoldPlace\" Queue   \" + \"ArrayList<Date> dateList is null !\");            }        } else if (isMapType(t)) {            ZukgitHoldPlace\"Map数据类型类型  \");            if (t != null) {                java.util.Map.Entry<String, String> entry = null;                java.util.Iterator iterator = ((java.util.Map) t).entrySet().iterator();                int mZindex = 0;                while (iterator.hasNext()) {                    entry = ( java.util.Map.Entry<String, String>) iterator.next();                    ZukgitHoldPlace\" Map   \" + \" stringMap    index =\" + mZindex + \"     entry.Key= \" + entry.getKey() + \" entry.Value=\" + entry.getValue());                    mZindex++;                }            } else {                ZukgitHoldPlace\" Map   \" + \" t is null !\");            }        } else if(isShuZuType(t)){            ZukgitHoldPlace\"[] 数组类型格式  \");            if (t != null) {                String Arrtype = t.getClass().getName();                java.util.ArrayList<Object>  valueList= new  java.util.ArrayList();                int[] intArr=null;                byte[] byteArr=null;                char[] charArr=null;                short[] shortArr=null;                long[] longArr=null;                float[] floatArr=null;                double[] doubleArr= null;                boolean[] booleanArr = null;                Object[]  ObjectArr =null;                if(Arrtype.equals(\"[I\")){                       intArr = (int[])t ;                    valueList.add( java.util.Arrays.toString(intArr));                } else if(Arrtype.equals(\"[J\")){                      longArr = (long[])t ;                    valueList.add( java.util.Arrays.toString(longArr));                }else if(Arrtype.equals(\"[F\")){                    floatArr = (float[])t ;                    valueList.add( java.util.Arrays.toString(floatArr));                }else if(Arrtype.equals(\"[D\")){                    doubleArr = (double[])t ;                    valueList.add( java.util.Arrays.toString(doubleArr));                }else if(Arrtype.equals(\"[S\")){                    shortArr = (short[])t ;                    valueList.add( java.util.Arrays.toString(shortArr));                }else if(Arrtype.equals(\"[C\")){                    charArr = (char[])t ;                    valueList.add( java.util.Arrays.toString(charArr));                }else if(Arrtype.equals(\"[B\")){                    byteArr = (byte[])t ;                    valueList.add( java.util.Arrays.toString(byteArr));                }else if(Arrtype.equals(\"[Z\")){                    booleanArr = (boolean[])t ;                    valueList.add( java.util.Arrays.toString(booleanArr));                }else{                    ObjectArr = (Object[]) t ;                    for (Object curObject:ObjectArr ) {                        valueList.add(curObject);                    }                }                for (int zindex = 0; zindex < valueList.size(); zindex++) {                    ZukgitHoldPlace\" shuzu[]   \" + \"XXXX[]   zindex = \" + zindex + \"   :  value= \" + valueList.get(zindex).toString());                }            } else {                ZukgitHoldPlace\" zukgit_B8_Test_method3   \" + \"strArr is null !\");            }        }else {            ZukgitHoldPlace\"    baseObject = true   基本Object对象类型   toString()=\" + t);        }    }";
+
+    
+    
+	
+	class Encry_StringByte_To_Print_Rule_56 extends Basic_Rule {
+		
+		String  key_str = "zukgit12";
+		ArrayList<String> input_str_list ;
+		
+		String encry_method = "DES/ECB/NoPadding";
+		
+		
+		Encry_StringByte_To_Print_Rule_56() {
+			super("#", 56, 4); //
+			input_str_list =  new ArrayList<String>();
+			
+		}
+		
+		
+
+		@Override
+		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
+			
+			
+			
+			for (int i = 0; i < input_str_list.size(); i++) {
+				String str_temp = input_str_list.get(i);
+				System.out.println("");
+				System.out.println("_____________["+i+"]["+str_temp+"] 加密操作开始_____________");
+
+				byte[] temp_bytes = str_temp.getBytes();
+
+
+				
+				
+				
+			   String raw_ten_byte_str = 	bytesToIntString(temp_bytes);
+			   String raw_ten_byte_char_str  =	bytesToIntCharString(temp_bytes,str_temp);
+			   String raw_hex_byte_str = 	bytesToHexString_Padding(temp_bytes);
+			   String raw_hex_byte_char_str  =   bytesToHexCharString(temp_bytes,str_temp);
+			   
+				System.out.println("");
+			   System.out.println("加密密钥key:【"+key_str+"】");
+			   System.out.println("原始字符串 :【"+str_temp+"】");
+			   System.out.println("原始字符串十十进制字节:【["+raw_ten_byte_str+"]】");
+			   System.out.println("原始字符串十十进制字节:【["+raw_ten_byte_char_str+"]】");
+			   System.out.println("原始字符串十六进制字节:【["+raw_hex_byte_str+" ]】");
+			   System.out.println("原始字符串十六进制字节:【["+raw_hex_byte_char_str+"]】");
+
+				
+
+				try {
+					byte[] 	encrypt_bytes = encrypt(temp_bytes);
+					
+					
+					  String enctrypt_str = new String(encrypt_bytes,"utf-8");
+					
+					   String jiami_raw_ten_byte_str = 	bytesToIntString(encrypt_bytes);
+					   String jiami_raw_ten_byte_char_str  =	bytesToIntCharString(encrypt_bytes,enctrypt_str);
+					   String jiami_raw_hex_byte_str = 	bytesToHexString_Padding(encrypt_bytes);
+					   String jiami_raw_hex_byte_char_str  =   bytesToHexCharString(encrypt_bytes,enctrypt_str);
+					   
+						System.out.println("");
+					   System.out.println("加密字符串 :【"+enctrypt_str+"】");
+					   System.out.println("加密字符串十十进制字节:【["+jiami_raw_ten_byte_str+"]】");
+					   System.out.println("加密字符串十十进制字节:【["+jiami_raw_ten_byte_char_str+"]】");
+					   System.out.println("加密字符串十六进制字节:【["+jiami_raw_hex_byte_str+" ]】");
+					   System.out.println("加密字符串十六进制字节:【["+jiami_raw_hex_byte_char_str+"]】");
+					   
+					
+					byte[] decrypt_bytes = decrypt(encrypt_bytes); 
+					
+					
+					  String dectrypt_str = new String(decrypt_bytes,"utf-8");
+						
+					   String jiemi_raw_ten_byte_str = 	bytesToIntString(decrypt_bytes);
+					   String jiemi_raw_ten_byte_char_str  =	bytesToIntCharString(decrypt_bytes,dectrypt_str);
+					   String jiemi_raw_hex_byte_str = 	bytesToHexString_Padding(decrypt_bytes);
+					   String jiemi_raw_hex_byte_char_str  =   bytesToHexCharString(decrypt_bytes,dectrypt_str);
+						System.out.println("");
+					   System.out.println("解密字符串 :【"+dectrypt_str+"】");
+					   System.out.println("解密字符串十十进制字节:【["+jiemi_raw_ten_byte_str+"]】");
+					   System.out.println("解密字符串十十进制字节:【["+jiemi_raw_ten_byte_char_str+"]】");
+					   System.out.println("解密字符串十六进制字节:【["+jiemi_raw_hex_byte_str+" ]】");
+					   System.out.println("解密字符串十六进制字节:【["+jiemi_raw_hex_byte_char_str+"]】");
+					   
+					   
+					
+					
+					
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} 
+				
+				
+				
+				
+
+				
+			}
+			
+			
+			
+
+
+			return super.applySubFileListRule4(curFileList, subFileTypeMap, curDirList, curRealFileList);
+		}
+
+		@Override
+		boolean initParamsWithInputList(ArrayList<String> inputParamList) {
+			boolean Flag = true;
+
+			for (int i = 0; i < inputParamList.size(); i++) {
+				String paramItem = inputParamList.get(i);
+				String paramItem_lower_trim = paramItem.toLowerCase().trim();
+
+				if (paramItem_lower_trim.startsWith("key_")) {
+					key_str = paramItem.replace("key_", "").replace("Key_", "").trim();
+					continue;
+				}
+
+				if (paramItem_lower_trim.startsWith("method_")) {
+					encry_method = paramItem.replace("method_", "").replace("METHOD_", "").replace("Method_", "").trim();
+					continue;
+				}
+				
+				if(i != 0 ) {
+					
+					input_str_list.add(paramItem);	
+				}
+		
+			}
+			System.out.println("");
+			System.out.println("key_str【"+key_str+"】"+"   encry_method【"+encry_method+"】");
+			
+			for (int i = 0; i < input_str_list.size(); i++) {
+				System.out.println("解析字符串["+i+"]____"+input_str_list.get(i));
+			}
+
+			return super.initParamsWithInputList(inputParamList) && Flag;
+		}
+
+		@Override
+		String simpleDesc() {
+
+			return  "\n" + Cur_Bat_Name + " #_" + rule_index + " key_zukgit12  12345678 87654321   // 对 输入的字符串   进行 加密  并打印 前后数据 对比 key_zukgit12 key_12345678 选中Key密钥 method_DES/ECB/NoPadding 选中加密方法 \n"
+					+ Cur_Bat_Name + " #_" + rule_index + " key_abcdefgh 11223344  method_DES/ECB/NoPadding 7788   // 对 输入的字符串   进行 加密  并打印 前后数据 对比 key_zukgit12 key_12345678 选中Key密钥 method_DES/ECB/NoPadding 选中加密方法 \n"
+					+ "  \n"
+					+ Cur_Bat_Name + " #_" + rule_index + " key_87654321 11223344   // 对 输入的字符串   进行 加密  并打印 前后数据 对比 key_zukgit12 key_12345678 选中Key密钥 method_DES/ECB/NoPadding 选中加密方法 \n"
+							+ "  \n"
+
+			;
+		}
+
+		
 	}
 
+	//1.  不是以 //开头
+	//2.  包含  fn
+	//3.  包含 pub 
+	 // 4. 包含 (     ,  最后一个 { 转为 【】
+	//  5.添加上 序号 
+	 // 转成 md  保存 然后 打印  ###### xxxxxx.rs
+	
+	//读取到当前 所有 目录的 .rs 文件  对于 【pub fn】___ 【pub const fn】 pub unsafe   字样的 字符串 转为 md 文件 并且不是// 开头的字符串打印出一份详情MD文件清单
+	class Read_RS_File_Print_Pub_Fn_Method_To_MD_Rule_55 extends Basic_Rule {
 
-	class Delete_SameMD5File_OnlyExistOneInDir_Rule_52 extends Basic_Rule {
+		 ArrayList<File> allRustFile ;  // 
+		 ArrayList<File> allAvaliableRustFile ;  // 
+		 HashMap<File,ArrayList<String>>   mRustFile_MethodMDList_Map;
+		 
 
-		boolean showmd5 = false;
-		boolean force_delete = false;
-		ArrayList<File> needDeleteFileList  ;  // 需要删除的文件
+		 Read_RS_File_Print_Pub_Fn_Method_To_MD_Rule_55() {
+			super("#", 55, 5); //
 
-		ArrayList<String> allMD5List  ;  // 所有文件的MD5的值
-
-		Delete_SameMD5File_OnlyExistOneInDir_Rule_52() {
-			super("#", 52, 5); //
-			force_delete = false;
-			showmd5= false;
-			needDeleteFileList = new ArrayList<File>();
-			allMD5List =  new ArrayList<String>();
+			allRustFile = new ArrayList<File>();    //   依据 搜索到 的文件 拍显示  上下才能有关系
+			mRustFile_MethodMDList_Map = new HashMap<File,ArrayList<String>> ();
+			
+			allAvaliableRustFile = new ArrayList<File>();   //  有效的 rust 文件
+	
 		}
 
 		@Override
 		boolean initParamsWithInputList(ArrayList<String> inputParamList) {
 			// mdname_true // kaoyan_true gaokao_true
 
+
+
+			// TODO Auto-generated method stub
+			return super.initParamsWithInputList(inputParamList);
+		}
+
+
+
+
+		
+		
+		// C:\Users\zhuzj5\.cargo\registry
+		// C:\Users\zhuzj5\.rustup\toolchains\stable-x86_64-pc-windows-msvc
+		@Override
+		String simpleDesc() {
+
+			return "\n" + Cur_Bat_Name + " #_" + rule_index
+					+ "     //   读取到当前 所有 目录的 .rs 文件  对于 【pub fn】___ 【pub const fn】 pub unsafe   字样的 字符串 转为 md 文件 并且不是// 开头的字符串打印出一份详情MD文件清单 \n"
+					+ Cur_Bat_Name + "  #_" + rule_index	+ "  ### 读取到当前 所有 目录的 .rs 文件  对于 【pub fn】___ 【pub const fn】 pub unsafe   字样的 字符串 转为 md 文件 并且不是// 开头的字符串打印出一份详情MD文件清单   \n"
+					+ Cur_Bat_Name + "  #_" + rule_index	+ "  ###  cd  C:\\Users\\"+getUserName()+"\\.cargo\\registry  && "+Cur_Bat_Name + "  #_" + rule_index+"  \n"
+					+ Cur_Bat_Name + "  #_" + rule_index	+ "  ###  cd  C:\\Users\\"+getUserName()+"\\.rustup\\toolchains\\stable-x86_64-pc-windows-msvc  && "+Cur_Bat_Name + "  #_" + rule_index+"  \n"
+					+ ""
+//			zrule_apply_G2.bat  #_53  appname_z  productappend_xxx
+			;
+		}
+
+		@Override
+		ArrayList<File> applyDir_SubFileListRule5(ArrayList<File> allSubDirFileList,
+				ArrayList<File> allSubRealFileList) {
+
+
+
+			for (int i = 0; i < allSubRealFileList.size(); i++) {
+		
+	
+				File targetItem = allSubRealFileList.get(i);
+				
+				System.out.println("realdile["+i+"]["+allSubRealFileList.size()+"]__"+targetItem.getAbsolutePath());
+				if (targetItem.getName().toLowerCase().endsWith(".rs")) {
+					allRustFile.add(targetItem);
+					
+					
+				ArrayList<String> rawRsContentList = 	ReadFileContentAsList(targetItem);
+				
+				if(rawRsContentList != null && rawRsContentList.size() > 0) {
+					
+				
+					ArrayList<String> pub_fn_list =  read_pub_fn_FromList(rawRsContentList);
+					System.out.println("targetItem="+targetItem.getAbsolutePath()+"  pub_fn_list="+pub_fn_list.size() +" rawRsContentList="+rawRsContentList.size());
+					if(pub_fn_list != null && pub_fn_list.size() > 0 ) {
+						
+						ArrayList<String> mdRSMethodContentList = new ArrayList<String> ();
+						
+						String codePreBlock = "```";
+						String rust_str = File.separator+"rust";
+						
+						String register_str = "registry";
+						String github_str = "github";
+						
+				
+						
+						String abs_path = targetItem.getAbsolutePath();
+						if(targetItem.getAbsolutePath().contains(rust_str)) {
+							abs_path = abs_path.substring(abs_path.indexOf(rust_str),abs_path.length());
+							
+						} else if(abs_path.contains(register_str) && abs_path.contains(github_str)  ) {
+							
+
+							String github_1_str = abs_path.substring(abs_path.indexOf(github_str)+github_str.length());
+							
+							if(github_1_str.contains(File.separator)){
+								
+								abs_path = github_1_str.substring(github_1_str.indexOf(File.separator));
+							} else if(github_1_str.contains("\\")) {
+								
+								abs_path = github_1_str.substring(github_1_str.indexOf("\\"));
+							}
+							
+							
+							
+						}
+						String  file_head = "## "+ abs_path+"\n\n"+codePreBlock;
+						String codeEndBlock = "\n```\n";
+						
+						mdRSMethodContentList.add(file_head);
+						mdRSMethodContentList.addAll(pub_fn_list);
+						
+						mdRSMethodContentList.add(codeEndBlock);
+				
+						allAvaliableRustFile.add(targetItem);
+						mRustFile_MethodMDList_Map.put(targetItem, mdRSMethodContentList);
+						
+						
+					}
+					
+				}
+					
+				}
+
+
+			}
+			
+			if(mRustFile_MethodMDList_Map.size() == 0) {
+				System.out.println("当前 目录 "+curDirPath+" 没有 含有有效 pub fn 的 .rs 文件!!   无法生成 md  文件内容  请检查! ");
+				return super.applyDir_SubFileListRule5(allSubDirFileList, allSubRealFileList); 
+			}
+			
+			
+			
+			
+			
+			
+			ArrayList<String>  allContentList = new ArrayList<String>();
+			allContentList.add("---");
+			allContentList.add("layout: post");
+			allContentList.add("title: Rust方法集合");
+			allContentList.add("category: 代码");
+			allContentList.add("tags: Code");
+			allContentList.add("keywords: Rust Code");
+			allContentList.add("typora-root-url: ..\\..\\..\\");
+			allContentList.add("typora-copy-images-to: ..\\..\\..\\public\\zimage");
+			allContentList.add("---");
+			allContentList.add("");
+			allContentList.add("## 简介");
+			allContentList.add(" * TOC");
+			allContentList.add(" {:toc}");
+			allContentList.add("");
+			allContentList.add("");
+			allContentList.add("");
+			allContentList.add("");
+			
+			
+			
+			
+			for (int i = 0; i < allAvaliableRustFile.size(); i++) {
+				
+				File rs_pub_fn_file = allAvaliableRustFile.get(i);
+				System.out.println("avaliable_rs["+i+"]["+allAvaliableRustFile.size()+"] = "+ rs_pub_fn_file.getAbsolutePath());
+				ArrayList<String> fnList  = mRustFile_MethodMDList_Map.get(rs_pub_fn_file);
+				if(fnList != null) {
+					allContentList.addAll(fnList);
+					allContentList.add("");
+				}
+		
+				
+			}
+			
+			if(allContentList.size() > 0 ) {
+				
+				writeContentToFile(G2_Temp_Text_File, allContentList);
+				NotePadOpenTargetFile(G2_Temp_Text_File.getAbsolutePath());
+				System.out.println("成功执行 读取到当前 所有 目录的 .rs 文件 记录 pub fn 方法的操作!  将打开 \n "+G2_Temp_Text_File.getAbsolutePath()+"\n 显示MD内容!");
+			}
+			
+
+
+	
+
+			return super.applyDir_SubFileListRule5(allSubDirFileList, allSubRealFileList);
+
+		}
+
+		
+		ArrayList<String> 	read_pub_fn_FromList(ArrayList<String>  mRawRustContentList){
+			ArrayList<String>   pub_method_name_list = new 	ArrayList<String> ();
+			
+			ArrayList<String>   pub_macro_name_list = new 	ArrayList<String> ();
+			
+			ArrayList<String> allContent = new ArrayList<String> ();
+			
+			int method_index = 1;
+			int macro_index  = 1 ;  // 宏函数 以  !结尾的函数
+			for (int i = 0; i < mRawRustContentList.size(); i++) {
+				String oneLine  = mRawRustContentList.get(i).trim();
+				//1.  不是以 //开头
+				//2.  包含  fn
+				//3.  包含 pub 
+				 // 4. 包含 (     ,  最后一个 { 转为 【】
+				//  5.添加上 序号 
+				 // 转成 md  保存 然后 打印  ###### xxxxxx.rs
+				
+				if(oneLine.startsWith("//")) {
+					continue;
+				}
+				if(oneLine.contains("pub") && oneLine.contains(" fn ")  && oneLine.contains("(") ) {
+					
+					oneLine = oneLine.replace("{", "【】");
+					pub_method_name_list.add(method_index+"  "+oneLine);
+					method_index++;
+					continue;
+	
+				}
+				
+				
+			if(oneLine.startsWith("macro_rules!") && oneLine.contains("{")   ) {
+					
+					oneLine = oneLine.replace("{", "【】");
+					pub_macro_name_list.add(macro_index+"  "+oneLine);
+					macro_index++;
+					continue;
+				}
+				
+		
+			}
+			
+			if(pub_method_name_list.size() > 0 ) {
+				allContent.add("═════════ pub fn 函数");
+				allContent.addAll(pub_method_name_list);
+				allContent.add("");
+				allContent.add("");
+			}
+
+			if(pub_macro_name_list.size() > 0 ) {
+				allContent.add("═════════ macro_rules! 宏函数 ");
+				allContent.addAll(pub_macro_name_list);
+				allContent.add("");
+				allContent.add("");
+			}
+			
+
+			
+			return allContent;
+			
+		}
+
+	}
+
+	
+	class Send_Email_TO_Dst_Rule_54 extends Basic_Rule {
+
+		ArrayList<String> message_tip_list;
+
+		// 0 只发送文字内容--本机信息等
+		// 1--搭配 query_dir 发送本地对应目录的所有文件的字符串
+		// 2--发送屏幕截图
+		// 3--发送指定文件到附件 // 可以一起实现啊 0123 , 111 那么就只执行一个1 type_0123
+		String sendType = "0";
+		String quChong_Type = "0";
+
+		ArrayList<File> queryDirList; // 用户输入的多个需要查询所有文件的文件夹的目录
+		ArrayList<File> attatchFileList; // 可能包含 文件夹 以及 文件的路径 upfile_
+		ArrayList<WifiItem> wifiItemList = new ArrayList<WifiItem>(); // Wifi 相关的信息
+
+		String dstemail = "";
+		String content_text = ""; // 邮件的内容
+
+		String subject_text = ""; // 主题
+
+		// 是否重复 一直发
+		boolean isLoop = false;
+
+		int repeatcount = 1; // 默认的发送次数
+
+		int interval = 1; // 默认发送的间隔 秒为单位 默认1 秒
+
+		String mCurrentUserName = "null";
+
+		Send_Email_TO_Dst_Rule_54() {
+			super("#", 54, 4); //
+			attatchFileList = new ArrayList<File>();
+			queryDirList = new ArrayList<File>();
+			message_tip_list = new ArrayList<String>();
+		}
+
+		@Override
+		boolean initParamsWithInputList(ArrayList<String> inputParamList) {
+			// mdname_true // kaoyan_true gaokao_true
+
+			for (int i = 0; i < inputParamList.size(); i++) {
+				String paramItem_lower_trim = inputParamList.get(i);
+//				String paramItem_lower_trim = paramItem.toLowerCase().trim();
+
+				if (paramItem_lower_trim.startsWith("dst_")) {
+					dstemail = paramItem_lower_trim.replace("dst_", "");
+				}
+
+				if (paramItem_lower_trim.startsWith("type_")) { // type_012341
+					String mSendtype = paramItem_lower_trim.replace("type_", ""); // 0 只发送文字内容 1--发送屏幕截图
+
+					sendType = mSendtype;
+
+//					if(isNumeric(mSendtype)) {  // .contain("0") .contain("1")   .contain("2")    .contain("3")  来判断是否有 
+//						sendType = mSendtype;
+//					}else {
+//						System.out.println("当前发送的 type_ 后缀 不是数字: 请检查! " + paramItem_lower_trim);
+//					}
+
+				}
+
+				if (paramItem_lower_trim.startsWith("content_")) {
+					content_text = paramItem_lower_trim.replace("content_", ""); // 0 只发送文字内容 1--发送屏幕截图
+				}
+
+				if (paramItem_lower_trim.startsWith("subject_")) {
+					subject_text = paramItem_lower_trim.replace("subject_", ""); // 0 只发送文字内容 1--发送屏幕截图
+				}
+
+				if (paramItem_lower_trim.startsWith("loop_true")) {
+					isLoop = true; // 0 只发送文字内容 1--发送屏幕截图
+				}
+
+				if (paramItem_lower_trim.startsWith("repeatcount_")) {
+					String count_str = paramItem_lower_trim.replace("repeatcount_", "");
+					if (isNumeric(count_str)) {
+						repeatcount = Integer.parseInt(count_str);
+					}
+
+				}
+
+				if (paramItem_lower_trim.startsWith("interval_")) {
+					String interval_str = paramItem_lower_trim.replace("interval_", "");
+					if (isNumeric(interval_str)) {
+						interval = Integer.parseInt(interval_str);
+					}
+
+				}
+
+				if (paramItem_lower_trim.startsWith("query_")) {
+					String query_dir_path = paramItem_lower_trim.replace("query_", "");
+					File queryFile = new File(query_dir_path);
+					if (queryFile.exists() && queryFile.isDirectory()) {
+						queryDirList.add(queryFile);
+					} else {
+						System.out.println("paramItem_lower_trim 对应的 queryFile 不存在 ! -->" + paramItem_lower_trim);
+
+						if (!queryFile.exists()) {
+							System.out.println("paramItem_lower_trim 对应的 queryFile 不存在 ! -->" + paramItem_lower_trim);
+							message_tip_list.add("参数[" + paramItem_lower_trim + "]" + "对应的 queryFile 不存在 ! -->"
+									+ paramItem_lower_trim);
+						} else if (queryFile.isFile()) {
+							System.out.println("paramItem_lower_trim 对应的 upload_file  是文件夹 ! -->" + paramItem_lower_trim
+									+ " 无法上传 请检查");
+							message_tip_list.add("参数[" + paramItem_lower_trim + "]" + "对应的 是文件  无法查询所有子文件 ! -->"
+									+ paramItem_lower_trim);
+
+						}
+
+					}
+				}
+
+				if (paramItem_lower_trim.startsWith("upfile_")) {
+					String up_file_path = paramItem_lower_trim.replace("upfile_", "");
+					File upFile = new File(up_file_path);
+					if (upFile.exists() && upFile.isFile()) {
+						attatchFileList.add(upFile);
+					} else {
+						if (!upFile.exists()) {
+							System.out.println("paramItem_lower_trim 对应的 upload_file 不存在 ! -->" + paramItem_lower_trim);
+							message_tip_list.add("参数[" + paramItem_lower_trim + "]" + "对应的 upload_file 不存在 ! -->"
+									+ paramItem_lower_trim);
+						} else if (upFile.isDirectory()) {
+							System.out.println("paramItem_lower_trim 对应的 upload_file  是文件夹 ! -->" + paramItem_lower_trim
+									+ " 无法上传 请检查");
+							message_tip_list.add("参数[" + paramItem_lower_trim + "]" + "对应的 是文件夹  无法添加到附件 ! -->"
+									+ paramItem_lower_trim);
+
+						}
+
+					}
+
+				}
+
+			}
+			System.out.println("═══════════════════输入参数展示 Begin ══════════════════");
+
+			quChong_Type = calcul_QuChong_Type(sendType);
+			if (quChong_Type == null || "".equals(quChong_Type)) {
+				quChong_Type = "0"; // 默认 执行0 的操作
+			}
+
+			ArrayList<String> infoList = getParamsInfoList();
+			for (int i = 0; i < infoList.size(); i++) {
+				System.out.println(infoList.get(i));
+			}
+
+			System.out.println("═══════════════════输入参数展示 End ══════════════════");
+
+			// TODO Auto-generated method stub
+			return super.initParamsWithInputList(inputParamList);
+		}
+
+		// 0 只发送文字内容--本机信息等
+		// 1--搭配 query_dir 发送本地对应目录的所有文件的字符串
+		// 2--发送屏幕截图
+		// 3--发送指定文件到附件 // 可以一起实现啊 0123 , 111 那么就只执行一个1 type_0123
+		@Override
+		String simpleDesc() {
+
+			return "\n" + Cur_Bat_Name + " #_" + rule_index
+					+ "  dst_zukgit@foxmail.com  type_0  subject_Cmder测试  content_HelloWorld         //  给dst目的邮箱发送邮件 type=0 【0=打印简单信息 1=查询目录(query_)  2=发送截屏 3=发送附件(upload_)】   \n"
+					+ Cur_Bat_Name + "  #_" + rule_index
+					+ " type_1  query_D/1A/221013    query_D/1A/221012     ###  把对应文件夹下的文件列表发送邮件  dst目的邮箱默认 foxmail  \n"
+					+ Cur_Bat_Name + "  #_" + rule_index + " type_2      ###   截取当前电脑屏幕发送到邮箱   \n" + Cur_Bat_Name
+					+ "  #_" + rule_index
+					+ " type_3  upfile_D/1A/221013/G2.bat  upfile_D/1A/123.txt     ###  把对应多个文件当作有邮箱附件发送  type=3   \n"
+					+ Cur_Bat_Name + "  #_" + rule_index + " type_2   loop_true   ###   不断循环发送当前电脑屏幕截屏发送到邮箱   \n"
+					+ Cur_Bat_Name + "  #_" + rule_index
+					+ " type_2   repeatcount_10 interval_30  ###   发送10个电脑屏幕截屏间隔为30秒发送到邮箱   \n" + Cur_Bat_Name + " #_"
+					+ rule_index
+					+ "  dst_zukgit@foxmail.com  type_0123  subject_Cmder测试  content_HelloWorld         //   操作 0 1 2 3 一起执行   \n"
+
+					+ "";
+		}
+
+		@Override
+		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
+
+			char[] send_type_arr = quChong_Type.toCharArray();
+
+			ArrayList<String> extraInfoList = new ArrayList<String>();
+			HashMap<File, String> imageFile_Desc_Map = new HashMap<File, String>();
+			ArrayList<File> mParamAttatchFileList = new ArrayList<File>();
+			ArrayList<String> queryDirInfoList = new ArrayList<String>(); // 查询 列表的数据
+
+			if (isLoop) {
+				repeatcount = 1000000; // 重复 10000万次 已达到 无限 循环的目的
+			}
+
+			for (int i = 0; i < repeatcount; i++) {
+
+				extraInfoList.clear();
+				imageFile_Desc_Map.clear();
+				mParamAttatchFileList.clear(); // 要 上传 的 文件 本来 就不会重复
+
+				// 0 只发送文字内容--本机信息等 时间戳 等简单的数据
+				// 1--搭配 query_dir 发送本地对应目录的所有文件的字符串
+				// 2--发送屏幕截图
+				// 3--发送指定文件到附件 // 可以一起实现啊 0123 , 111 那么就只执行一个1 type_0123
+				for (int j = 0; j < send_type_arr.length; j++) {
+					String oneCharType = send_type_arr[j] + "";
+
+					switch (oneCharType) {
+					case "0":
+						ArrayList<String> simple_info_List = getSimpleInfoList();
+						if (simple_info_List != null) {
+							extraInfoList.addAll(simple_info_List);
+						}
+
+						break;
+
+					case "1":
+
+						if (queryDirInfoList.size() == 0) {
+
+							queryDirInfoList
+									.add("═════════" + "QueryDir[" + queryDirList.size() + "]" + " Begin ═════════");
+
+							for (int k = 0; k < queryDirList.size(); k++) {
+								File queryDir = queryDirList.get(k);
+								queryDirInfoList.add(
+										"═════════" + "QueryDir[" + k + "][" + queryDirList.size() + "]" + "═════════");
+								if (queryDir.exists() && queryDir.isDirectory()) {
+									ArrayList<File> allSubFile = getAllSubFile(queryDir, "*");
+									addQueryFileInfo(queryDir, queryDirInfoList, allSubFile, k, queryDirList.size());
+									System.out.println("AA_ queryDir=" + queryDir + "  queryDir.exists()="
+											+ queryDir.exists() + "    queryDir.isDirectory()=" + queryDir.isDirectory()
+											+ "  allSubFile.size()=" + allSubFile.size());
+
+								} else {
+
+									System.out.println(
+											"BB_ queryDir=" + queryDir + "  queryDir.exists()=" + queryDir.exists()
+													+ "    queryDir.isDirectory()=" + queryDir.isDirectory());
+								}
+
+							}
+							queryDirInfoList
+									.add("═════════" + "QueryDir[" + queryDirList.size() + "]" + " End ═════════");
+						}
+
+						if (queryDirInfoList.size() != 0) {
+
+							System.out.println("queryDirInfoList.size() = " + queryDirInfoList.size());
+
+							for (int k = 0; k < queryDirInfoList.size(); k++) {
+								System.out.println("query_file = " + queryDirInfoList.get(k));
+
+							}
+							extraInfoList.addAll(queryDirInfoList);
+
+						}
+
+						break;
+
+					case "2":
+
+						File screenShotFile = getPCScreenFile();
+						if (screenShotFile.exists()) {
+							imageFile_Desc_Map.put(screenShotFile,
+									getTimeStampyyyyMMdd_HHmmss() + "_" + mCurrentUserName + "屏幕截图");
+						} else {
+							System.out.println("当前屏幕截图失败 screenShotFile=" + screenShotFile);
+						}
+
+						break;
+
+					case "3":
+						mParamAttatchFileList.addAll(attatchFileList);
+
+						break;
+
+					default:
+						System.out.println("oneCharType = " + oneCharType + "  没有执行规则!");
+					}
+
+				}
+
+				try {
+					System.out
+							.println("═════════════[" + i + "][" + repeatcount + "] 次发送邮件  interval=" + interval + "秒");
+
+					String mSubjectStr = subject_text;
+					if (mSubjectStr == null || "".equals(mSubjectStr)) {
+						mSubjectStr = mCurrentUserName + "_repeat[" + i + "][" + repeatcount + "]";
+					} else {
+						mSubjectStr = subject_text + "_" + mCurrentUserName + "_repeat[" + i + "][" + repeatcount + "]";
+					}
+					sendemail(false ,mCurrentUserName, dstemail, mSubjectStr, content_text, getParamsInfoList(),
+							extraInfoList, imageFile_Desc_Map, mParamAttatchFileList);
+					Thread.sleep(interval * 1000);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					System.out.println("e = "+e.getMessage());
+				}
+
+			}
+			System.out.println(" 次发送邮件 程序 执行 结束 ! ");
+
+			return super.applySubFileListRule4(curFileList, subFileTypeMap, curDirList, curRealFileList);
+		}
+
+		void addQueryFileInfo(File queryFile, ArrayList<String> fileInfoList, ArrayList<File> allSubFile, int index,
+				int count) {
+			if (allSubFile == null || allSubFile.size() == 0) {
+
+				return;
+			}
+
+			fileInfoList.add("═════════QueryDir[" + index + "][" + count + "]_" + queryFile.getAbsolutePath());
+
+			for (int i = 0; i < allSubFile.size(); i++) {
+				File fileItem = allSubFile.get(i);
+				fileInfoList.add("file[" + i + "][" + allSubFile.size() + "]__" + fileItem.getAbsolutePath());
+			}
+			fileInfoList.add("");
+		}
+
+		ArrayList<String> getSimpleInfoList() {
+			ArrayList<String> mSimpleInfoList = new ArrayList<String>();
+
+			ArrayList<String> wifiInfoList = getWifiInfoList();
+			if (wifiInfoList != null && wifiInfoList.size() > 0) {
+				mSimpleInfoList.add("________" + "Wifi_Info" + "________");
+				mSimpleInfoList.addAll(wifiInfoList);
+				mSimpleInfoList.add("");
+				mSimpleInfoList.add("");
+			}
+
+			String osName = System.getProperties().getProperty("os.name").toLowerCase();
+
+			Runtime r = Runtime.getRuntime();
+			Properties props = System.getProperties();
+
+			Map<String, String> map = System.getenv(); // System.getenv().get("USERNAME")
+
+			String userName = map.get("USERNAME");// 获取用户名
+			mCurrentUserName = userName;
+			String computerName = map.get("COMPUTERNAME");// 获取计算机名
+			String userDomain = map.get("USERDOMAIN");// 获取计算机域名
+
+			ArrayList<String> SystemInfoList = new ArrayList<String>();
+
+			SystemInfoList.add("操作系统OS:" + osName);
+			SystemInfoList.add("用户名:" + "【System.getenv().get(\"USERNAME\")" + "】" + userName);
+			SystemInfoList.add("计算机名:【System.getenv().get(\"COMPUTERNAME\")】" + computerName);
+			SystemInfoList.add("计算机域名:【System.getenv().get(\"USERDOMAIN\")\"】" + userDomain);
+			SystemInfoList.add("JVM可以使用的总内存:" + "【Runtime.getRuntime().totalMemory()】 " + r.totalMemory()); // 【Runtime.getRuntime().totalMemory()】
+			SystemInfoList.add("JVM可以使用的剩余内存:" + "【Runtime.getRuntime().freeMemory()】 " + r.freeMemory());
+			SystemInfoList
+					.add("JVM可以使用的处理器个数:" + "【Runtime.getRuntime().availableProcessors()】 " + r.availableProcessors());
+			SystemInfoList.add("Java的运行环境版本:" + "【java.version】" + props.getProperty("java.version"));
+			SystemInfoList.add("Java的运行环境供应商:" + "【java.vendor】" + props.getProperty("java.vendor"));
+			SystemInfoList.add("Java供应商的URL:" + "【java.vendor.url】" + props.getProperty("java.vendor.url"));
+			SystemInfoList.add("Java的安装路径:" + "【java.home】" + props.getProperty("java.home"));
+			SystemInfoList.add("Java的虚拟机规范版本:" + "【java.vm.specification.version】"
+					+ props.getProperty("java.vm.specification.version"));
+			SystemInfoList.add("Java的虚拟机规范供应商:" + "【java.vm.specification.vendor】"
+					+ props.getProperty("java.vm.specification.vendor"));
+			SystemInfoList.add(
+					"Java的虚拟机规范名称:" + "【java.vm.specification.name】" + props.getProperty("java.vm.specification.name"));
+			SystemInfoList.add("Java的虚拟机实现版本:" + "【java.vm.version】" + props.getProperty("java.vm.version"));
+			SystemInfoList.add("Java的虚拟机实现供应商:" + "【java.vm.vendor】" + props.getProperty("java.vm.vendor"));
+			SystemInfoList.add("Java的虚拟机实现名称:" + "【java.vm.name】" + props.getProperty("java.vm.name"));
+			SystemInfoList.add("Java运行时环境规范版本:" + "【java.specification.version】"
+					+ props.getProperty("java.specification.version"));
+			SystemInfoList.add(
+					"Java运行时环境规范供应商:" + "【java.specification.vender】" + props.getProperty("java.specification.vender"));
+			SystemInfoList
+					.add("Java运行时环境规范名称:" + "【java.specification.name】" + props.getProperty("java.specification.name"));
+			SystemInfoList.add("Java的类格式版本号:" + "【java.class.version】" + props.getProperty("java.class.version"));
+			SystemInfoList.add("Java的类路径:" + "【java.class.path】" + props.getProperty("java.class.path"));
+			SystemInfoList.add("加载库时搜索的路径列表:" + "【java.library.path】" + props.getProperty("java.library.path"));
+			SystemInfoList.add("默认的临时文件路径:" + "【java.io.tmpdir】" + props.getProperty("java.io.tmpdir"));
+			SystemInfoList.add("一个或多个扩展目录的路径:" + "【java.ext.dirs】" + props.getProperty("java.ext.dirs"));
+			SystemInfoList.add("操作系统的名称:" + "【os.name】" + props.getProperty("os.name"));
+			SystemInfoList.add("操作系统的构架:" + "【os.arch】" + props.getProperty("os.arch"));
+			SystemInfoList.add("操作系统的版本:" + "【os.version】" + props.getProperty("os.version"));
+			SystemInfoList.add("当前系统文件分隔符:" + "【file.separator】" + props.getProperty("file.separator"));
+			SystemInfoList.add("当前系统路径分隔符:" + "【path.separator】" + props.getProperty("path.separator"));
+			SystemInfoList.add("行分隔符:" + "【line.separator】" + props.getProperty("line.separator"));
+			SystemInfoList.add("用户的账户名称:" + "【user.name】" + props.getProperty("user.name"));
+			SystemInfoList.add("用户的主目录:" + "【user.home】" + props.getProperty("user.home"));
+			SystemInfoList.add("用户的Desktop目录:" + "【user.desktop】" + props.getProperty("user.desktop"));
+			SystemInfoList.add("用户的当前工作目录:" + "【user.dir】" + props.getProperty("user.dir"));
+
+			mSimpleInfoList.add("________" + "System_Prop_Info" + "________");
+			for (int i = 0; i < SystemInfoList.size(); i++) {
+				mSimpleInfoList.add("system[" + i + "][" + SystemInfoList.size() + "]__" + SystemInfoList.get(i));
+			}
+
+			mSimpleInfoList.add("");
+			mSimpleInfoList.add("________" + "Java_Prop_Info" + "________");
+
+			Properties system_props = System.getProperties();
+			Object[] keyObjs = System.getProperties().stringPropertyNames().toArray();
+
+			for (int i = 0; i < keyObjs.length; i++) {
+				String key = keyObjs[i] + "";
+				String value = system_props.getProperty(key);
+				mSimpleInfoList
+						.add("Java_Property[" + i + "][" + keyObjs.length + "]" + "【 " + key + "____" + value + "】");
+			}
+
+			mSimpleInfoList.add("________" + "Screen_Info" + "________");
+			int width = getZScreenWeight();
+			int high = getZScreenHeight();
+			mSimpleInfoList.add("屏幕分辨率:" + width + "x" + high);
+			mSimpleInfoList.add("屏幕宽:" + width);
+			mSimpleInfoList.add("屏幕高:" + high);
+
+			return mSimpleInfoList;
+
+		}
+
+		String readStringFromFile_UTF8(File fileItem) {
+			StringBuilder sb = new StringBuilder();
+			try {
+				BufferedReader curBR = new BufferedReader(
+						new InputStreamReader(new FileInputStream(fileItem), "utf-8"));
+//		            BufferedReader curBR = new BufferedReader(new InputStreamReader(new FileInputStream(fileItem)));
+				String lineContent = "";
+				while (lineContent != null) {
+					lineContent = curBR.readLine();
+					if (lineContent == null || lineContent.trim().isEmpty()) {
+						continue;
+					}
+					sb.append(lineContent + "\n");
+				}
+				curBR.close();
+			} catch (Exception e) {
+			}
+			return sb.toString();
+		}
+
+		int getZScreenHeight() {
+			// CMD 和 IDE下 宽高一致 1920x1080
+			GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+			int height = gd.getDisplayMode().getHeight();
+			return height;
+
+		}
+
+		int getZScreenWeight() {
+
+			// CMD 和 IDE下 宽高一致 1920x1080
+
+			GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+			int width = gd.getDisplayMode().getWidth();
+			return width;
+
+		}
+
+		ArrayList<String> getParamsInfoList() {
+
+			ArrayList<String> infoList = new ArrayList<String>();
+//			infoList.add("dst["+dstemail+"]" +"  "+"sendType["+sendType+"]"+"  quChong_Type["+quChong_Type+"] "+"isLoop["+isLoop+"]" +"  interval["+interval+"]  "+"repeatcount["+repeatcount+"]" +"  "+"subject["+subject_text+"]"+" "+"content_text["+content_text+"]");
+			infoList.add("dst[" + dstemail + "]");
+			infoList.add("sendType[" + sendType + "]");
+			infoList.add("quChong_Type[" + quChong_Type + "]");
+			infoList.add("isLoop[" + isLoop + "]");
+			infoList.add("interval[" + interval + "]");
+			infoList.add("repeatcount[" + repeatcount + "]");
+			infoList.add("subject[" + subject_text + "]");
+			infoList.add("content_text[" + content_text + "]");
+
+			for (int i = 0; i < queryDirList.size(); i++) {
+				File queryFile = queryDirList.get(i);
+				infoList.add(
+						"_____query_file[" + i + "][" + queryDirList.size() + "]" + "__" + queryFile.getAbsolutePath());
+			}
+
+			for (int i = 0; i < attatchFileList.size(); i++) {
+				File attatchFile = attatchFileList.get(i);
+				infoList.add(
+						"_____upfile[" + i + "][" + attatchFileList.size() + "]__" + attatchFile.getAbsolutePath());
+			}
+
+			for (int i = 0; i < message_tip_list.size(); i++) {
+				String tip_item = message_tip_list.get(i);
+				infoList.add("_____tip[" + i + "][" + message_tip_list.size() + "]__" + tip_item);
+			}
+
+			return infoList;
+
+		}
+
+		// 11111 转为1 01231 转为 0123 321 转为 123 2314转为 1234
+		// 0 只发送文字内容--本机信息等
+		// 1--搭配 query_dir 发送本地对应目录的所有文件的字符串
+		// 2--发送屏幕截图
+		// 3--发送指定文件到附件 // 可以一起实现啊 0123 , 111 那么就只执行一个1 type_0123
+		String calcul_QuChong_Type(String inputType) { // 去重 去重复
+			String quchong_type_str = "";
+			StringBuilder inputType_SB = new StringBuilder();
+
+			if (inputType == null || "".equals(inputType.trim())) {
+				return "0";
+			}
+
+			if (inputType.contains("0")) {
+				inputType_SB.append("0");
+			}
+
+			if (inputType.contains("1")) {
+				inputType_SB.append("1");
+			}
+
+			if (inputType.contains("2")) {
+				inputType_SB.append("2");
+			}
+
+			if (inputType.contains("3")) {
+				inputType_SB.append("3");
+			}
+
+			if (inputType.contains("4")) {
+				inputType_SB.append("4");
+			}
+
+			if (inputType.contains("5")) {
+				inputType_SB.append("5");
+			}
+
+			if (inputType.contains("6")) {
+				inputType_SB.append("6");
+			}
+
+			if (inputType.contains("7")) {
+				inputType_SB.append("7");
+			}
+
+			if (inputType.contains("8")) {
+				inputType_SB.append("8");
+			}
+
+			if (inputType.contains("9")) {
+				inputType_SB.append("9");
+			}
+			if (inputType.contains("a")) { // 往后继续了
+				inputType_SB.append("a");
+			}
+
+			return inputType_SB.toString();
+
+		}
+
+	}
+
+	/*
+	 * 1.AndroidManifest.xml 改变 package 包的名称 <manifest
+	 * xmlns:android="http://schemas.android.com/apk/res/android"
+	 * xmlns:tools="http://schemas.android.com/tools"
+	 * package="com.and.zvideo_and_dy_clone1"> 【】
+	 *
+	 * 2. 所有的 import com.and.zvideo_and_dy.*; 都改为 import
+	 * com.and.改为zvideo_and_dy_clone1.*;
+	 *
+	 * 然后再把 对应的 package="com.and.zvideo_and_dy_clone1 的文件夹名称从zvideo_and_dy
+	 * 改为zvideo_and_dy_clone1
+	 *
+	 *
+	 *
+	 * 3.build.gradle
+	 *
+	 * defaultConfig { applicationId "com.and.zvideo_and_dy_clone1"【】 minSdkVersion
+	 * 21 targetSdkVersion 30 versionCode 1 versionName "1.0"
+	 *
+	 * testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner" }
+	 *
+	 * 4.settings.gradle rootProject.name = "zvideo_and_dy_clone1"
+	 *
+	 *
+	 * 5.所有的 Java 文件中的 【2.已实现】
+	 *
+	 * import com.and.zvideo_and_dy.R; 替换为 import com.and.zvideo_and_dy_clone1.R;
+	 *
+	 * 6. app 名称需要变更为_1 AndroidManifest.xml <application android:allowBackup="true"
+	 * android:icon="@mipmap/launch_icon" android:label="@string/app_name"
+	 * android:roundIcon="@mipmap/launch_icon" android:theme="@style/AppTheme"
+	 * android:largeHeap="true" android:requestLegacyExternalStorage="true"
+	 * android:supportsRtl="true">
+	 *
+	 * strings.xml <string name="app_name">VLC</string> 改为 <string
+	 * name="app_name">VLC_1</string>
+	 */
+	class Copy_APK_Product_ChangeProductName_Rule_53 extends Basic_Rule {
+		File src_apk_Dir; // APK源目录 D:\apk_dir/A_product
+		File dst_apk_Dir; // APK目的目录 // D:\apk_dir/A_product_20220815_154034_clone
+
+		File src_AndroidManifest_xml_File;
+		File src_build_gradle_File;
+		File src_settings_gradle_File;
+		File src_strings_xml_File;
+		ArrayList<File> src_fixed_FileList; // 需要重新写入数据的文件列表
+		HashMap<File, ArrayList<String>> srcFile_fixedContent_Map; // 原文件作为key 修复后的内容作为value的 Map
+
+		File dst_AndroidManifest_xml_File;
+		File dst_build_gradle_File;
+		File dst_settings_gradle_File;
+		File dst_strings_xml_File;
+
+		String old_product_name; // 就得工程名称 com.and.app1
+		String new_productappend_name; // 新的追加的工程名称 appendname
+
+		String old_product_endfixname; // 原来的工程名称的最后小数点后的字符串 app1
+		File old_product_endfixname_DirFile; // 对应的工程目录
+		String new_product_endfixname; // 原来的工程名称的最后小数点后的字符串 app1_4qrqr
+
+//		后缀名称   app1  改为 app1_4qrqr
+
+		String new_product_name; // 新的工程名称 com.and.app1_appendname
+
+		String old_app_show_name; // 旧的 app显示的名字 <string name="app_name">VLC</string>
+		String new_app_show_name; // 新的 app 显示的名字
+		ArrayList<File> src_all_Java_FileList; // 所有的 原目录 java 文件
+		ArrayList<File> dst_all_Java_FileList; // 所有的 目的目录 java 文件
+
+		// 有些 xml 中 有自定义view 制订了
+		ArrayList<File> src_all_Layout_XmlFileList; // 所有的 原目录 java 文件
+		ArrayList<File> dst_all_Layout_XmlFileList; // 所有的 目的目录 java 文件
+
+		// 需要 进行 复制操作的文件 所有 文件夹 所有文件
+		ArrayList<File> src_needCopyFileList = new ArrayList<File>();
+		String HHmmss_timestr; // 时分秒时间戳
+		String YYMMdd_timestr; // 年月日 时间戳
+
+		// 经过 修改 后的 Androidmanifest.xml 的 所有内容
+		ArrayList<String> dst_AndroidManifest_xml_File_StrList;
+		// 经过 修改 后的 strings.xml 的 所有内容
+		ArrayList<String> dst_strings_xml_File_StrList;
+
+		// 经过 修改 后的 build.gradle 的 所有内容
+		ArrayList<String> dst_build_gradle_File_StrList;
+
+		// 经过 修改 后的 settings.gradle 的 所有内容
+		ArrayList<String> dst_settings_gradle_File_StrList;
+
+		// appname_xxxxxx // apk显示的名称 默认为 a
+		// productappend_xxxx // 工程名称后缀增加 什么 已达到简单克隆目的
+
+		Copy_APK_Product_ChangeProductName_Rule_53() {
+			super("#", 53, 5); //
+
+			src_needCopyFileList = new ArrayList<File>();
+
+			dst_AndroidManifest_xml_File_StrList = new ArrayList<String>();
+			dst_strings_xml_File_StrList = new ArrayList<String>();
+			dst_build_gradle_File_StrList = new ArrayList<String>();
+			dst_settings_gradle_File_StrList = new ArrayList<String>();
+
+			src_all_Java_FileList = new ArrayList<File>();
+			dst_all_Java_FileList = new ArrayList<File>();
+
+			src_all_Layout_XmlFileList = new ArrayList<File>();
+			dst_all_Layout_XmlFileList = new ArrayList<File>();
+
+			src_fixed_FileList = new ArrayList<File>();
+			srcFile_fixedContent_Map = new HashMap<File, ArrayList<String>>();
+		}
+
+		@Override
+		boolean initParamsWithInputList(ArrayList<String> inputParamList) {
+			// mdname_true // kaoyan_true gaokao_true
+
+			// 判断当前的输入的路径 是否是一个apk工程的根目录
+			// 1. 包含 AndroidManifest.xml 包含 gradle文件
+
+			if (!isShellInAndroidAPKDir()) {
+				System.out.println("不是APK目录  src_settings_gradle_File=" + src_settings_gradle_File
+						+ "  src_build_gradle_File=" + src_build_gradle_File + "  src_AndroidManifest_xml_File="
+						+ src_AndroidManifest_xml_File + "  src_strings_xml_File=" + src_strings_xml_File);
+
+				return false;
+			}
+
+			System.out.println("APK目录 src_settings_gradle_File=" + src_settings_gradle_File + "  src_build_gradle_File="
+					+ src_build_gradle_File + "  src_AndroidManifest_xml_File=" + src_AndroidManifest_xml_File
+					+ "  src_strings_xml_File=" + src_strings_xml_File);
+
+			// appname_xxxxxx // apk显示的名称 默认为 z
+			// productappend_xxxx // 工程名称后缀增加 什么 已达到简单克隆目的 默认为原有dir+时间戳 dy-->dy_081512
+			new_app_show_name = "z";
+			HHmmss_timestr = getTimeStamp_HHmmss();
+			YYMMdd_timestr = getTimeStamp_YYYYMMdd();
+			new_productappend_name = HHmmss_timestr;
+
+			for (int i = 0; i < inputParamList.size(); i++) {
+				String paramItem_lower_trim = inputParamList.get(i);
+//				String paramItem_lower_trim = paramItem.toLowerCase().trim();
+
+				if (paramItem_lower_trim.startsWith("appname_")) {
+
+					String input_appname_str = (" " + paramItem_lower_trim).replace(" appname_", "");
+					input_appname_str = input_appname_str.replace(" ", "");
+
+					new_app_show_name = input_appname_str;
+
+				}
+
+				if (paramItem_lower_trim.startsWith("productappend_")) {
+
+					String input_productname_str = (" " + paramItem_lower_trim).replace(" productappend_", "");
+					input_productname_str = input_productname_str.replace(" ", "");
+
+					new_productappend_name = input_productname_str;
+
+				}
+
+			}
+			System.out.println(
+					"new_app_show_name =" + new_app_show_name + "   new_productappend_name=" + new_productappend_name);
+
+			src_apk_Dir = new File(curDirPath);
+
+			if (!src_apk_Dir.exists()) {
+				System.out.println("当前Shell 目录 不存在 请检查  src_apk_Dir=" + src_apk_Dir);
+				return false;
+			}
+
+			String src_dir_name = src_apk_Dir.getName();
+			String dst_dir_name = src_dir_name + "_" + new_productappend_name;
+			String dst_dir_path = src_apk_Dir.getAbsolutePath().replace(src_dir_name, dst_dir_name);
+
+			dst_apk_Dir = new File(dst_dir_path);
+
+//					dst_apk_Dir = new File(src_apk_Dir.getAbsolutePath()+File.separator+HHmmss_timestr);
+
+			// 读取旧的工程名称 以及 旧的 app的显示的名称
+			// String old_product_name; // 就得工程名称 com.and.app1
+			// String old_app_show_name; // 旧的 app显示的名字 <string name="app_name">VLC</string>
+
+			old_product_name = readAndroidManifext_ProductName(src_AndroidManifest_xml_File, new_productappend_name);
+
+			if (old_product_name == null) {
+				System.out.println(
+						"当前工程文件 src_AndroidManifest_xml_File=" + src_AndroidManifest_xml_File + " 无法读取到工程名称!!  请检查!! ");
+				return false;
+			}
+			if (old_product_name.contains(".")) {
+				old_product_endfixname = old_product_name.substring(old_product_name.lastIndexOf(".") + 1);
+				new_product_endfixname = old_product_endfixname + "_" + new_productappend_name;
+			} else {
+
+				old_product_endfixname = old_product_name;
+				new_product_endfixname = old_product_endfixname + "_" + new_productappend_name;
+			}
+
+			new_product_name = old_product_name + "_" + new_productappend_name;
+
+			System.out.println(" 当前输入 old_product_name[ " + old_product_name + "]   new_product_name[ "
+					+ new_product_name + "]" + "old_product_endfixname[" + old_product_endfixname + "]  "
+					+ " new_product_endfixname=" + new_product_endfixname);
+
+			if (src_strings_xml_File.exists()) {
+				old_app_show_name = readStringsXml_AppName(src_strings_xml_File, new_app_show_name);
+
+			}
+			System.out.println(" 当前输入 old_app_show_name[ " + old_app_show_name + "]   new_app_show_name[ "
+					+ new_app_show_name + "]" + "  ");
+
+			// settings.gradle 和 build.gradle 的 applicationId "com.and.zvideo_and_dy" 改为 新的
+
+			initSettings_Gradle(src_settings_gradle_File, old_product_name, new_product_name);
+			initBuild_Gradle(src_build_gradle_File, old_product_name, new_product_name);
+
+			System.out.println(" 当前输入 SRC[ " + src_apk_Dir.getAbsolutePath() + "]  Dst[ "
+					+ dst_apk_Dir.getAbsolutePath() + "]" + " ] 存在  将执行 克隆 apk代码逻辑");
+
+			// TODO Auto-generated method stub
+			return super.initParamsWithInputList(inputParamList);
+		}
+
+		void initSettings_Gradle(File settingsGradleFile, String oldPackageName, String newPackageName) {
+
+			ArrayList<String> settingsStrList = ReadFileContentAsList(settingsGradleFile);
+
+			if (settingsStrList == null) {
+				System.out.println("从 settingsGradleFile=" + settingsGradleFile + "读取到的数据为空! ");
+				return;
+			}
+			System.out.println("settingsGradleFile = " + settingsGradleFile + "   oldPackageName=" + oldPackageName
+					+ "   newPackageName=" + newPackageName);
+			for (int i = 0; i < settingsStrList.size(); i++) {
+				String lineStr = settingsStrList.get(i);
+				// rootProject.name =
+				if (lineStr.contains("rootProject.name")) {
+					dst_settings_gradle_File_StrList.add("rootProject.name = \"" + new_product_endfixname + "\"");
+					continue;
+				}
+
+				String lineStr_Replace_Str = lineStr.replace(oldPackageName, newPackageName);
+				dst_settings_gradle_File_StrList.add(lineStr_Replace_Str);
+			}
+
+			src_fixed_FileList.add(settingsGradleFile);
+			srcFile_fixedContent_Map.put(settingsGradleFile, dst_settings_gradle_File_StrList);
+
+			System.out.println("dst_settings_gradle_File_StrList.size() = " + dst_settings_gradle_File_StrList.size());
+
+		}
+
+		void initBuild_Gradle(File BuildGradleFile, String oldPackageName, String newPackageName) {
+
+			ArrayList<String> BuildStrList = ReadFileContentAsList(BuildGradleFile);
+
+			if (BuildStrList == null) {
+				System.out.println("从 BuildGradleFile=" + BuildGradleFile + "读取到的数据为空! ");
+				return;
+			}
+
+			for (int i = 0; i < BuildStrList.size(); i++) {
+				String lineStr = BuildStrList.get(i);
+				String lineStr_Replace_Str = lineStr.replace(oldPackageName, newPackageName);
+				dst_build_gradle_File_StrList.add(lineStr_Replace_Str);
+			}
+
+			src_fixed_FileList.add(BuildGradleFile);
+			srcFile_fixedContent_Map.put(BuildGradleFile, dst_build_gradle_File_StrList);
+
+			System.out.println("dst_build_gradle_File_StrList.size() = " + dst_build_gradle_File_StrList.size());
+
+		}
+
+		String readStringsXml_AppName(File stringsXmlFile, String newAppName) {
+
+			String local_appName = null;
+
+			if (stringsXmlFile == null || !stringsXmlFile.exists()) {
+				return local_appName;
+			}
+
+			ArrayList<String> rawStringXml_StrList = ReadFileContentAsList(stringsXmlFile);
+
+			if (rawStringXml_StrList == null) {
+				return local_appName;
+			}
+
+			for (int i = 0; i < rawStringXml_StrList.size(); i++) {
+				String oneLineStr = rawStringXml_StrList.get(i);
+				// <string name="app_name">VLC</string>
+				if (oneLineStr.contains("name=\"app_name\"")) {
+					String appNameBeginStr = oneLineStr.substring(oneLineStr.indexOf("name=\"app_name\"")).trim();
+
+					local_appName = appNameBeginStr.replace("name=\"app_name\"", "").trim();
+					local_appName = local_appName.replace(" ", "");
+					local_appName = local_appName.replace("</string>", "");
+					local_appName = local_appName.replace("<string", "");
+					local_appName = local_appName.replace("\"", "");
+					local_appName = local_appName.replace(">", "");
+					local_appName = local_appName.replace("<", "");
+					String fixed_product_linestr = "<string name=\"app_name\">" + newAppName + "</string>";
+					dst_strings_xml_File_StrList.add(fixed_product_linestr);
+					continue;
+				}
+				dst_strings_xml_File_StrList.add(oneLineStr);
+
+			}
+
+			src_fixed_FileList.add(stringsXmlFile);
+			srcFile_fixedContent_Map.put(stringsXmlFile, dst_strings_xml_File_StrList);
+
+			return local_appName;
+
+		}
+
+		String readAndroidManifext_ProductName(File manifestFile, String productappendStr) {
+			String local_prductName = null;
+
+			if (manifestFile == null || !manifestFile.exists()) {
+				return local_prductName;
+			}
+
+			ArrayList<String> rawAndroidManifest_StrList = ReadFileContentAsList(manifestFile);
+
+			if (rawAndroidManifest_StrList == null) {
+				return local_prductName;
+			}
+
+			for (int i = 0; i < rawAndroidManifest_StrList.size(); i++) {
+				String oneLineStr = rawAndroidManifest_StrList.get(i);
+
+				if (oneLineStr.contains("package=")) {
+					String packageBeginStr = oneLineStr.substring(oneLineStr.indexOf("package=")).trim();
+
+					local_prductName = packageBeginStr.replace("package=", "").trim();
+					local_prductName = local_prductName.replace(" ", "");
+					local_prductName = local_prductName.replace("\"", "");
+					local_prductName = local_prductName.replace(">", "");
+					local_prductName = local_prductName.replace("<", "");
+					local_prductName = local_prductName.replace("\"", "");
+					String new_product_Name = local_prductName + "_" + productappendStr;
+					String fixed_product_linestr = oneLineStr.replace(local_prductName, new_product_Name);
+					System.out.println("fixed_product_linestr = " + fixed_product_linestr + "  new_product_Name="
+							+ new_product_Name);
+					dst_AndroidManifest_xml_File_StrList.add(fixed_product_linestr);
+					continue;
+				}
+				dst_AndroidManifest_xml_File_StrList.add(oneLineStr);
+
+			}
+
+			src_fixed_FileList.add(manifestFile);
+			srcFile_fixedContent_Map.put(manifestFile, dst_AndroidManifest_xml_File_StrList);
+
+			return local_prductName;
+		}
+		// 1. 根目录下有 settings.gradle
+		// 2. 根目录下有 build.gradle
+		// 3. 根目录\app\src\main\AndroidManifest.xml 文件存在
+
+		boolean isShellInAndroidAPKDir() {
+			boolean isApkDirFlag = false;
+			File shellDir = new File(curDirPath);
+			if (!shellDir.exists()) {
+				System.out.println("当前 输入的路径错误: 不存在:  curDirPath = " + curDirPath);
+				return isApkDirFlag;
+			}
+
+			src_settings_gradle_File = new File(shellDir.getAbsolutePath() + File.separator + "settings.gradle");
+			if (!src_settings_gradle_File.exists()) {
+				System.out.println("当前 app工程目录下不包含 settings.gradle 文件 请检查!  curDirPath=" + curDirPath);
+				return isApkDirFlag;
+			}
+
+			src_build_gradle_File = new File(
+					shellDir.getAbsolutePath() + File.separator + "app" + File.separator + "build.gradle");
+			if (!src_build_gradle_File.exists()) {
+				System.out.println("当前 app工程目录下不包含 apk目录/app/settings.gradle 文件 请检查!  curDirPath=" + curDirPath);
+				return isApkDirFlag;
+			}
+
+			src_AndroidManifest_xml_File = new File(shellDir.getAbsolutePath() + File.separator + "app" + File.separator
+					+ "src" + File.separator + "main" + File.separator + "AndroidManifest.xml");
+			if (!src_AndroidManifest_xml_File.exists()) {
+				System.out.println(
+						"当前 app工程目录下不包含 apk目录/app/src/main/AndroidManifest.xml 文件 请检查!  curDirPath=" + curDirPath);
+				return isApkDirFlag;
+			}
+
+			src_strings_xml_File = new File(shellDir.getAbsolutePath() + File.separator + "app" + File.separator + "src"
+					+ File.separator + "main" + File.separator + "res" + File.separator + "values" + File.separator
+					+ "strings.xml");
+
+			if (!src_strings_xml_File.exists()) {
+				System.out.println("当前 apk目录/app/src/main/res/values/strings.xml  文件不存在   注意:显示的APK名称可能无法修改!");
+			}
+
+			return true;
+
+		}
+
+		@Override
+		String simpleDesc() {
+
+			return "\n" + Cur_Bat_Name + " #_" + rule_index
+					+ "  appname_xxxxxx  productappend_xxxxx    // 如果 当前 shell 目录是app代码根目录 那么在clone一个apk到父文件夹 appname指定显示的apk名称 productappend用于在原有工程名添加后缀使得app相互独立  \n"
+					+ Cur_Bat_Name + "  #_" + rule_index
+					+ " appname_z      ### 如果 当前 shell 目录是app代码根目录 那么在clone一个apk到父文件夹 appname指定显示的apk名称为z  productappend用于在原有工程名添加后缀使得app相互独立   \n"
+					+ ""
+//			zrule_apply_G2.bat  #_53  appname_z  productappend_xxx
+			;
+		}
+
+		@Override
+		ArrayList<File> applyDir_SubFileListRule5(ArrayList<File> allSubDirFileList,
+				ArrayList<File> allSubRealFileList) {
+
+			// 创建 clone 的 目录文件
+			try {
+				dst_apk_Dir.mkdirs();
+			} catch (Exception e) { //
+
+				System.out.println("创建 dst_apk_Dir=" + dst_apk_Dir + " 失败!");
+			}
+
+			if (!dst_apk_Dir.exists()) {
+				System.out.println("当前 Clone 目录 不存在 请检查  dst_apk_Dir=" + dst_apk_Dir);
+				return null;
+			}
+			dst_apk_Dir.mkdirs();
+			if (!dst_apk_Dir.exists()) {
+
+				System.out.println("当前 Clone 目录 不存在 请检查  dst_apk_Dir=" + dst_apk_Dir);
+				return null;
+			}
+
+			// old_product_endfixname_DirFile
+			int matchFileCount = 0;
+			for (int i = 0; i < allSubDirFileList.size(); i++) {
+				File dirFile = allSubDirFileList.get(i);
+
+				String dirName = dirFile.getName();
+				String dirFile_AbsPath = dirFile.getAbsolutePath();
+
+				if (dirName.equals(old_product_endfixname) && !dirFile_AbsPath.contains("ap_generated_sources")
+						&& !dirFile_AbsPath.contains("out") && !dirFile_AbsPath.contains("generated")
+						&& !dirFile_AbsPath.contains("androidTest")
+						&& !dirFile_AbsPath.contains((File.separator + "test" + File.separator))
+						&& !dirFile_AbsPath.contains("intermediates")) {
+					old_product_endfixname_DirFile = dirFile;
+					System.out.println("match_old_product_endfixname[" + matchFileCount + "] = " + dirFile_AbsPath);
+					matchFileCount++;
+				}
+			}
+
+			if (old_product_endfixname_DirFile == null) {
+				System.out.println(
+						"当前没有找到 " + old_product_name + "对应的工程目录地址:" + old_product_endfixname_DirFile + "  执行失败请检查!");
+				return null;
+			}
+			System.out.println("old_product_endfixname_DirFile = " + old_product_endfixname_DirFile);
+
+// old_product_endfixname;
+// zmain-Life-main_203136\app\src\main\java\com\and\zmain_life  变为
+// zmain-Life-main_203136\app\src\main\java\com\and\zmain_life_203136
+
+			String old_product_endfixname_Path = old_product_endfixname_DirFile.getAbsolutePath();
+			String new_product_endfixname_Path = old_product_endfixname_Path.replace(old_product_endfixname,
+					new_product_endfixname);
+
+			for (int i = 0; i < allSubRealFileList.size(); i++) {
+				File copyItem = allSubRealFileList.get(i);
+				String copyItem_AbsPath = copyItem.getAbsolutePath();
+				// zmain-Life-main 和 zmain-Life-main_202111
+				String endfixname_path_AbsPath = copyItem_AbsPath.replace(old_product_endfixname_Path,
+						new_product_endfixname_Path);
+				if (copyItem_AbsPath.contains(old_product_endfixname_Path)) {
+					System.out.println("匹配到 old_product_endfixname_Path=" + old_product_endfixname_Path + " match文件 = "
+							+ copyItem_AbsPath);
+				}
+				String targetItem_AbsPath = endfixname_path_AbsPath.replace(src_apk_Dir.getAbsolutePath(),
+						dst_apk_Dir.getAbsolutePath());
+				File targetItem = new File(targetItem_AbsPath);
+				if (copyItem.getName().toLowerCase().endsWith(".java")) {
+					src_all_Java_FileList.add(copyItem);
+					dst_all_Java_FileList.add(targetItem);
+				}
+
+				if (copyItem.getName().toLowerCase().endsWith(".xml") && copyItem.getAbsolutePath().toLowerCase()
+						.contains((File.separator + "layout" + File.separator))) {
+					src_all_Layout_XmlFileList.add(copyItem);
+					dst_all_Layout_XmlFileList.add(targetItem);
+				}
+
+				System.out.println("copyItem[" + (i + 1) + "][" + allSubRealFileList.size() + "] = " + copyItem
+						+ "  targetItem=" + targetItem_AbsPath + "  old_product_endfixname_Path="
+						+ old_product_endfixname_Path + "   new_product_endfixname_Path=" + new_product_endfixname_Path
+						+ "   src_apk_Dir=" + src_apk_Dir + "  dst_apk_Dir=" + dst_apk_Dir);
+
+				fileCopy(copyItem, targetItem);
+			}
+
+			System.out.println("src_fixed_FileList.size() = " + src_fixed_FileList.size());
+			System.out.println("dst_all_Layout_XmlFileList.size() = " + dst_all_Layout_XmlFileList.size());
+
+			// 开始对 目标文件 进行 修改
+			for (int i = 0; i < src_fixed_FileList.size(); i++) {
+				File product_fixed_file = src_fixed_FileList.get(i);
+				String product_fixed_file_AbsPath = product_fixed_file.getAbsolutePath();
+				String target_fixed_file_path = product_fixed_file_AbsPath.replace(src_apk_Dir.getAbsolutePath(),
+						dst_apk_Dir.getAbsolutePath());
+				File target_fixed_file = new File(target_fixed_file_path);
+				if (target_fixed_file.exists()) {
+					ArrayList<String> matchFixedArr = srcFile_fixedContent_Map.get(product_fixed_file);
+					if (matchFixedArr != null && matchFixedArr.size() > 0) {
+						System.out.println("Product_writeItem[" + (i + 1) + "][" + src_fixed_FileList.size()
+								+ "]  --> linenum=" + matchFixedArr.size());
+						writeContentToFile(target_fixed_file, matchFixedArr);
+					}
+
+					for (int j = 0; j < matchFixedArr.size(); j++) {
+						System.out.println(matchFixedArr.get(j));
+					}
+
+				}
+
+			}
+
+			System.out.println("dst_all_Java_FileList.size() = " + dst_all_Java_FileList.size());
+			for (int i = 0; i < dst_all_Java_FileList.size(); i++) {
+
+				File javaFileItem = dst_all_Java_FileList.get(i);
+				System.out.println("Java_writeItem[" + (i + 1) + "][" + dst_all_Java_FileList.size() + "]  ");
+
+				ArrayList<String> rawContent = ReadFileContentAsList(javaFileItem);
+
+				if (rawContent == null || rawContent.size() == 0) {
+					continue;
+				}
+
+				ArrayList<String> fixed_rawContent = new ArrayList<String>();
+				for (int j = 0; j < rawContent.size(); j++) {
+					String lineStr = rawContent.get(j);
+
+					if (lineStr.contains(old_product_name)) {
+						String fixedStr = lineStr.replace(old_product_name, new_product_name);
+						fixed_rawContent.add(fixedStr);
+						continue;
+					}
+
+					fixed_rawContent.add(lineStr);
+
+				}
+				writeContentToFile(javaFileItem, fixed_rawContent);
+
+			}
+
+			System.out.println("dst_all_Layout_XmlFileList.size() = " + dst_all_Layout_XmlFileList.size());
+			for (int i = 0; i < dst_all_Layout_XmlFileList.size(); i++) {
+
+				File xmlFileItem = dst_all_Layout_XmlFileList.get(i);
+				System.out.println("Xml_writeItem[" + (i + 1) + "][" + dst_all_Layout_XmlFileList.size() + "]  ");
+
+				ArrayList<String> rawContent = ReadFileContentAsList(xmlFileItem);
+
+				if (rawContent == null || rawContent.size() == 0) {
+					continue;
+				}
+
+				ArrayList<String> fixed_rawContent = new ArrayList<String>();
+				for (int j = 0; j < rawContent.size(); j++) {
+					String lineStr = rawContent.get(j);
+
+					if (lineStr.contains(old_product_name)) {
+						String fixedStr = lineStr.replace(old_product_name, new_product_name);
+						fixed_rawContent.add(fixedStr);
+						continue;
+					}
+
+					fixed_rawContent.add(lineStr);
+
+				}
+				writeContentToFile(xmlFileItem, fixed_rawContent);
+
+			}
+
+			System.out.println("Clone APK 的操作已完成   目标目录=" + dst_apk_Dir);
+
+			return super.applyDir_SubFileListRule5(allSubDirFileList, allSubRealFileList);
+
+		}
+
+		@Override
+		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
+			return super.applySubFileListRule4(curFileList, subFileTypeMap, curDirList, curRealFileList);
+
+		}
+
+	}
+
+	class Delete_SameMD5File_OnlyExistOneInDir_Rule_52 extends Basic_Rule {
+
+		boolean showmd5 = false;
+		boolean force_delete = false;
+		
+		boolean clear_emptydir = false;  // 清除  空 文件夹
+		
+		
+		ArrayList<File> needDeleteFileList; // 需要删除的文件
+
+		ArrayList<String> allMD5List; // 所有文件的MD5的值
+
+		Delete_SameMD5File_OnlyExistOneInDir_Rule_52() {
+			super("#", 52, 5); //
+			force_delete = false;
+			showmd5 = false;
+			needDeleteFileList = new ArrayList<File>();
+			allMD5List = new ArrayList<String>();
+		}
+
+		@Override
+		boolean initParamsWithInputList(ArrayList<String> inputParamList) {
+			// mdname_true // kaoyan_true gaokao_true
 
 //			src_xxxxxx
 //			dst_xxxxx
@@ -424,50 +5523,87 @@ public class G2_ApplyRuleFor_TypeFile {
 					showmd5 = true;
 				}
 
+				if (paramItem_lower_trim.startsWith("clear_emptydir")) {
+					clear_emptydir = true;
+				}
+				
 			}
 
-
-			System.out.println(" 当前输入 delete_true="+force_delete);
-
+			System.out.println(" 当前输入 delete_true=" + force_delete +  "  showmd5="+showmd5+"   clear_emptydir="+clear_emptydir);
 
 			// TODO Auto-generated method stub
 			return super.initParamsWithInputList(inputParamList);
 		}
+		
+		void operation_delete_empty_dirs(ArrayList<File> allDirFileList) {
+			
+			allDirFileList.sort(mFileDateComparion_Deep_Seperator);
+			
+			
+			for (int i = 0; i < allDirFileList.size(); i++) {
+				File file_item =  allDirFileList.get(i);
+				boolean isEmptyDir = true;
+				if(file_item.exists() && file_item.listFiles() != null  && file_item.listFiles().length > 0 ) {
+					isEmptyDir = false;
+					
+				}
+				
+			
+				if(isEmptyDir) {
+					System.out.println("删除 all_dir["+i+"]["+allDirFileList.size()+"] = " +" file_seperator["+getStrRepeatCount(file_item.getAbsolutePath(), File.separator)+"] isEmptyDir["+isEmptyDir+"]  Path=" + file_item.getAbsolutePath() );
 
+					file_item.delete();
+					
+				}else {
+					
+					System.out.println("保留 all_dir["+i+"]["+allDirFileList.size()+"] = " +" file_seperator["+getStrRepeatCount(file_item.getAbsolutePath(), File.separator)+"] isEmptyDir["+isEmptyDir+"]  Path=" + file_item.getAbsolutePath() );
+	
+				}
+
+			
+			}
+			
+		}
 
 		@Override
-		ArrayList<File> applyDir_SubFileListRule5(ArrayList<File> allSubDirFileList, ArrayList<File> allSubRealFileList) {
-			ArrayList<File>  allOperationDirList = new 	ArrayList<File>();
-			if(allSubDirFileList != null){
+		ArrayList<File> applyDir_SubFileListRule5(ArrayList<File> allSubDirFileList,
+				ArrayList<File> allSubRealFileList) {
+			ArrayList<File> allOperationDirList = new ArrayList<File>();
+			if (allSubDirFileList != null) {
 				allOperationDirList.addAll(allSubDirFileList);
 			}
 			allSubDirFileList.add(curDirFile);
-
+			
+			if(clear_emptydir) {
+				
+				System.out.println("执行删除 空文件夹的操作! ");
+				operation_delete_empty_dirs(allSubDirFileList);
+				
+				return null ;
+			}
 
 			for (int i = 0; i < allOperationDirList.size(); i++) {
 				File subDir = allOperationDirList.get(i);
 				File[] subFileArr = subDir.listFiles();
-				if(subFileArr == null || subFileArr.length == 0){
+				if (subFileArr == null || subFileArr.length == 0) {
 					continue;
 				}
-				ArrayList<String> md5ValueList = new ArrayList<String> ();
+				ArrayList<String> md5ValueList = new ArrayList<String>();
 
-				for (int j = 0; j <  subFileArr.length ; j++) {
+				for (int j = 0; j < subFileArr.length; j++) {
 					File fileItem = subFileArr[j];
-					if(fileItem.isDirectory()){
+					if (fileItem.isDirectory()) {
 						continue;
 					}
 					String md5Value = getMD5Three(fileItem.getAbsolutePath());
 
-
-					if(!allMD5List.contains(md5Value)){
+					if (!allMD5List.contains(md5Value)) {
 						allMD5List.add(md5Value);
 					}
 
-
-					if(!md5ValueList.contains(md5Value)){
+					if (!md5ValueList.contains(md5Value)) {
 						md5ValueList.add(md5Value);
-					}else{   // 如果 已经 包含 这个 MD5 说明 已经 包含 这个文件了  那么加入 需要被删除的列表
+					} else { // 如果 已经 包含 这个 MD5 说明 已经 包含 这个文件了 那么加入 需要被删除的列表
 						needDeleteFileList.add(fileItem);
 					}
 
@@ -477,28 +5613,26 @@ public class G2_ApplyRuleFor_TypeFile {
 
 			for (int i = 0; i < needDeleteFileList.size(); i++) {
 				File needDeleteFile = needDeleteFileList.get(i);
-				System.out.println("need_delete_重复["+i+"] = " + needDeleteFile.getAbsolutePath());
+				System.out.println("need_delete_重复[" + i + "] = " + needDeleteFile.getAbsolutePath());
 
-				if(force_delete){
+				if (force_delete) {
 					needDeleteFile.delete();
 				}
 			}
 
-			String delete_tip = force_delete?"强制删除Flag:OK":"强制删除Flag:False";
-			System.out.println("相同文件夹下重复文件数量:"+needDeleteFileList.size()+"   "+delete_tip);
+			String delete_tip = force_delete ? "强制删除Flag:OK" : "强制删除Flag:False";
+			System.out.println("相同文件夹下重复文件数量:" + needDeleteFileList.size() + "   " + delete_tip);
 
-
-			if(showmd5){
+			if (showmd5) {
 
 				StringBuilder sbLog = new StringBuilder();
-				for (int i = 0; i < allMD5List.size() ; i++) {
+				for (int i = 0; i < allMD5List.size(); i++) {
 					String md5Item = allMD5List.get(i);
-					sbLog.append(md5Item+"\n");
-
+					sbLog.append(md5Item + "\n");
 
 				}
 				writeContentToFile(G2_Temp_Text_File, sbLog.toString());
-				NotePadOpenTargetFile(G2_Temp_Text_File.getAbsolutePath());	// 打开 notepad++
+				NotePadOpenTargetFile(G2_Temp_Text_File.getAbsolutePath()); // 打开 notepad++
 			}
 
 			return super.applyDir_SubFileListRule5(allSubDirFileList, allSubRealFileList);
@@ -507,40 +5641,37 @@ public class G2_ApplyRuleFor_TypeFile {
 		@Override
 		String simpleDesc() {
 
-			return "\n"+Cur_Bat_Name + " #_"+rule_index+"  delete_true      //  去除在 一个文件夹中 多余的相同的 MD5 文件   只保留 一个MD5  去重操作  \n"
-					+ Cur_Bat_Name + "  #_"+rule_index+   " showmd5_true    ###  把 当前的目录中的文件的MD5 输出到文本中   \n"
-					+ Cur_Bat_Name + "  #_"+rule_index+   " showmd5_true delete_true    ###  把 当前的目录中的文件的MD5 输出到文本中 并删除重复文件  \n"
-					+ Cur_Bat_Name + "  #_"+rule_index+  "    ### 打印当前目录的重复文件  \n"
-					+ ""
+			return "\n" + Cur_Bat_Name + " #_" + rule_index
+					+ "  delete_true      //  去除在 一个文件夹中 多余的相同的 MD5 文件   只保留 一个MD5  去重操作  \n" + Cur_Bat_Name + "  #_"
+					+ rule_index + " showmd5_true    ###  把 当前的目录中的文件的MD5 输出到文本中   \n" + Cur_Bat_Name + "  #_"
+					+ rule_index + " showmd5_true delete_true    ###  把 当前的目录中的文件的MD5 输出到文本中 并删除重复文件  \n" 
+					+ Cur_Bat_Name	+ "  #_" + rule_index + "  clear_emptydir   ###  删除所有子目录 孙目录 为空的 文件夹   \n" + ""
+					+ Cur_Bat_Name	+ "  #_" + rule_index + "    ### 打印当前目录的重复文件  \n" + ""
 //			zrule_apply_G2.bat  #_46  copyright_show  harddir_true
-					;
+			;
 		}
-
-
 
 	}
 
 	class SrcDir_Copy2_DstDir_WithFileLength_Rule_51 extends Basic_Rule {
-		File src_Dir ; //    源目录
-		File dst_Dir ;   //   目的目录
+		File src_Dir; // 源目录
+		File dst_Dir; // 目的目录
 
-		//  需要执行 从 src 复制到 dst 的 实体文件的 对应关系
-		HashMap<File,File> srcFile_dstFile_Map;
-		ArrayList<File> needCopyFileList = new ArrayList<File>();  //  需要 进行 复制操作的文件(文件大小不一样)
+		// 需要执行 从 src 复制到 dst 的 实体文件的 对应关系
+		HashMap<File, File> srcFile_dstFile_Map;
+		ArrayList<File> needCopyFileList = new ArrayList<File>(); // 需要 进行 复制操作的文件(文件大小不一样)
 		private File copyFileItem;
+
 		SrcDir_Copy2_DstDir_WithFileLength_Rule_51() {
 			super("#", 51, 4); //
 
 			needCopyFileList = new ArrayList<File>();
-			srcFile_dstFile_Map = new HashMap<File,File>();
+			srcFile_dstFile_Map = new HashMap<File, File>();
 		}
-
-
 
 		@Override
 		boolean initParamsWithInputList(ArrayList<String> inputParamList) {
 			// mdname_true // kaoyan_true gaokao_true
-
 
 //			src_xxxxxx
 //			dst_xxxxx
@@ -551,18 +5682,17 @@ public class G2_ApplyRuleFor_TypeFile {
 
 				if (paramItem_lower_trim.startsWith("src_")) {
 
-					String srcDirPath = (" "+paramItem_lower_trim).replace(" src_", "");
+					String srcDirPath = (" " + paramItem_lower_trim).replace(" src_", "");
 					srcDirPath = srcDirPath.replace(" ", "");
 
 					File srcDirFile = new File(srcDirPath);
-					if(!srcDirFile.exists()) {
-						System.out.println("当前 SRC目录["+ srcDirPath+"] 不存在 请检查输入参数!");
+					if (!srcDirFile.exists()) {
+						System.out.println("当前 SRC目录[" + srcDirPath + "] 不存在 请检查输入参数!");
 						return false;
 					}
 
-
-					if(!srcDirFile.isDirectory()) {
-						System.out.println("当前 SRC目录["+ srcDirPath+"] 不是文件夹  请检查输入参数!");
+					if (!srcDirFile.isDirectory()) {
+						System.out.println("当前 SRC目录[" + srcDirPath + "] 不是文件夹  请检查输入参数!");
 
 						return false;
 					}
@@ -572,18 +5702,17 @@ public class G2_ApplyRuleFor_TypeFile {
 
 				if (paramItem_lower_trim.startsWith("dst_")) {
 
-					String dstDirPath = (" "+paramItem_lower_trim).replace(" dst_", "");
+					String dstDirPath = (" " + paramItem_lower_trim).replace(" dst_", "");
 					dstDirPath = dstDirPath.replace(" ", "");
 
 					File dstDirFile = new File(dstDirPath);
-					if(!dstDirFile.exists()) {
-						System.out.println("当前 DST目录["+ dstDirPath+"] 不存在 请检查输入参数!");
+					if (!dstDirFile.exists()) {
+						System.out.println("当前 DST目录[" + dstDirPath + "] 不存在 请检查输入参数!");
 						return false;
 					}
 
-
-					if(!dstDirFile.isDirectory()) {
-						System.out.println("当前 DST目录["+ dstDirPath+"] 不是文件夹  请检查输入参数!");
+					if (!dstDirFile.isDirectory()) {
+						System.out.println("当前 DST目录[" + dstDirPath + "] 不是文件夹  请检查输入参数!");
 
 						return false;
 					}
@@ -593,56 +5722,53 @@ public class G2_ApplyRuleFor_TypeFile {
 
 			}
 
-
-			if(src_Dir == null) {
-				System.out.println("当前 SRC 目录["+ src_Dir+"] 为空   请检查输入参数!");
-
-				return false;
-
-			}
-
-			if(dst_Dir == null) {
-				System.out.println("当前 DST目录["+ dst_Dir+"] 为空   请检查输入参数!");
+			if (src_Dir == null) {
+				System.out.println("当前 SRC 目录[" + src_Dir + "] 为空   请检查输入参数!");
 
 				return false;
 
 			}
 
+			if (dst_Dir == null) {
+				System.out.println("当前 DST目录[" + dst_Dir + "] 为空   请检查输入参数!");
 
-			System.out.println(" 当前输入 SRC[ "+ src_Dir.getAbsolutePath()+"]  Dst[ "+dst_Dir.getAbsolutePath()+"]"+" ] 存在  将执行代码逻辑");
+				return false;
 
+			}
+
+			System.out.println(" 当前输入 SRC[ " + src_Dir.getAbsolutePath() + "]  Dst[ " + dst_Dir.getAbsolutePath() + "]"
+					+ " ] 存在  将执行代码逻辑");
 
 			// TODO Auto-generated method stub
 			return super.initParamsWithInputList(inputParamList);
 		}
 
+		// 如果当前的需要 提交的 文件中 不包含 json 文件 那么 不提交这次文件 以达到 省空间的 目的
+		// xlsx 每次更新都是全替换 而不是 部分替换 导致 更新文件大小过大
 
-		 //  如果当前的需要 提交的 文件中 不包含 json 文件  那么  不提交这次文件 以达到 省空间的 目的 
-		 //  xlsx 每次更新都是全替换  而不是 部分替换 导致 更新文件大小过大 
-		
 		@Override
 		String simpleDesc() {
 
-			return "\n"+Cur_Bat_Name + " #_"+rule_index+"  src_xxxxxx  dst_xxxxx    //  把 当前的 原目录中的所有文件 复制到 对应目录的文件， 额外必须包含json文件   更新stock-xlsx时使用 如果文件大小一致 那么就跳过复制的过程  \n"
-					+ Cur_Bat_Name + "  #_"+rule_index+   " src_  dst_  ###  把 当前的 原目录中的所有文件 复制到 对应目录的文件，xlsx 每次更新都是全替换 而不是 部分替换 导致 更新文件大小过大 特用更新ActionDemo 一天只更新一次   \n"
+			return "\n" + Cur_Bat_Name + " #_" + rule_index
+					+ "  src_xxxxxx  dst_xxxxx    //  把 当前的 原目录中的所有文件 复制到 对应目录的文件， 额外必须包含json文件   更新stock-xlsx时使用 如果文件大小一致 那么就跳过复制的过程  \n"
+					+ Cur_Bat_Name + "  #_" + rule_index
+					+ " src_  dst_  ###  把 当前的 原目录中的所有文件 复制到 对应目录的文件，xlsx 每次更新都是全替换 而不是 部分替换 导致 更新文件大小过大 特用更新ActionDemo 一天只更新一次   \n"
 					+ ""
 //			zrule_apply_G2.bat  #_46  copyright_show  harddir_true
-					;
+			;
 		}
-
-
 
 		@Override
 		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
-											  HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
-											  ArrayList<File> curRealFileList) {
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 // TODO Auto-generated method stub
 
 			File[] srcFileArr = src_Dir.listFiles();
 			File[] dstFileArr = dst_Dir.listFiles();
 
-			if(srcFileArr == null || srcFileArr.length == 0 ) {
-				System.out.println("  当前 原目录 Src目录["+src_Dir.getAbsolutePath()+"] 中文件为空  ");
+			if (srcFileArr == null || srcFileArr.length == 0) {
+				System.out.println("  当前 原目录 Src目录[" + src_Dir.getAbsolutePath() + "] 中文件为空  ");
 
 				return super.applySubFileListRule4(curFileList, subFileTypeMap, curDirList, curRealFileList);
 
@@ -652,69 +5778,63 @@ public class G2_ApplyRuleFor_TypeFile {
 
 			for (int i = 0; i < srcFileArr.length; i++) {
 				File fileItem = srcFileArr[i];
-				if(fileItem.isDirectory()) {  //  不对  文件夹进行复制
+				if (fileItem.isDirectory()) { // 不对 文件夹进行复制
 					continue;
 				}
 
 				String name = fileItem.getName();
-				String dstMatchFilePath = dst_Dir.getAbsolutePath()+File.separator+name;
+				String dstMatchFilePath = dst_Dir.getAbsolutePath() + File.separator + name;
 				File dstMatchFile = new File(dstMatchFilePath);
 
-
-
-				if(dstMatchFile.exists()) {
+				if (dstMatchFile.exists()) {
 					// 源文件大小要大于 10
 					long srcFileSize = fileItem.length();
 					long dstFileSize = dstMatchFile.length();
 					long diffSize = Math.abs(dstFileSize - srcFileSize);
 
-					if(dstMatchFile.length() != fileItem.length()   // 两个文件的大小不一样才执行 copy
-							&& fileItem.length() > 10   // 源文件的大小要大于10 才执行 copy
-							&& diffSize > 100) {   // 两个文件的差异要大于100 才 执行 copy 文件
+					if (dstMatchFile.length() != fileItem.length() // 两个文件的大小不一样才执行 copy
+							&& fileItem.length() > 10 // 源文件的大小要大于10 才执行 copy
+							&& diffSize > 100) { // 两个文件的差异要大于100 才 执行 copy 文件
 
 						// 原目录 有这个文件 但是和 dst 目录不一致 那么也加入 copy 列表
 						needCopyFileList.add(fileItem);
 						srcFile_dstFile_Map.put(fileItem, dstMatchFile);
 					}
-				}else {
+				} else {
 					// 原目录 没有这个文件 那么加入copy列表
 					needCopyFileList.add(fileItem);
 					srcFile_dstFile_Map.put(fileItem, dstMatchFile);
 				}
 
-
 			}
 
-
-			System.out.println("当前 需要执行 Copy 操作的 文件 的 总数 : "+ needCopyFileList.size());
+			System.out.println("当前 需要执行 Copy 操作的 文件 的 总数 : " + needCopyFileList.size());
 			System.out.println("开始执行 ———————— Copy-Operation begin —————");
 
-	
-			if(needCopyFileList.size() > 0 && isContainJsonFile(needCopyFileList)) {
+			if (needCopyFileList.size() > 0 && isContainJsonFile(needCopyFileList)) {
 				for (int i = 0; i < needCopyFileList.size(); i++) {
 
 					File srcItem = needCopyFileList.get(i);
 
 					File dstFile = srcFile_dstFile_Map.get(srcItem);
-					System.out.println("开始第["+i+"] 个_SRC_文件复制 src["+srcItem+"][Size:"+srcItem.length()+"][MD5:"+getMD5Three(srcItem.getAbsolutePath())+"]");
+					System.out.println("开始第[" + i + "] 个_SRC_文件复制 src[" + srcItem + "][Size:" + srcItem.length()
+							+ "][MD5:" + getMD5Three(srcItem.getAbsolutePath()) + "]");
 					System.out.println("");
 
-					if(dstFile == null) {
+					if (dstFile == null) {
 						continue;
 					}
 
-					System.out.println("完成第["+i+"] 个_DST_文件复制 dst["+dstFile+"][Size:"+dstFile.length()+"][MD5:"+getMD5Three(dstFile.getAbsolutePath())+"]");
+					System.out.println("完成第[" + i + "] 个_DST_文件复制 dst[" + dstFile + "][Size:" + dstFile.length()
+							+ "][MD5:" + getMD5Three(dstFile.getAbsolutePath()) + "]");
 
-					if(dstFile.exists()) {
+					if (dstFile.exists()) {
 						dstFile.delete();
 					}
 
 					fileCopy(srcItem, dstFile);
 
-
 				}
-
-
 
 			}
 			System.out.println("开始执行 ———————— Copy-Operation end —————");
@@ -723,15 +5843,14 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		}
 
-
 		boolean isContainJsonFile(ArrayList<File> mCopyFileList) {
 			for (int i = 0; i < mCopyFileList.size(); i++) {
 				File copyFileItem = mCopyFileList.get(i);
 				String fileName_lower = copyFileItem.getName().toLowerCase().trim();
-				System.out.println("copyFileItem["+i+"]"+ copyFileItem.getAbsolutePath());
+				System.out.println("copyFileItem[" + i + "]" + copyFileItem.getAbsolutePath());
 
-				if(fileName_lower != null && fileName_lower.endsWith(".json")) {
-					System.out.println("当前 复制 目录 包含 json 文件:"+ copyFileItem.getAbsolutePath()+" 将执行复制操作!");
+				if (fileName_lower != null && fileName_lower.endsWith(".json")) {
+					System.out.println("当前 复制 目录 包含 json 文件:" + copyFileItem.getAbsolutePath() + " 将执行复制操作!");
 					return true;
 				}
 			}
@@ -740,13 +5859,11 @@ public class G2_ApplyRuleFor_TypeFile {
 			return false;
 		}
 
-
 	}
-
 
 	// 把 当前的 输入的 jpg 或者 当前目录下的 jpg文件 动态计算成 320 宽度的 字符串 并 在打开的文件中打印
 	class JPG_To_TextChar_Rule_50 extends Basic_Rule {
-		// true  那么就对当前目录下的所有 jpg文件进行 打印字符串画像操作    false--说明有输入对输入进行操作
+		// true 那么就对当前目录下的所有 jpg文件进行 打印字符串画像操作 false--说明有输入对输入进行操作
 		boolean isDirOperation; // 是否没有输入 jpg 文件 而是 输入了一个 目录 默认shell 目录 已经 输入的目录
 
 		StringBuilder allSB;
@@ -776,18 +5893,15 @@ public class G2_ApplyRuleFor_TypeFile {
 				String jpgFileName = jpgFile.getName();
 				String getjpgNameNoType = getFileNameNoPoint(jpgFileName);
 
-
 				File jpgFile_resultDir = null;
 
 				if (isDirOperation && inputDirFile != null) {
 					jpgFile_resultDir = inputDirFile;
 
-
-
-					// 打印的 宽度 默认设置为  320
+					// 打印的 宽度 默认设置为 320
 					BufferedImage jpgImage;
 					try {
-						jpgImage = resizeImage(jpgFile.getAbsolutePath(),320);
+						jpgImage = resizeImage(jpgFile.getAbsolutePath(), 320);
 						allSB.append(printImage(jpgImage));
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
@@ -795,16 +5909,13 @@ public class G2_ApplyRuleFor_TypeFile {
 					}
 
 //			        System.out.println(" Width:"+image.getWidth()+"  High:"+image.getHeight());
-
-
 
 				} else {
 					// 如果 不是 输入 目录 的 话 那么就创建 jpg 的 文件名称 如果是目录的话 那么就在当前目录生成 .json
 
-
 					BufferedImage jpgImage;
 					try {
-						jpgImage = resizeImage(jpgFile.getAbsolutePath(),320);
+						jpgImage = resizeImage(jpgFile.getAbsolutePath(), 320);
 						allSB.append(printImage(jpgImage));
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
@@ -812,8 +5923,6 @@ public class G2_ApplyRuleFor_TypeFile {
 					}
 
 //			        System.out.println(" Width:"+image.getWidth()+"  High:"+image.getHeight());
-
-
 
 				}
 
@@ -824,20 +5933,14 @@ public class G2_ApplyRuleFor_TypeFile {
 			writeContentToFile(G2_Temp_Text_File, allSB.toString());
 			NotePadOpenTargetFile(G2_Temp_Text_File.getAbsolutePath());
 
-
 			return super.applyFileListRule3(subFileList, fileTypeMap);
 		}
-
-
-
 
 		@Override
 		String simpleDesc() {
 
-			return Cur_Bat_Name + " #_" + rule_index
-					+ "  <指定A.jpg文件> <指定B.jpg文件>  ### 对给定的jpg 打印它的 字符串画像   \n"
-					+ Cur_Bat_Name + " #_" + rule_index+ "   ### 解析当前目录jpg 打印出所有的画像    \n"
-					;
+			return Cur_Bat_Name + " #_" + rule_index + "  <指定A.jpg文件> <指定B.jpg文件>  ### 对给定的jpg 打印它的 字符串画像   \n"
+					+ Cur_Bat_Name + " #_" + rule_index + "   ### 解析当前目录jpg 打印出所有的画像    \n";
 		}
 
 		@Override
@@ -936,19 +6039,18 @@ public class G2_ApplyRuleFor_TypeFile {
 			return super.initParamsWithInputList(inputParamList);
 		}
 
-
 		/**
 		 * 图片缩放
 		 *
-		 * @param srcImagePath  图片路径
-		 * @param targetWidth   目标宽度
+		 * @param srcImagePath 图片路径
+		 * @param targetWidth  目标宽度
 		 * @return
 		 * @throws IOException
 		 */
-		public  BufferedImage resizeImage(String srcImagePath, int targetWidth) throws IOException {
+		public BufferedImage resizeImage(String srcImagePath, int targetWidth) throws IOException {
 			Image srcImage = ImageIO.read(new File(srcImagePath));
-			// 这里除以2  原始高度除以2 notepad++ 打开宽高宽度不一致 这里使得高度减少一半 看起来对称
-			int targetHeight = (int)(getTargetHeight(targetWidth, srcImage)/2);
+			// 这里除以2 原始高度除以2 notepad++ 打开宽高宽度不一致 这里使得高度减少一半 看起来对称
+			int targetHeight = (int) (getTargetHeight(targetWidth, srcImage) / 2);
 			BufferedImage resizedImage = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_RGB);
 			Graphics2D graphics2D = resizedImage.createGraphics();
 			graphics2D.drawImage(srcImage, 0, 0, targetWidth, targetHeight, null);
@@ -959,12 +6061,12 @@ public class G2_ApplyRuleFor_TypeFile {
 		/**
 		 * 图片缩放
 		 *
-		 * @param srcImagePath  图片路径
-		 * @param targetWidth   目标宽度
+		 * @param srcImagePath 图片路径
+		 * @param targetWidth  目标宽度
 		 * @return
 		 * @throws IOException
 		 */
-		public  BufferedImage resizeImage2(String srcImagePath, int targetWidth) throws IOException {
+		public BufferedImage resizeImage2(String srcImagePath, int targetWidth) throws IOException {
 			Image srcImage = ImageIO.read(new File(srcImagePath));
 			int targetHeight = getTargetHeight(targetWidth, srcImage);
 			Image image = srcImage.getScaledInstance(targetWidth, targetHeight, Image.SCALE_DEFAULT);
@@ -976,14 +6078,15 @@ public class G2_ApplyRuleFor_TypeFile {
 		/**
 		 * 根据指定宽度，计算等比例高度
 		 *
-		 * @param targetWidth   目标宽度
-		 * @param srcImage      图片信息
+		 * @param targetWidth 目标宽度
+		 * @param srcImage    图片信息
 		 * @return
 		 */
-		private  int getTargetHeight(int targetWidth, Image srcImage) {
+		private int getTargetHeight(int targetWidth, Image srcImage) {
 			int targetHeight = srcImage.getHeight(null);
 			if (targetWidth < srcImage.getWidth(null)) {
-				targetHeight = Math.round((float)targetHeight / ((float)srcImage.getWidth(null) / (float)targetWidth));
+				targetHeight = Math
+						.round((float) targetHeight / ((float) srcImage.getWidth(null) / (float) targetWidth));
 			}
 			return targetHeight;
 		}
@@ -994,8 +6097,8 @@ public class G2_ApplyRuleFor_TypeFile {
 		 * @param image
 		 * @throws IOException
 		 */
-		public  String printImage(BufferedImage image) throws IOException {
-			final char[] PIXEL_CHAR_ARRAY = {'W', '@', '#', '8', '&', '*', 'o', ':', '.', ' '};
+		public String printImage(BufferedImage image) throws IOException {
+			final char[] PIXEL_CHAR_ARRAY = { 'W', '@', '#', '8', '&', '*', 'o', ':', '.', ' ' };
 			int width = image.getWidth();
 			int height = image.getHeight();
 			StringBuilder imageSB = new StringBuilder();
@@ -1009,8 +6112,8 @@ public class G2_ApplyRuleFor_TypeFile {
 					// 一个用于计算RGB像素点灰度的公式
 					Double grayscale = 0.2126 * red + 0.7152 * green + 0.0722 * blue;
 					double index = grayscale / (Math.ceil(255 / PIXEL_CHAR_ARRAY.length) + 0.5);
-					System.out.print(PIXEL_CHAR_ARRAY[(int)(Math.floor(index))]);
-					imageSB.append(PIXEL_CHAR_ARRAY[(int)(Math.floor(index))]);
+					System.out.print(PIXEL_CHAR_ARRAY[(int) (Math.floor(index))]);
+					imageSB.append(PIXEL_CHAR_ARRAY[(int) (Math.floor(index))]);
 				}
 
 				System.out.println();
@@ -1026,82 +6129,70 @@ public class G2_ApplyRuleFor_TypeFile {
 			return imageSB.toString();
 		}
 
-
-
-
 	}
 
-
-
-	// 给定一个 类型的 模板  起始页(默认1)  最终页(默认100)
-	// 是否代理(默认false)  itemtag(页面内的标记用于过滤)  imagetag(详细内容也的照片的标示)
+	// 给定一个 类型的 模板 起始页(默认1) 最终页(默认100)
+	// 是否代理(默认false) itemtag(页面内的标记用于过滤) imagetag(详细内容也的照片的标示)
 	// CategoryModel_HttpPage_Download_Rule_49
 
 	class CategoryModel_HttpPage_Download_Rule_49 extends Basic_Rule {
 
-		String mCategoryModel ;  //  Page 主页的模板  使用 {page} 来对 页面进行替换 默认为 {page}
+		String mCategoryModel; // Page 主页的模板 使用 {page} 来对 页面进行替换 默认为 {page}
 
 		int beginPageIndex;
 		int mNextPageStep = 1;
 		int endPageIndex;
 
-		ArrayList<String> mDynamicPageUrlList ;
-		boolean isProxy ;  // 是否代理
+		ArrayList<String> mDynamicPageUrlList;
+		boolean isProxy; // 是否代理
 
-		String mHrefTag = "";   // category  页面下的 每 个项的 标示
-		String mImageTag = "";   // 需要下载的图片的特殊标示    如果为空 那么 就下载 全部  不过滤
-		int  mSleepInterval ;    // 每个 页面 完成下载的 睡眠 时间  默认 10秒
+		String mHrefTag = ""; // category 页面下的 每 个项的 标示
+		String mImageTag = ""; // 需要下载的图片的特殊标示 如果为空 那么 就下载 全部 不过滤
+		int mSleepInterval; // 每个 页面 完成下载的 睡眠 时间 默认 10秒
 
-
-
-		// 有些参数从 bat 传递不过来  比如 & ? 等等 需要做转义
-		HashMap<String,String> needReplaceWordMap ;
-		ArrayList<String> needReplaceWordKeyList ;
-		ArrayList<String> needRealExistWordValueList ;
-
+		// 有些参数从 bat 传递不过来 比如 & ? 等等 需要做转义
+		HashMap<String, String> needReplaceWordMap;
+		ArrayList<String> needReplaceWordKeyList;
+		ArrayList<String> needRealExistWordValueList;
 
 		// https://tieba.baidu.com/f?kw=%E6%9D%8E%E6%AF%85&ie=utf-8&pn=350
-		String mCategoryMainUrl ;  // item 页面是使用相对的路径  没有出现 绝对路径  所以得 保存 这个 主路径
-		String httpXpre ;  //  http://     或者  https://(默认)
+		String mCategoryMainUrl; // item 页面是使用相对的路径 没有出现 绝对路径 所以得 保存 这个 主路径
+		String httpXpre; // http:// 或者 https://(默认)
 
+		// 有些网页 不是按照 页面内容来的 是按照 多少个item数值 来的 所以有这个参数 每页的步长 默认为1
 
-		// 有些网页 不是按照 页面内容来的  是按照 多少个item数值 来的  所以有这个参数 每页的步长  默认为1
-
-
-		ChromeDriver mChromeDriver ;
-		File ImageDownloadDir ;
-
-
+		ChromeDriver mChromeDriver;
+		File ImageDownloadDir;
 
 		CategoryModel_HttpPage_Download_Rule_49() {
 			super("#", 49, 4);
 
 			mCategoryModel = "{page}";
 			mCategoryMainUrl = mCategoryModel;
-			httpXpre="https://";
+			httpXpre = "https://";
 			beginPageIndex = 1;
 			endPageIndex = 100;
 			mDynamicPageUrlList = new ArrayList<String>();
 
 			isProxy = false;
-			mHrefTag = "";   // category  页面下的 每 个项的 标示
-			mImageTag = "";   // 需要下载的图片的特殊标示
+			mHrefTag = ""; // category 页面下的 每 个项的 标示
+			mImageTag = ""; // 需要下载的图片的特殊标示
 			mSleepInterval = 10;
 			mNextPageStep = 1;
 
 			needReplaceWordKeyList = new ArrayList<String>();
-			needRealExistWordValueList  = new ArrayList<String>();
-			needReplaceWordMap = new HashMap<String,String>();
+			needRealExistWordValueList = new ArrayList<String>();
+			needReplaceWordMap = new HashMap<String, String>();
 			initReplaceWord();
 
 		}
 
 		void initReplaceWord() {
-			addReplaceWord("#","=");
-			addReplaceWord("@","&");
+			addReplaceWord("#", "=");
+			addReplaceWord("@", "&");
 		}
 
-		void addReplaceWord(String mSrcWord, String mDstWord ) {
+		void addReplaceWord(String mSrcWord, String mDstWord) {
 
 			needReplaceWordKeyList.add(mSrcWord);
 			needRealExistWordValueList.add(mDstWord);
@@ -1109,8 +6200,7 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		}
 
-
-		String replaceWordToExist(String  mSrcStr) {
+		String replaceWordToExist(String mSrcStr) {
 			String result = mSrcStr;
 
 			for (int i = 0; i < needReplaceWordKeyList.size(); i++) {
@@ -1124,7 +6214,6 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		}
 
-
 		@Override
 		boolean initParamsWithInputList(ArrayList<String> inputParamList) {
 			boolean Flag = true;
@@ -1133,10 +6222,9 @@ public class G2_ApplyRuleFor_TypeFile {
 				String paramItem = inputParamList.get(i);
 				String paramItem_lower_trim = paramItem.toLowerCase().trim();
 
-
 				if (paramItem_lower_trim.startsWith("model_")) {
-					String mModelRaw =  paramItem_lower_trim.replace("model_", "").trim();
-					mCategoryModel =  replaceWordToExist(mModelRaw);
+					String mModelRaw = paramItem_lower_trim.replace("model_", "").trim();
+					mCategoryModel = replaceWordToExist(mModelRaw);
 				}
 
 				if (paramItem_lower_trim.startsWith("proxy_true")) {
@@ -1144,57 +6232,50 @@ public class G2_ApplyRuleFor_TypeFile {
 					isProxy = true;
 				}
 
-
 				if (paramItem_lower_trim.startsWith("pagestep_")) {
-					String mPageStepStr =  paramItem_lower_trim.replace("pagestep_", "").trim();
-					if(isNumeric(mPageStepStr)) {
+					String mPageStepStr = paramItem_lower_trim.replace("pagestep_", "").trim();
+					if (isNumeric(mPageStepStr)) {
 						mNextPageStep = Integer.parseInt(mPageStepStr);
 					}
 				}
 
-
 				if (paramItem_lower_trim.startsWith("beginpage_")) {
-					String mBeginPageStr =  paramItem_lower_trim.replace("beginpage_", "").trim();
-					if(isNumeric(mBeginPageStr)) {
+					String mBeginPageStr = paramItem_lower_trim.replace("beginpage_", "").trim();
+					if (isNumeric(mBeginPageStr)) {
 						beginPageIndex = Integer.parseInt(mBeginPageStr);
 					}
 				}
 
-
 				if (paramItem_lower_trim.startsWith("endpage_")) {
-					String mEndPageStr =  paramItem_lower_trim.replace("endpage_", "").trim();
-					if(isNumeric(mEndPageStr)) {
+					String mEndPageStr = paramItem_lower_trim.replace("endpage_", "").trim();
+					if (isNumeric(mEndPageStr)) {
 						endPageIndex = Integer.parseInt(mEndPageStr);
 					}
 				}
 
-
 				if (paramItem_lower_trim.startsWith("sleeptime_")) {
-					String mSleepTimeStr =  paramItem_lower_trim.replace("sleeptime_", "").trim();
-					if(isNumeric(mSleepTimeStr)) {
+					String mSleepTimeStr = paramItem_lower_trim.replace("sleeptime_", "").trim();
+					if (isNumeric(mSleepTimeStr)) {
 						mSleepInterval = Integer.parseInt(mSleepTimeStr);
 					}
 				}
 
 				if (paramItem_lower_trim.startsWith("hreftag_")) {
-					String mHrefRaw =  paramItem_lower_trim.replace("hreftag_", "").trim();
-					mHrefTag =  replaceWordToExist(mHrefRaw);
+					String mHrefRaw = paramItem_lower_trim.replace("hreftag_", "").trim();
+					mHrefTag = replaceWordToExist(mHrefRaw);
 				}
-
 
 				if (paramItem_lower_trim.startsWith("imagetag_")) {
-					String mImageTagRaw =  paramItem_lower_trim.replace("imagetag_", "").trim();
-					mImageTag =  replaceWordToExist(mImageTagRaw);
+					String mImageTagRaw = paramItem_lower_trim.replace("imagetag_", "").trim();
+					mImageTag = replaceWordToExist(mImageTagRaw);
 				}
-
-
-
 
 			}
 
-			ImageDownloadDir = new File(curDirPath + File.separator + "Rule" + rule_index + "_Download_" + getTimeStamp());
+			ImageDownloadDir = new File(
+					curDirPath + File.separator + "Rule" + rule_index + "_Download_" + getTimeStamp());
 
-			if(!ImageDownloadDir.exists()){
+			if (!ImageDownloadDir.exists()) {
 				ImageDownloadDir.mkdirs();
 			}
 
@@ -1210,111 +6291,94 @@ public class G2_ApplyRuleFor_TypeFile {
 
 			mChromeDriver = new ChromeDriver(CUR_CHROME_OPTIONS);
 
-
 //			mCategoryModel = mCategoryModel.replace("{page}", beginPageIndex+"");
-
 
 //			String mCategoryMainUrl ;  // item 页面是使用相对的路径  没有出现 绝对路径  所以得 保存 这个 主路径
 //			String httpXpre ;  //  http://     或者  https://(默认)
 
-
-
-			System.out.println(" mCategoryModel = "+ mCategoryModel);
-			if(mCategoryModel.contains("http://")){
+			System.out.println(" mCategoryModel = " + mCategoryModel);
+			if (mCategoryModel.contains("http://")) {
 
 				httpXpre = "http://";
 			}
 
-			String clearHttpModel = mCategoryModel.replace("https://","").replace("http://","").trim();
+			String clearHttpModel = mCategoryModel.replace("https://", "").replace("http://", "").trim();
 
-			if(clearHttpModel.contains("/")){
-				mCategoryMainUrl = clearHttpModel.substring(0,clearHttpModel.lastIndexOf("/"));
+			if (clearHttpModel.contains("/")) {
+				mCategoryMainUrl = clearHttpModel.substring(0, clearHttpModel.lastIndexOf("/"));
 			}
 
-			System.out.println(" ImageDownloadDir = "+ ImageDownloadDir);
-			System.out.println(" httpXpre = "+ httpXpre);
-			System.out.println(" mCategoryMainUrl = "+ mCategoryMainUrl);
+			System.out.println(" ImageDownloadDir = " + ImageDownloadDir);
+			System.out.println(" httpXpre = " + httpXpre);
+			System.out.println(" mCategoryMainUrl = " + mCategoryMainUrl);
 
+			System.out.println(" beginPageIndex = " + beginPageIndex);
+			System.out.println(" mHrefTag = " + mHrefTag);
 
-			System.out.println(" beginPageIndex = "+ beginPageIndex);
-			System.out.println(" mHrefTag = "+ mHrefTag);
+			System.out.println(" mImageTag = " + mImageTag);
 
-			System.out.println(" mImageTag = "+ mImageTag);
+			System.out.println(" beginPageIndex = " + beginPageIndex);
 
+			System.out.println(" mNextPageStep = " + mNextPageStep);
 
+			System.out.println(" endPageIndex = " + endPageIndex);
 
-			System.out.println(" beginPageIndex = "+ beginPageIndex);
+			System.out.println(" mSleepInterval = " + mSleepInterval);
+			System.out.println(" isProxy = " + isProxy);
 
-			System.out.println(" mNextPageStep = "+ mNextPageStep);
-
-			System.out.println(" endPageIndex = "+ endPageIndex);
-
-			System.out.println(" mSleepInterval = "+ mSleepInterval);
-			System.out.println(" isProxy = "+ isProxy);
-
-			initModelCategoryPageList(mCategoryModel,beginPageIndex,mNextPageStep,endPageIndex);
+			initModelCategoryPageList(mCategoryModel, beginPageIndex, mNextPageStep, endPageIndex);
 
 			return super.initParamsWithInputList(inputParamList) && Flag;
 		}
 
-
-		// model_https://tieba.baidu.com/f?kw#%E6%9D%8E%E6%AF%85@ie#utf-8&pn#{page}  beginpage_1  endpage_1000 pagestep_50  hreftag_https://tieba.baidu.com/p/  imagetag_  proxy_true sleeptime_10
-
-
+		// model_https://tieba.baidu.com/f?kw#%E6%9D%8E%E6%AF%85@ie#utf-8&pn#{page}
+		// beginpage_1 endpage_1000 pagestep_50 hreftag_https://tieba.baidu.com/p/
+		// imagetag_ proxy_true sleeptime_10
 
 		@Override
 		String simpleDesc() {
 
-			return Cur_Bat_Name + " #_"+rule_index+"   //   给定一个页面{page}模板 =转为# &转为@  传递到代码进行图片的自动搜索下载功能  \n"
+			return Cur_Bat_Name + " #_" + rule_index + "   //   给定一个页面{page}模板 =转为# &转为@  传递到代码进行图片的自动搜索下载功能  \n"
 
-					+ Cur_Bat_Name + " #_"+rule_index+"  model_https://www.52pojie.cn/forum-4-{page}.html  beginpage_1  endpage_94 pagestep_1  hreftag_thread  imagetag_attach.52pojie sleeptime_10  proxy_true    ###// 爬取{page}网页-52破解  \n"
+					+ Cur_Bat_Name + " #_" + rule_index
+					+ "  model_https://www.52pojie.cn/forum-4-{page}.html  beginpage_1  endpage_94 pagestep_1  hreftag_thread  imagetag_attach.52pojie sleeptime_10  proxy_true    ###// 爬取{page}网页-52破解  \n"
 
-					+ Cur_Bat_Name + " #_"+rule_index+"  model_https://tieba.baidu.com/f?kw#%E6%9D%8E%E6%AF%85@ie#utf-8@pn#{page}   beginpage_0  endpage_1000 pagestep_50  hreftag_p   imagetag_    proxy_true  sleeptime_10   ###// 爬取{page}网页-百度贴吧  \n"
+					+ Cur_Bat_Name + " #_" + rule_index
+					+ "  model_https://tieba.baidu.com/f?kw#%E6%9D%8E%E6%AF%85@ie#utf-8@pn#{page}   beginpage_0  endpage_1000 pagestep_50  hreftag_p   imagetag_    proxy_true  sleeptime_10   ###// 爬取{page}网页-百度贴吧  \n"
 
-
-					;
+			;
 		}
 
-
-
-		void	initModelCategoryPageList(String modelUrl , int beginIndex , int pageStep , int engIndex){
+		void initModelCategoryPageList(String modelUrl, int beginIndex, int pageStep, int engIndex) {
 
 			String rawModelUrl = new String(modelUrl);
 
-			int curStep = beginIndex ;
+			int curStep = beginIndex;
 			for (int i = beginIndex; i <= engIndex; i++) {
 				String mModelPageStr = new String(modelUrl);
 
-				String realPage = 	 mModelPageStr.replace("{page}", curStep+"");
+				String realPage = mModelPageStr.replace("{page}", curStep + "");
 				curStep += pageStep;
 
 				mDynamicPageUrlList.add(realPage);
 			}
 
-
-
 			for (int i = 0; i < mDynamicPageUrlList.size(); i++) {
 				String pageTip = mDynamicPageUrlList.get(i);
-				System.out.println("realPage["+(i+1)+"] = "+ pageTip );
+				System.out.println("realPage[" + (i + 1) + "] = " + pageTip);
 
 			}
 
-
 		}
 
-
-
-		void itemPageOperation(String mPagehtmlCode , String mainUrl , ArrayList<String> mMatchHrefTagInPageList){
-
+		void itemPageOperation(String mPagehtmlCode, String mainUrl, ArrayList<String> mMatchHrefTagInPageList) {
 
 			org.jsoup.nodes.Document curDocument = Jsoup.parse(mPagehtmlCode);
 
 			String rawHtmlStr = curDocument.html();
-			ArrayList<String> mAllHrefInPageList = new ArrayList<String>();   // 所有的 href
+			ArrayList<String> mAllHrefInPageList = new ArrayList<String>(); // 所有的 href
 
 			Elements mElements = curDocument.getElementsByTag("a");
-
-
 
 //			Elements  mElements =  curDocument.select("a[href]");
 // a class="bm_h" href="javascript:;" rel="forum.php?mod=forumdisplay&fid=2&page=3" curpage="2" id="autopbn" totalpage="204" picstyle="0" forumdefstyle="">下一页 &raquo;</a>
@@ -1332,63 +6396,49 @@ public class G2_ApplyRuleFor_TypeFile {
 					mAllHrefInPageList.add(href);
 
 					// 判断这个 Href 是否符合 hreftag
-					if(href.startsWith(mHrefTag)){
+					if (href.startsWith(mHrefTag)) {
 
-						if(!mMatchHrefTagInPageList.contains(httpXpre+mainUrl+"/"+href)){
-							mMatchHrefTagInPageList.add(httpXpre+mainUrl+"/"+href);
+						if (!mMatchHrefTagInPageList.contains(httpXpre + mainUrl + "/" + href)) {
+							mMatchHrefTagInPageList.add(httpXpre + mainUrl + "/" + href);
 						}
-
 
 					}
 
-
-
-
-/*						if (isInnerHtmlContainNextTip(innerHtml, nextUrlTipList)) {
-
-							if (href == null || "".equals(href.trim()) || href.contains("javascript")) {
-								continue;
-							}
-
-							if (!href.startsWith("http")) {
-								String fixed_href = rootUrl_A.mRootUrl + "/" + href;
-								fixed_href = fixed_href.replace("//", "/");
-								if (!categoryUrl_B.mCategoryPageUrlList.contains(fixed_href)) {
-									categoryUrl_B.nextPageUrl = fixed_href;
-									categoryUrl_B.mCategoryPageUrlList.add(fixed_href);
-									System.out.println("a[href]_Next_Tip  nextPageUrl=[" + fixed_href
-											+ "]  innerHtml = " + innerHtml + "   href[" + href + "]");
-
-									return;
-								}
-
-							}
-
-						}*/
+					/*
+					 * if (isInnerHtmlContainNextTip(innerHtml, nextUrlTipList)) {
+					 * 
+					 * if (href == null || "".equals(href.trim()) || href.contains("javascript")) {
+					 * continue; }
+					 * 
+					 * if (!href.startsWith("http")) { String fixed_href = rootUrl_A.mRootUrl + "/"
+					 * + href; fixed_href = fixed_href.replace("//", "/"); if
+					 * (!categoryUrl_B.mCategoryPageUrlList.contains(fixed_href)) {
+					 * categoryUrl_B.nextPageUrl = fixed_href;
+					 * categoryUrl_B.mCategoryPageUrlList.add(fixed_href);
+					 * System.out.println("a[href]_Next_Tip  nextPageUrl=[" + fixed_href +
+					 * "]  innerHtml = " + innerHtml + "   href[" + href + "]");
+					 * 
+					 * return; }
+					 * 
+					 * }
+					 * 
+					 * }
+					 */
 
 				}
 
 			}
 
-
-
-
 		}
 
-
-		void HrefDetailHtmlCodeOperation(String mHrefHtmlCode ,  ArrayList<String> mImageSrcInPageList){
-			//  获取 全部的 <img
-
-
+		void HrefDetailHtmlCodeOperation(String mHrefHtmlCode, ArrayList<String> mImageSrcInPageList) {
+			// 获取 全部的 <img
 
 			org.jsoup.nodes.Document hrefDocument = Jsoup.parse(mHrefHtmlCode);
 
 			String rawHrefHtmlStr = hrefDocument.html();
 
 			Elements mImgElements = hrefDocument.getElementsByTag("img");
-
-
-
 
 			if (mImgElements != null && mImgElements.size() > 0) {
 
@@ -1400,32 +6450,30 @@ public class G2_ApplyRuleFor_TypeFile {
 					String src = curElement.attr("src");
 					System.out.println("nexttip_innerHtml = " + innerHtml + "   src[" + src + "]");
 
-
 					// 判断这个 Href 是否符合 hreftag
-					if(mImageTag == null || "".equals(mImageTag)){
-						if(src.startsWith("http") &&(
-								src.toLowerCase().endsWith(".gif")  || 	src.toLowerCase().endsWith(".webp") ||
-										src.toLowerCase().endsWith(".jpg")  || 	src.toLowerCase().endsWith(".png")
+					if (mImageTag == null || "".equals(mImageTag)) {
+						if (src.startsWith("http")
+								&& (src.toLowerCase().endsWith(".gif") || src.toLowerCase().endsWith(".webp")
+										|| src.toLowerCase().endsWith(".jpg") || src.toLowerCase().endsWith(".png")
 
-						)){
+								)) {
 
-							if(!mImageSrcInPageList.contains(src)){
+							if (!mImageSrcInPageList.contains(src)) {
 								mImageSrcInPageList.add(src);
 							}
 
 						}
 
+					} else {
+						if (src.contains(mImageTag)) {
 
-					}else{
-						if(src.contains(mImageTag)){
+							if (src.startsWith("http")
+									&& (src.toLowerCase().endsWith(".gif") || src.toLowerCase().endsWith(".webp")
+											|| src.toLowerCase().endsWith(".jpg") || src.toLowerCase().endsWith(".png")
 
-							if(src.startsWith("http") &&(
-									src.toLowerCase().endsWith(".gif")  || 	src.toLowerCase().endsWith(".webp") ||
-											src.toLowerCase().endsWith(".jpg")  || 	src.toLowerCase().endsWith(".png")
+									)) {
 
-							)){
-
-								if(!mImageSrcInPageList.contains(src)){
+								if (!mImageSrcInPageList.contains(src)) {
 									mImageSrcInPageList.add(src);
 								}
 
@@ -1441,104 +6489,91 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		}
 
-
-
 		@Override
-		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList, HashMap<String, ArrayList<File>> subFileTypeMap,
-											  ArrayList<File> curDirList, ArrayList<File> curRealFileList) {
-
-
+		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 
 			for (int i = 0; i < mDynamicPageUrlList.size(); i++) {
 				String pageItemUrl = mDynamicPageUrlList.get(i);
-				System.out.println("pageItemUrl["+(i+1)+"]["+mDynamicPageUrlList.size()+"] = "+ pageItemUrl );
+				System.out.println("pageItemUrl[" + (i + 1) + "][" + mDynamicPageUrlList.size() + "] = " + pageItemUrl);
 				ArrayList<String> mPageItemHrefList = new ArrayList<String>();
-
-
 
 				// 获取到 这个网页的 源码
 
-				String pageHtmlCode = 	getMainPageHtmlCode(pageItemUrl);
+				String pageHtmlCode = getMainPageHtmlCode(pageItemUrl);
 
-				if(pageHtmlCode == null || pageHtmlCode.length() < 10){
+				if (pageHtmlCode == null || pageHtmlCode.length() < 10) {
 
-					System.out.println(" 获取 PageHtmlCode 失败 --> "+"pageItemUrl["+(i+1)+"] = "+ pageItemUrl  );
+					System.out.println(" 获取 PageHtmlCode 失败 --> " + "pageItemUrl[" + (i + 1) + "] = " + pageItemUrl);
 					continue;
 				}
 
-				itemPageOperation(pageHtmlCode,mCategoryMainUrl,mPageItemHrefList);
+				itemPageOperation(pageHtmlCode, mCategoryMainUrl, mPageItemHrefList);
 
-
-				if(mPageItemHrefList.size() > 0){
+				if (mPageItemHrefList.size() > 0) {
 
 					for (int j = 0; j < mPageItemHrefList.size(); j++) {
 						String hrefUrl = mPageItemHrefList.get(j);
-						System.out.println("pageItemUrl["+(i+1)+"]["+mDynamicPageUrlList.size()+"] = "+ pageItemUrl +"  hrefItemUrl["+(j+1)+"]["+mPageItemHrefList.size()+"] = "+ hrefUrl );
+						System.out.println("pageItemUrl[" + (i + 1) + "][" + mDynamicPageUrlList.size() + "] = "
+								+ pageItemUrl + "  hrefItemUrl[" + (j + 1) + "][" + mPageItemHrefList.size() + "] = "
+								+ hrefUrl);
 
 					}
 
 					for (int j = 0; j < mPageItemHrefList.size(); j++) {
 						String hrefUrl = mPageItemHrefList.get(j);
 
-						System.out.println("Down pageItemUrl["+(i+1)+"] = "+ pageItemUrl +"  hrefItemUrl["+(j+1)+"]["+j+"] = "+ hrefUrl );
+						System.out.println("Down pageItemUrl[" + (i + 1) + "] = " + pageItemUrl + "  hrefItemUrl["
+								+ (j + 1) + "][" + j + "] = " + hrefUrl);
 
+						String mHrefHtmlCode = getMainPageHtmlCode(hrefUrl);
 
-						String mHrefHtmlCode = 	getMainPageHtmlCode(hrefUrl);
+						if (mHrefHtmlCode == null || mHrefHtmlCode.length() < 10) {
 
-						if(mHrefHtmlCode == null || mHrefHtmlCode.length() < 10){
-
-							System.out.println(" 获取 HrefHtmlCode 失败 --> "+"pageItemUrl["+(i+1)+"] = "+ pageItemUrl +"  hrefItemUrl["+(j+1)+"]["+j+"] = "+ hrefUrl );
+							System.out.println(" 获取 HrefHtmlCode 失败 --> " + "pageItemUrl[" + (i + 1) + "] = "
+									+ pageItemUrl + "  hrefItemUrl[" + (j + 1) + "][" + j + "] = " + hrefUrl);
 							continue;
 						}
 
+						ArrayList<String> mImageSrcInHrefPageList = new ArrayList<String>();
 
-						ArrayList<String> mImageSrcInHrefPageList = new 	ArrayList<String>();
+						HrefDetailHtmlCodeOperation(mHrefHtmlCode, mImageSrcInHrefPageList);
 
-
-						HrefDetailHtmlCodeOperation(mHrefHtmlCode,mImageSrcInHrefPageList);
-
-						if(mImageSrcInHrefPageList.size() > 0 ){
-
+						if (mImageSrcInHrefPageList.size() > 0) {
 
 							for (int k = 0; k < mImageSrcInHrefPageList.size(); k++) {
 								String imgSrc = mImageSrcInHrefPageList.get(k);
 								String srcType = getFileTypeWithPoint(imgSrc);
-								System.out.println("pageItemUrl["+(i+1)+"]["+mDynamicPageUrlList.size()+"] = "+ pageItemUrl +"  hrefItemUrl["+(j+1)+"]["+mPageItemHrefList.size()+"] = "+ hrefUrl+" ImgSrc["+k+"]["+mImageSrcInHrefPageList.size()+"]="+ imgSrc);
+								System.out.println("pageItemUrl[" + (i + 1) + "][" + mDynamicPageUrlList.size() + "] = "
+										+ pageItemUrl + "  hrefItemUrl[" + (j + 1) + "][" + mPageItemHrefList.size()
+										+ "] = " + hrefUrl + " ImgSrc[" + k + "][" + mImageSrcInHrefPageList.size()
+										+ "]=" + imgSrc);
 
+								File curFileImag = new File(ImageDownloadDir.getAbsolutePath() + File.separator
+										+ getTimeStampLong() + srcType);
 
-								File  curFileImag = new File(ImageDownloadDir.getAbsolutePath()+File.separator+getTimeStampLong()+srcType);
-
-								TryDownLoadImage(imgSrc ,curFileImag , 3);
+								TryDownLoadImage(imgSrc, curFileImag, 3);
 
 							}
-
-
 
 						}
 
 					}
 
-
-
 				}
-
-
-
 
 			}
 
-
 			return super.applySubFileListRule4(curFileList, subFileTypeMap, curDirList, curRealFileList);
 		}
-
 
 		public void TryDownLoadImage(String httpUrl, File localFile, int repeatTimes) {
 
 			int byteRead;
 			try {
 
-
-				if(localFile.exists()){
+				if (localFile.exists()) {
 					localFile.createNewFile();
 				}
 				String fileAddress = localFile.getAbsolutePath();
@@ -1546,20 +6581,17 @@ public class G2_ApplyRuleFor_TypeFile {
 //					+ (source == null || "".equals(source) ? "" : source + "_") + (fileNameNoPoint.replace(" ", ""))
 //					+ "_" + index + "_" + getTimeStamp() + ".mp4";
 
-
 				URLConnection conn = null;
 				URL url = new URL(httpUrl);
-				if(isProxy){
+				if (isProxy) {
 					InetSocketAddress address = new InetSocketAddress("127.0.0.1", 7078);
 					Proxy proxy = new Proxy(Proxy.Type.HTTP, address); // http代理协议类型
 					conn = url.openConnection(proxy);
-				}else{
+				} else {
 					conn = url.openConnection();
 				}
 
-
-				System.out.println("下载操作:[ " + httpUrl + " ]   \n fileAddress:" + fileAddress +" isProxy="+isProxy);
-
+				System.out.println("下载操作:[ " + httpUrl + " ]   \n fileAddress:" + fileAddress + " isProxy=" + isProxy);
 
 				// 输入流
 				InputStream inStream = conn.getInputStream();
@@ -1591,40 +6623,31 @@ public class G2_ApplyRuleFor_TypeFile {
 			}
 		}
 
-
-
-
 	}
 
 	// voice_fafaefafea 读取 voice 的 内容
 	class Read_Speak_Word_Rule_48 extends Basic_Rule {
-		String mVoice_Utf8 ;
-
+		String mVoice_Utf8;
 
 		Read_Speak_Word_Rule_48() {
 			super("#", 48, 4);
 			mVoice_Utf8 = "HelloWorld_Zukgit";
 		}
 
-
 		@Override
-		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList, HashMap<String, ArrayList<File>> subFileTypeMap,
-											  ArrayList<File> curDirList, ArrayList<File> curRealFileList) {
-
-
-
+		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 
 			String mVbsFilePath = zbinPath + File.separator + "B3_voice.vbs";
 			String commadStr = "CreateObject(\"SAPI.SpVoice\").Speak \"" + mVoice_Utf8 + "\"";
 
-
 			try {
-				String mANSIStr =   new String(commadStr.getBytes("UTF-8"), "GB2312");
+				String mANSIStr = new String(commadStr.getBytes("UTF-8"), "GB2312");
 			} catch (UnsupportedEncodingException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-
 
 			File voice_file = new File(mVbsFilePath);
 
@@ -1636,10 +6659,6 @@ public class G2_ApplyRuleFor_TypeFile {
 			return super.applySubFileListRule4(curFileList, subFileTypeMap, curDirList, curRealFileList);
 		}
 
-
-
-
-
 		@Override
 		boolean initParamsWithInputList(ArrayList<String> inputParamList) {
 			boolean Flag = true;
@@ -1647,7 +6666,6 @@ public class G2_ApplyRuleFor_TypeFile {
 			for (int i = 0; i < inputParamList.size(); i++) {
 				String paramItem = inputParamList.get(i);
 				String paramItem_lower_trim = paramItem.toLowerCase().trim();
-
 
 				if (paramItem_lower_trim.startsWith("voice_")) {
 					mVoice_Utf8 = paramItem_lower_trim.replace("voice_", "").trim();
@@ -1658,55 +6676,45 @@ public class G2_ApplyRuleFor_TypeFile {
 			return super.initParamsWithInputList(inputParamList) && Flag;
 		}
 
-
-
-
-
 		@Override
 		String simpleDesc() {
 
-			return Cur_Bat_Name + " #_"+rule_index+"   // 读取给定的voice 发出声音  \n"
+			return Cur_Bat_Name + " #_" + rule_index + "   // 读取给定的voice 发出声音  \n"
 
-					+ Cur_Bat_Name + " #_"+rule_index+"  voice_12345ABCDE   // 读取给定的voice 发出声音  \n"
+					+ Cur_Bat_Name + " #_" + rule_index + "  voice_12345ABCDE   // 读取给定的voice 发出声音  \n"
 
-					;
+			;
 		}
-
-
-
-
 
 	}
 
-	//  给定一个 西瓜视频 主页 下载 该页面内的所有视频文件
+	// 给定一个 西瓜视频 主页 下载 该页面内的所有视频文件
 	class Download_XiGua_HomeVideo_Rule_47 extends Basic_Rule {
-		ArrayList<String> allHrefList ;  // 所有引用的链接
-		ArrayList<String> allNumberHrefList ;  // 所有只有数字的引用链接( 西瓜视频 里 特有的 )
-		ArrayList<String> allNumberHttpLinkList ;  //  https://www.ixigua.com/+数值href的集合
-		File mDownloadedMonthDir ;
-		File ChromeDriverFile ;
-		//  必须以 http 开头
-		String searchHttpUrl ;   // 从输入传入的 需要得到 的 http 源码的 网页的地址
-		ChromeDriver mChromeDriver ;
-		String curPositionHtmlCodeStr;   // 每次得到的 html代码的值 用于突然用户终止程序时 使用
+		ArrayList<String> allHrefList; // 所有引用的链接
+		ArrayList<String> allNumberHrefList; // 所有只有数字的引用链接( 西瓜视频 里 特有的 )
+		ArrayList<String> allNumberHttpLinkList; // https://www.ixigua.com/+数值href的集合
+		File mDownloadedMonthDir;
+		File ChromeDriverFile;
+		// 必须以 http 开头
+		String searchHttpUrl; // 从输入传入的 需要得到 的 http 源码的 网页的地址
+		ChromeDriver mChromeDriver;
+		String curPositionHtmlCodeStr; // 每次得到的 html代码的值 用于突然用户终止程序时 使用
 
 		Download_XiGua_HomeVideo_Rule_47() {
 			super("#", 47, 4);
-			allHrefList = new 	ArrayList<String>();
-			allNumberHrefList = new 	ArrayList<String>();
-			allNumberHttpLinkList =  new 	ArrayList<String>();
+			allHrefList = new ArrayList<String>();
+			allNumberHrefList = new ArrayList<String>();
+			allNumberHttpLinkList = new ArrayList<String>();
 			mDownloadedMonthDir = curDirFile;
-			if(mDownloadedMonthDir == null) {
+			if (mDownloadedMonthDir == null) {
 				mDownloadedMonthDir = new File(curDirPath);
 			}
 		}
 
-
-
 		String tryDownLoadXiGuaVideo(ArrayList<String> linkList) {
-			StringBuilder  downloadLogSB = new  StringBuilder();
+			StringBuilder downloadLogSB = new StringBuilder();
 
-			if(linkList == null || linkList.size() == 0) {
+			if (linkList == null || linkList.size() == 0) {
 
 				downloadLogSB.append("  当前 下载链接 集合 为 空 ");
 				return downloadLogSB.toString();
@@ -1716,17 +6724,13 @@ public class G2_ApplyRuleFor_TypeFile {
 			for (int i = 0; i < linkList.size(); i++) {
 				String linkItem = linkList.get(i);
 
-				// zukgit  下载 方式
+				// zukgit 下载 方式
 				XiGua_TouTiao_ParseUrl(i, linkItem);
-				downloadLogSB.append("下载 link["+i+"] "+linkItem+"  执行Over!");
+				downloadLogSB.append("下载 link[" + i + "] " + linkItem + "  执行Over!");
 
 			}
 
-
-
-
 			return downloadLogSB.toString();
-
 
 		}
 
@@ -1835,9 +6839,9 @@ public class G2_ApplyRuleFor_TypeFile {
 			} catch (Exception e) {
 				e.fillInStackTrace();
 				// TODO: handle exception
-				System.out.println("异常 Exception.getMessage = "+ e.getMessage() );
+				System.out.println("异常 Exception.getMessage = " + e.getMessage());
 
-				System.out.println("异常 Exception = "+ e );
+				System.out.println("异常 Exception = " + e);
 
 				System.out.println("解密Base64出意外Exception 尝试使用 bankup_url   \njiemi_base64_url=[" + jiemi_base64_url
 						+ "]\nbase64_jiami_url=[" + base64_jiami_url + "]    \n base64_jiami_bankurl=["
@@ -1866,7 +6870,6 @@ public class G2_ApplyRuleFor_TypeFile {
 			}
 
 		}
-
 
 		/**
 		 * 获取首页内容
@@ -1919,8 +6922,6 @@ public class G2_ApplyRuleFor_TypeFile {
 
 						}
 
-
-
 					}
 
 					TimeUnit.MILLISECONDS.sleep(waitTime);
@@ -1941,26 +6942,23 @@ public class G2_ApplyRuleFor_TypeFile {
 			return null;
 		}
 
-
-
-
 		// 视频的保存 目录 不能是 当前文件 否则 就会执行 同步操作 影响网速
 		@SuppressWarnings("unchecked")
 		public void downRawVideo_WithUrl(int index, String httpUrl, String fileNameNoPoint, String source) {
 //	        String fileAddress = videoSavePath+"/"+source+"/"+title+".mp4";
-			if(mDownloadedMonthDir == null) {
+			if (mDownloadedMonthDir == null) {
 				mDownloadedMonthDir = new File(curDirPath);
 			}
 			String fileAddress = mDownloadedMonthDir.getAbsolutePath() + File.separator
 					+ (source == null || "".equals(source) ? "" : source + "_") + (fileNameNoPoint.replace(" ", ""))
 					+ "_" + index + "_" + getTimeStamp() + ".mp4";
 
-			System.out.println("index = "+ index);
-			System.out.println("fileAddress = "+ fileAddress);
+			System.out.println("index = " + index);
+			System.out.println("fileAddress = " + fileAddress);
 
-			System.out.println("httpUrl = "+ httpUrl);
-			System.out.println("fileNameNoPoint = "+ fileNameNoPoint);
-			System.out.println("source = "+ source);
+			System.out.println("httpUrl = " + httpUrl);
+			System.out.println("fileNameNoPoint = " + fileNameNoPoint);
+			System.out.println("source = " + source);
 
 			int byteRead;
 			try {
@@ -1987,7 +6985,6 @@ public class G2_ApplyRuleFor_TypeFile {
 				System.out.println("\n-----视频保存路径-----\n" + fileSavePath.getAbsolutePath());
 				System.out.println("\nzzfile_3.bat " + fileSavePath.getParentFile().getAbsolutePath());
 
-
 				System.out.println("由于 isMDName=true  视频文件将以 MD5 属性文件名称进行命名!!! ");
 
 				// 获取文件的 md值 并重命名为 mdxxxx.mp4
@@ -2002,7 +6999,6 @@ public class G2_ApplyRuleFor_TypeFile {
 				System.out.println(e.getMessage());
 			}
 		}
-
 
 		// 把 "main_url":" 去除 那么 起点 就是 我们 要找的 url
 		// "backup_url_1":"
@@ -2099,21 +7095,19 @@ public class G2_ApplyRuleFor_TypeFile {
 			for (int i = 0; i < inputParamList.size(); i++) {
 				String paramItem = inputParamList.get(i);
 				String paramItem_lower_trim = paramItem.toLowerCase().trim();
-				System.out.println("paramItem["+i+"] = "+paramItem_lower_trim);
+				System.out.println("paramItem[" + i + "] = " + paramItem_lower_trim);
 				if (paramItem_lower_trim.startsWith("http")) {
 					searchHttpUrl = paramItem_lower_trim;
 				}
 
 			}
 
-			if(searchHttpUrl == null) {
+			if (searchHttpUrl == null) {
 				System.out.println("当前输入的网页为空  请检查输入!!!");
 				return false;
 			}
 
-
 			ChromeDriverFile = new File(zbinPath + File.separator + "G2_chromedriver_v91.exe");
-
 
 			System.setProperty("webdriver.chrome.driver", ChromeDriverFile.getAbsolutePath());
 
@@ -2125,12 +7119,10 @@ public class G2_ApplyRuleFor_TypeFile {
 
 			mChromeDriver = new ChromeDriver(CUR_CHROME_OPTIONS);
 
-
 			return super.initParamsWithInputList(inputParamList);
 		}
 
-
-		void registerShutDownLister(){
+		void registerShutDownLister() {
 			Runtime.getRuntime().addShutdownHook(new Thread() {
 				public void run() {
 					try {
@@ -2140,9 +7132,9 @@ public class G2_ApplyRuleFor_TypeFile {
 						writeContentToFile(G2_Temp_Text_File, curPositionHtmlCodeStr);
 						NotePadOpenTargetFile(G2_Temp_Text_File.getAbsolutePath());
 
-						System.out.println("获得【"+searchHttpUrl+"】 MainPage HtmlCode 突然终止 部分成功 !! ");
-						System.out.println("════════"+"════════");
-						//some cleaning up code...
+						System.out.println("获得【" + searchHttpUrl + "】 MainPage HtmlCode 突然终止 部分成功 !! ");
+						System.out.println("════════" + "════════");
+						// some cleaning up code...
 
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
@@ -2154,62 +7146,59 @@ public class G2_ApplyRuleFor_TypeFile {
 		}
 
 		@Override
-		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList, HashMap<String, ArrayList<File>> subFileTypeMap,
-											  ArrayList<File> curDirList, ArrayList<File> curRealFileList) {
+		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 			// TODO Auto-generated method stub
 
 			registerShutDownLister();
-			if(searchHttpUrl.startsWith("https://profile.zjurl.cn/rogue/ugc/profile") && searchHttpUrl.contains("user_id")	) {
+			if (searchHttpUrl.startsWith("https://profile.zjurl.cn/rogue/ugc/profile")
+					&& searchHttpUrl.contains("user_id")) {
 				String user_id_raw = searchHttpUrl.substring(searchHttpUrl.indexOf("user_id="));
-				String user_id = user_id_raw.substring(0,user_id_raw.indexOf("&")).replace("&", "").replace("user_id=", "");
+				String user_id = user_id_raw.substring(0, user_id_raw.indexOf("&")).replace("&", "").replace("user_id=",
+						"");
 				// https://www.ixigua.com/home/3346556174218692
-				System.out.println(" profile searchHttpUrl="+searchHttpUrl);
-				System.out.println(" profile  user_id_raw="+user_id_raw);
-				System.out.println(" profile  user_id="+user_id);
-				searchHttpUrl = "https://www.ixigua.com/home/"+user_id.trim();
+				System.out.println(" profile searchHttpUrl=" + searchHttpUrl);
+				System.out.println(" profile  user_id_raw=" + user_id_raw);
+				System.out.println(" profile  user_id=" + user_id);
+				searchHttpUrl = "https://www.ixigua.com/home/" + user_id.trim();
 			}
 
 			String httpPageCode = BrowserOperation_WithRootUrl(searchHttpUrl);
 
+			// 对页面的链接 href 进行分析
+			String mHrefLog = TryHrefAnalysis(httpPageCode);
 
+			if (httpPageCode != null) {
 
+				curPositionHtmlCodeStr = httpPageCode + "\n" + "════════════════════ Href-Log ════════════════════\n"
+						+ mHrefLog;
 
-			//  对页面的链接 href 进行分析
-			String mHrefLog = 	TryHrefAnalysis(httpPageCode);
-
-
-
-			if(httpPageCode != null) {
-
-				curPositionHtmlCodeStr = httpPageCode+"\n"+"════════════════════ Href-Log ════════════════════\n"+mHrefLog;
-
-				writeContentToFile(G2_Temp_Text_File, httpPageCode+"\n"+"════════════════════ Href-Log ════════════════════\n"+mHrefLog);
+				writeContentToFile(G2_Temp_Text_File,
+						httpPageCode + "\n" + "════════════════════ Href-Log ════════════════════\n" + mHrefLog);
 				NotePadOpenTargetFile(G2_Temp_Text_File.getAbsolutePath());
-				System.out.println("获得【"+searchHttpUrl+"】 MainPage HtmlCode 成功!! ");
-			}else {
-				System.out.println("获得【"+searchHttpUrl+"】 MainPage HtmlCode 失败!! ");
+				System.out.println("获得【" + searchHttpUrl + "】 MainPage HtmlCode 成功!! ");
+			} else {
+				System.out.println("获得【" + searchHttpUrl + "】 MainPage HtmlCode 失败!! ");
 
 			}
-
 
 			return super.applySubFileListRule4(curFileList, subFileTypeMap, curDirList, curRealFileList);
 		}
 
+		String TryHrefAnalysis(String mPageHtmlCode) {
+			StringBuilder mLogSB = new StringBuilder();
 
-		String  TryHrefAnalysis( String mPageHtmlCode ){
-			StringBuilder  mLogSB  = new StringBuilder();
-
-			if(mPageHtmlCode == null || "".equals(mPageHtmlCode)) {
+			if (mPageHtmlCode == null || "".equals(mPageHtmlCode)) {
 
 				System.out.println("当前获取到的 页面 代码 为 空  执行失败!  ");
 				return "当前获取到的 页面 代码 为 空  执行失败!";
 			}
 
-
 			// 以 href="
-			String[] rawHrefArr = 	mPageHtmlCode.split("href=\"");
+			String[] rawHrefArr = mPageHtmlCode.split("href=\"");
 
-			if(rawHrefArr == null) {
+			if (rawHrefArr == null) {
 				System.out.println("当前获取到的 页面 代码  不包含关键字  rawHrefArr");
 				return "当前获取到的 页面 代码  不包含关键字  rawHrefArr";
 
@@ -2217,10 +7206,10 @@ public class G2_ApplyRuleFor_TypeFile {
 
 			for (int i = 0; i < rawHrefArr.length; i++) {
 				String rawHrefItem = rawHrefArr[i];
-				System.out.println("rawHref["+i+"] = "+rawHrefItem);
-				mLogSB.append("rawHref["+i+"] = "+rawHrefItem+"\n");
-				if(rawHrefItem.contains("\"")) {
-					String realHref = rawHrefItem.substring(0,rawHrefItem.indexOf("\""));
+				System.out.println("rawHref[" + i + "] = " + rawHrefItem);
+				mLogSB.append("rawHref[" + i + "] = " + rawHrefItem + "\n");
+				if (rawHrefItem.contains("\"")) {
+					String realHref = rawHrefItem.substring(0, rawHrefItem.indexOf("\""));
 					allHrefList.add(realHref);
 
 				}
@@ -2229,56 +7218,47 @@ public class G2_ApplyRuleFor_TypeFile {
 			for (int i = 0; i < allHrefList.size(); i++) {
 				String realHref = allHrefList.get(i);
 
-				System.out.println("realHref["+i+"] = "+realHref);
-				mLogSB.append("realHref["+i+"] = "+realHref+"\n");
-				String clearTagHref = realHref.replace("/", "").replace("?logTag=","").trim();
+				System.out.println("realHref[" + i + "] = " + realHref);
+				mLogSB.append("realHref[" + i + "] = " + realHref + "\n");
+				String clearTagHref = realHref.replace("/", "").replace("?logTag=", "").trim();
 
-				if(isNumeric(clearTagHref) && !allNumberHrefList.contains(clearTagHref)) {
+				if (isNumeric(clearTagHref) && !allNumberHrefList.contains(clearTagHref)) {
 
 					allNumberHrefList.add(clearTagHref);
 				}
 
-
 			}
-
 
 			for (int i = 0; i < allNumberHrefList.size(); i++) {
 
 				String realNumHref = allNumberHrefList.get(i);
 
-				System.out.println("realNumHref["+i+"] = "+realNumHref);
-				mLogSB.append("realNumHref["+i+"] = "+realNumHref+"\n");
-				allNumberHttpLinkList.add("https://www.ixigua.com/"+realNumHref.trim());
+				System.out.println("realNumHref[" + i + "] = " + realNumHref);
+				mLogSB.append("realNumHref[" + i + "] = " + realNumHref + "\n");
+				allNumberHttpLinkList.add("https://www.ixigua.com/" + realNumHref.trim());
 			}
 
-
-			String downlodLog =  tryDownLoadXiGuaVideo(allNumberHttpLinkList);
+			String downlodLog = tryDownLoadXiGuaVideo(allNumberHttpLinkList);
 			mLogSB.append(downlodLog);
 
 			return mLogSB.toString();
 
-
-
 		}
-
-
 
 		@Override
 		String simpleDesc() {
 
-			//  输入参数有空格 导致 无法直接传递从 shell 传递到 java执行代码  所以这里 注释掉  直接使用 textrule就不存在这样的情况
+			// 输入参数有空格 导致 无法直接传递从 shell 传递到 java执行代码 所以这里 注释掉 直接使用 textrule就不存在这样的情况
 //			return "\n" + Cur_Bat_Name + " #_" + rule_index+"  https://www.ixigua.com/home/3346556174218692   ###  给定一个 西瓜视频 主页 下载 该页面内的所有视频文件   " +
 //		"\n"+	 Cur_Bat_Name + " #_" + rule_index+"  https://profile.zjurl.cn/rogue/ugc/profile/?version_code=851&version_name=80501&user_id=100443303952   ###  给定一个 头条新闻用户主页 下载该页面内的所有视频文件   ";
 
-			return "\n" + Cur_Bat_Name + " #_" + rule_index+"  https://www.ixigua.com/home/3346556174218692   ###  给定一个 西瓜视频 主页 下载 该页面内的所有视频文件   " ;
-
-
+			return "\n" + Cur_Bat_Name + " #_" + rule_index
+					+ "  https://www.ixigua.com/home/3346556174218692   ###  给定一个 西瓜视频 主页 下载 该页面内的所有视频文件   ";
 
 //			https://profile.zjurl.cn/rogue/ugc/profile/?version_code=851&version_name=80501&user_id=100443303952
 		}
 
 		String BrowserOperation_WithRootUrl(String mMainUrl) {
-
 
 			String mainPageHtmlStr = null;
 			File ChromeDriverFile = new File(zbinPath + File.separator + "G2_chromedriver_v91.exe");
@@ -2289,7 +7269,7 @@ public class G2_ApplyRuleFor_TypeFile {
 			int loop_index = 0;
 			try {
 				long waitTime = 1000;
-				long timeout = 60_000;   // 15 秒 // 给他 1分钟
+				long timeout = 60_000; // 15 秒 // 给他 1分钟
 
 				driver.get(mMainUrl);
 				String title = driver.getTitle();
@@ -2319,11 +7299,9 @@ public class G2_ApplyRuleFor_TypeFile {
 
 			}
 
-
-
 			if (mainPageHtmlStr != null) {
 
-				System.out.println("当前已经得到网页Html代码如下:\n"+mainPageHtmlStr);
+				System.out.println("当前已经得到网页Html代码如下:\n" + mainPageHtmlStr);
 
 			} else {
 				System.out.println("rootUrl.mHtmlStr  ==== null ");
@@ -2332,42 +7310,32 @@ public class G2_ApplyRuleFor_TypeFile {
 			return mainPageHtmlStr;
 		}
 
-
-
-
-
-
 	}
-
-
 
 // 3038年 5 月 3 日
 
 	class ShowJpgTagContent_To_Image_Rule_46 extends Basic_Rule {
 
+		File outJpgFile; // 当前目录的产出目录
+		boolean is_jpgharddir; // 目录是否 固定
 
-		File outJpgFile ; //   当前目录的产出目录
-		boolean is_jpgharddir ;   // 目录是否 固定
-
-		boolean is_model_show         ;
-		boolean is_manufacturer_show  ;
-		boolean is_artist_show        ;
-		boolean is_copyright_show     ;
-		boolean is_description_show   ;
-		boolean is_comment_show       ;
-
+		boolean is_model_show;
+		boolean is_manufacturer_show;
+		boolean is_artist_show;
+		boolean is_copyright_show;
+		boolean is_description_show;
+		boolean is_comment_show;
 
 		ShowJpgTagContent_To_Image_Rule_46() {
 			super("#", 46, 4);
-			is_model_show         = false ;
-			is_manufacturer_show  = false ;
-			is_artist_show        = false ;
-			is_copyright_show     = false ;
-			is_description_show   = false ;
-			is_comment_show       = false ;
-			is_jpgharddir =  false;
+			is_model_show = false;
+			is_manufacturer_show = false;
+			is_artist_show = false;
+			is_copyright_show = false;
+			is_description_show = false;
+			is_comment_show = false;
+			is_jpgharddir = false;
 		}
-
 
 		@Override
 		boolean initParamsWithInputList(ArrayList<String> inputParamList) {
@@ -2393,7 +7361,6 @@ public class G2_ApplyRuleFor_TypeFile {
 					is_copyright_show = true;
 				}
 
-
 				if ("description_show".equals(paramItem_lower_trim)) {
 					is_description_show = true;
 				}
@@ -2402,80 +7369,68 @@ public class G2_ApplyRuleFor_TypeFile {
 					is_comment_show = true;
 				}
 
-
 				if ("harddir_true".equals(paramItem_lower_trim)) {
 					is_jpgharddir = true;
 				}
 
-
-
-
 			}
 
-
-			System.out.println("is_model_show="+is_model_show+"  is_manufacturer_show="+is_manufacturer_show
-					+" is_artist_show ="+ is_artist_show +"  is_copyright_show="+is_copyright_show+" is_description_show="+is_description_show
-					+" is_comment_show="+is_comment_show);
-
+			System.out.println("is_model_show=" + is_model_show + "  is_manufacturer_show=" + is_manufacturer_show
+					+ " is_artist_show =" + is_artist_show + "  is_copyright_show=" + is_copyright_show
+					+ " is_description_show=" + is_description_show + " is_comment_show=" + is_comment_show);
 
 			// 只要有一个是 true 才能执行
-			if(is_comment_show  || is_manufacturer_show || is_artist_show || is_copyright_show
-					|| is_description_show || is_comment_show  ) {
+			if (is_comment_show || is_manufacturer_show || is_artist_show || is_copyright_show || is_description_show
+					|| is_comment_show) {
 
 				System.out.println("将执行程序生成 携带JPG属性显示在图片中的图片集合  ");
 
-
-			}else {
+			} else {
 
 				System.out.println(" 输入参数列表必须要有一个参数才能执行 否则没有意义 ");
 				return false;
 
 			}
 
+			if (is_jpgharddir) {
+				outJpgFile = new File(curDirFile.getAbsolutePath() + File.separator + "jpg_tag_dir");
 
-			if(is_jpgharddir) {
-				outJpgFile =  new File(curDirFile.getAbsolutePath()+File.separator+"jpg_tag_dir");
-
-			}else {
-				outJpgFile =  new File(curDirFile.getAbsolutePath()+File.separator+"jpg_tag_"+getTimeStamp());
-
+			} else {
+				outJpgFile = new File(curDirFile.getAbsolutePath() + File.separator + "jpg_tag_" + getTimeStamp());
 
 			}
-
-
-
-
 
 			// TODO Auto-generated method stub
 			return super.initParamsWithInputList(inputParamList);
 		}
 
-
 		@Override
 		String simpleDesc() {
 
-			return Cur_Bat_Name + " #_"+rule_index+"    // 把当前的 jpg 和 png 文件转为一个 PDF文件  (不操作 孙文件 孙文件夹 )  \n"
-					+ Cur_Bat_Name + "  #_"+rule_index+"  model_show  ### 把当前的 jpg 和 png  并在图片显示 model属性  放到 jpg_tag_timestamp目录   \n"
-					+ Cur_Bat_Name + 	 "  #_"+rule_index+"  manufacturer_show  ### 把当前的 jpg 和 png   放到 jpg_tag_timestamp目录   \n"
-					+ Cur_Bat_Name + 	 "  #_"+rule_index+"  artist_show  ### 把当前的 jpg 和 png  放到 jpg_tag_timestamp目录   \n"
-					+ Cur_Bat_Name + 	 "  #_"+rule_index+"  copyright_show  ### 把当前的 jpg 和 png   放到 jpg_tag_timestamp目录   \n"
-					+ Cur_Bat_Name + 	 "  #_"+rule_index+"  description_show  ### 把当前的 jpg 和 png  放到 jpg_tag_timestamp目录  \n"
-					+ Cur_Bat_Name + 	 "  #_"+rule_index+"  comment_show  ### 把当前的 jpg 和 png   放到 jpg_tag_timestamp目录   \n"
-					+ Cur_Bat_Name + 	 "  #_"+rule_index+"  copyright_show  harddir_true  ### 把当前的 jpg 和 png   放到 固定的 jpg_tag_dir目录 方便批处理   \n"
-					+ Cur_Bat_Name + 	 "  #_"+rule_index+"  copyright_show  harddir_true && cd ./jpg_tag_dir && "+ Cur_Bat_Name+" #_32 " +"  #### 对 jpg_yan_land 把 md写入图片并生成 pdf文件"
-					+ ""
+			return Cur_Bat_Name + " #_" + rule_index + "    // 把当前的 jpg 和 png 文件转为一个 PDF文件  (不操作 孙文件 孙文件夹 )  \n"
+					+ Cur_Bat_Name + "  #_" + rule_index
+					+ "  model_show  ### 把当前的 jpg 和 png  并在图片显示 model属性  放到 jpg_tag_timestamp目录   \n" + Cur_Bat_Name
+					+ "  #_" + rule_index + "  manufacturer_show  ### 把当前的 jpg 和 png   放到 jpg_tag_timestamp目录   \n"
+					+ Cur_Bat_Name + "  #_" + rule_index
+					+ "  artist_show  ### 把当前的 jpg 和 png  放到 jpg_tag_timestamp目录   \n" + Cur_Bat_Name + "  #_"
+					+ rule_index + "  copyright_show  ### 把当前的 jpg 和 png   放到 jpg_tag_timestamp目录   \n" + Cur_Bat_Name
+					+ "  #_" + rule_index + "  description_show  ### 把当前的 jpg 和 png  放到 jpg_tag_timestamp目录  \n"
+					+ Cur_Bat_Name + "  #_" + rule_index
+					+ "  comment_show  ### 把当前的 jpg 和 png   放到 jpg_tag_timestamp目录   \n" + Cur_Bat_Name + "  #_"
+					+ rule_index
+					+ "  copyright_show  harddir_true  ### 把当前的 jpg 和 png   放到 固定的 jpg_tag_dir目录 方便批处理   \n"
+					+ Cur_Bat_Name + "  #_" + rule_index + "  copyright_show  harddir_true && cd ./jpg_tag_dir && "
+					+ Cur_Bat_Name + " #_32 " + "  #### 对 jpg_yan_land 把 md写入图片并生成 pdf文件" + ""
 //			zrule_apply_G2.bat  #_46  copyright_show  harddir_true
-					;
+			;
 		}
-
-
 
 		@Override
 		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
-											  HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
-											  ArrayList<File> curRealFileList) {
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 // TODO Auto-generated method stub
-			ArrayList<File> 	jpgFileList = getAllSubFile(curDirFile, ".jpg");
+			ArrayList<File> jpgFileList = getAllSubFile(curDirFile, ".jpg");
 
 			if (jpgFileList.size() == 0) {
 				System.out.println(" 当前目录 curDirFile=[" + curDirFile.getAbsolutePath() + "] 内没有 jpg文件!!  请检查后再次执行!! ");
@@ -2488,60 +7443,55 @@ public class G2_ApplyRuleFor_TypeFile {
 				String jpgName = jpgFile.getName();
 				JPGExifInfo mStockExifJpg = new JPGExifInfo(jpgFile);
 				StringBuilder rawLineSB = new StringBuilder();
-				if(is_model_show) {
-					if(mStockExifJpg.mImageModel_Utf8 != null) {
-						rawLineSB.append("model:"+mStockExifJpg.mImageModel_Utf8+"\n");
+				if (is_model_show) {
+					if (mStockExifJpg.mImageModel_Utf8 != null) {
+						rawLineSB.append("model:" + mStockExifJpg.mImageModel_Utf8 + "\n");
 					}
 
 				}
 
-
-				if(is_manufacturer_show) {
-					if(mStockExifJpg.mImageMake_Utf8 != null) {
-						rawLineSB.append("manufacturer:"+mStockExifJpg.mImageMake_Utf8+"\n");
+				if (is_manufacturer_show) {
+					if (mStockExifJpg.mImageMake_Utf8 != null) {
+						rawLineSB.append("manufacturer:" + mStockExifJpg.mImageMake_Utf8 + "\n");
 					}
 
 				}
 
-
-
-				if(is_artist_show) {
-					if(mStockExifJpg.mImageArtist_Utf8 != null) {
-						rawLineSB.append("artist:"+mStockExifJpg.mImageArtist_Utf8+"\n");
+				if (is_artist_show) {
+					if (mStockExifJpg.mImageArtist_Utf8 != null) {
+						rawLineSB.append("artist:" + mStockExifJpg.mImageArtist_Utf8 + "\n");
 					}
 
 				}
 
-
-				if(is_copyright_show) {
-					if(mStockExifJpg.mImageCopyright_Utf8 != null) {
-						rawLineSB.append("copyright:"+mStockExifJpg.mImageCopyright_Utf8+"\n");
+				if (is_copyright_show) {
+					if (mStockExifJpg.mImageCopyright_Utf8 != null) {
+						rawLineSB.append("copyright:" + mStockExifJpg.mImageCopyright_Utf8 + "\n");
 					}
 
 				}
 
-				if(is_description_show) {
-					if(mStockExifJpg.mImageDescription_Utf8 != null) {
-						rawLineSB.append("description:"+mStockExifJpg.mImageDescription_Utf8+"\n");
+				if (is_description_show) {
+					if (mStockExifJpg.mImageDescription_Utf8 != null) {
+						rawLineSB.append("description:" + mStockExifJpg.mImageDescription_Utf8 + "\n");
 					}
 
 				}
 
-
-				if(is_comment_show) {
-					if(mStockExifJpg.mPhotoUserComment_Utf8 != null) {
-						rawLineSB.append("comment:"+mStockExifJpg.mPhotoUserComment_Utf8+"\n");
+				if (is_comment_show) {
+					if (mStockExifJpg.mPhotoUserComment_Utf8 != null) {
+						rawLineSB.append("comment:" + mStockExifJpg.mPhotoUserComment_Utf8 + "\n");
 					}
 
 				}
-
 
 				File srcJpgFile = jpgFile;
-				File targetJpg = new File(outJpgFile.getAbsolutePath()+File.separator+jpgName);
+				File targetJpg = new File(outJpgFile.getAbsolutePath() + File.separator + jpgName);
 				String drawLine = rawLineSB.toString();
 
-				System.out.println("File["+i+"] srcJpgFile="+srcJpgFile.getAbsolutePath()+"  targetJpg="+targetJpg.getAbsolutePath()+" drawLine="+drawLine);
-				drawTagJpg(srcJpgFile,targetJpg,drawLine);
+				System.out.println("File[" + i + "] srcJpgFile=" + srcJpgFile.getAbsolutePath() + "  targetJpg="
+						+ targetJpg.getAbsolutePath() + " drawLine=" + drawLine);
+				drawTagJpg(srcJpgFile, targetJpg, drawLine);
 
 			}
 
@@ -2549,26 +7499,22 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		}
 
+		void drawTagJpg(File srcJpgFile, File dstJpgFile, String drawText) {
 
-
-		void drawTagJpg(File srcJpgFile , File dstJpgFile , String drawText) {
-
-
-			if(!dstJpgFile.getParentFile().exists()) {
+			if (!dstJpgFile.getParentFile().exists()) {
 				dstJpgFile.getParentFile().mkdirs();
 			}
 
 			fileCopy(srcJpgFile, dstJpgFile);
-			File mCurFile = srcJpgFile ;
+			File mCurFile = srcJpgFile;
 
 			ImageIcon imageIcon = new ImageIcon(dstJpgFile.getAbsolutePath());
 
 			BufferedImage bi = getBufferedImage(dstJpgFile);
 			int heigh = bi.getHeight();
 			int width = bi.getWidth();
-			int jpg_width =  width;
-			int jpg_hight =  heigh;
-
+			int jpg_width = width;
+			int jpg_hight = heigh;
 
 //				BufferedImage bi = new BufferedImage(width, heigh, BufferedImage.TYPE_INT_RGB);// INT精确度达到一定,RGB三原色，高度70,宽度150
 			// 得到它的绘制环境(这张图片的笔)
@@ -2580,18 +7526,16 @@ public class G2_ApplyRuleFor_TypeFile {
 			int centerx = jpg_width / 2;
 			int centery = jpg_hight / 2;
 
-
 			int centery_20 = jpg_hight / 20;
 			int centerx_20 = (jpg_width / 20) * 19;
-
 
 			Font f = new Font("宋体", Font.BOLD, frontSize);
 			g2.setFont(f); // 设置字体:字体、字号、大小
 			FontRenderContext context = g2.getFontRenderContext();
 			Rectangle2D bounds = f.getStringBounds(drawText + "", context);
 
-			g2.drawString(drawText + "", (float) (jpg_width-2*bounds.getCenterX() - 30 ),	(float) ( jpg_hight - 2*bounds.getCenterY() - 30)); // 向图片上写字符串
-
+			g2.drawString(drawText + "", (float) (jpg_width - 2 * bounds.getCenterX() - 30),
+					(float) (jpg_hight - 2 * bounds.getCenterY() - 30)); // 向图片上写字符串
 
 //				g2.drawString(drawText + "", (float) (centerx - bounds.getCenterX()),	(float) (centery - bounds.getCenterY())); // 向图片上写字符串
 
@@ -2602,9 +7546,6 @@ public class G2_ApplyRuleFor_TypeFile {
 			} catch (Exception e) {
 				System.out.println("复制图片格式出现异常！");
 			}
-
-
-
 
 		}
 
@@ -2623,7 +7564,6 @@ public class G2_ApplyRuleFor_TypeFile {
 //    return resizeFix(400, 492);
 			return resize(img, width, height);
 		}
-
 
 		public BufferedImage resize(Image mImage, int w, int h) {
 			// SCALE_SMOOTH 的缩略算法 生成缩略图片的平滑度的 优先级比速度高 生成的图片质量比较好 但速度慢
@@ -2647,37 +7587,34 @@ public class G2_ApplyRuleFor_TypeFile {
 
 	}
 
+	class JPGExifInfo {
+		File rawFile;
 
-	class JPGExifInfo{
-		File rawFile ;
+		public String mImageModel_Utf8; // 股票名称
+		public String mImageMake_Utf8; // ts代码
+		public String mImageArtist_Utf8; // 股票名称
+		public String mImageCopyright_Utf8; // ts代码
+		public String mImageDescription_Utf8; // 股票名称
+		public String mPhotoUserComment_Utf8; // ts代码
 
-		public	String mImageModel_Utf8;  // 股票名称
-		public	String mImageMake_Utf8;  // ts代码
-		public	String mImageArtist_Utf8;  // 股票名称
-		public	String mImageCopyright_Utf8;  // ts代码
-		public	String mImageDescription_Utf8;  // 股票名称
-		public	String mPhotoUserComment_Utf8;  // ts代码
-
-
-		JPGExifInfo(File mFile){
+		JPGExifInfo(File mFile) {
 			rawFile = mFile;
 			initTagProp(rawFile);
 		}
 
 		void initTagProp(File jpgFile) {
 			String fileName = jpgFile.getAbsolutePath().toLowerCase().trim();
-			if(!fileName.endsWith(".jpg")) {
+			if (!fileName.endsWith(".jpg")) {
 				return;
 			}
 			initExifInfo(jpgFile);
 
-			System.out.println("mImageModel_Utf8="+mImageModel_Utf8+"  mImageMake_Utf8="+mImageMake_Utf8+"  mImageArtist_Utf8="+mImageArtist_Utf8
-					+"  mImageCopyright_Utf8="+mImageCopyright_Utf8+"  mImageDescription_Utf8="+mImageDescription_Utf8+" mPhotoUserComment_Utf8="+mPhotoUserComment_Utf8);
-
+			System.out.println("mImageModel_Utf8=" + mImageModel_Utf8 + "  mImageMake_Utf8=" + mImageMake_Utf8
+					+ "  mImageArtist_Utf8=" + mImageArtist_Utf8 + "  mImageCopyright_Utf8=" + mImageCopyright_Utf8
+					+ "  mImageDescription_Utf8=" + mImageDescription_Utf8 + " mPhotoUserComment_Utf8="
+					+ mPhotoUserComment_Utf8);
 
 		}
-
-
 
 		void initExifInfo(File file) {
 
@@ -2765,14 +7702,14 @@ public class G2_ApplyRuleFor_TypeFile {
 //		String mPhotoUserComment_Utf8 = null;   // 待定
 
 			if (mImageArtist_Utf8 != null) {
-				System.out.println(" mImageArtist_Utf8 = "+ mImageArtist_Utf8);
+				System.out.println(" mImageArtist_Utf8 = " + mImageArtist_Utf8);
 
 			} else {
 				System.out.println("当前文件 [" + file.getName() + "] 没有读取到 mImageArtist_CategoryStr !! ");
 			}
 
 			if (mImageDescription_Utf8 != null) {
-				System.out.println(" mImageDescription_Utf8 = "+ mImageArtist_Utf8);
+				System.out.println(" mImageDescription_Utf8 = " + mImageArtist_Utf8);
 
 			} else {
 				System.out.println("当前文件 [" + file.getName() + "] 没有读取到 mImageDescription_SelfDesc !! ");
@@ -2780,55 +7717,47 @@ public class G2_ApplyRuleFor_TypeFile {
 
 			if (mImageCopyright_Utf8 != null) {
 
-				System.out.println(" mImageCopyright_Utf8 = "+ mImageCopyright_Utf8);
+				System.out.println(" mImageCopyright_Utf8 = " + mImageCopyright_Utf8);
 
 			} else {
 				System.out.println("当前文件 [" + file.getName() + "] 没有读取到 mImageCopyright_VideoMD !! ");
 			}
 
 			if (mImageMake_Utf8 != null) {
-				System.out.println(" mImageMake_Utf8 = "+ mImageMake_Utf8);
+				System.out.println(" mImageMake_Utf8 = " + mImageMake_Utf8);
 			} else {
 				System.out.println("当前文件 [" + file.getName() + "] 没有读取到 mImageMake_Utf8 !! ");
 			}
 
 			if (mImageModel_Utf8 != null) {
-				System.out.println(" mImageModel_Utf8 = "+ mImageModel_Utf8);
+				System.out.println(" mImageModel_Utf8 = " + mImageModel_Utf8);
 			} else {
 				System.out.println("当前文件 [" + file.getName() + "] 没有读取到 mImageModel_Utf8 !! ");
 			}
 
 			if (mPhotoUserComment_Utf8 != null) {
-				System.out.println(" mPhotoUserComment_Utf8 = "+ mPhotoUserComment_Utf8);
+				System.out.println(" mPhotoUserComment_Utf8 = " + mPhotoUserComment_Utf8);
 			} else {
 				System.out.println("当前文件 [" + file.getName() + "] 没有读取到 mPhotoUserComment_Utf8 !! ");
 			}
 
 		}
 
-
 	}
 
-
-
 	class Jpg_Stock_Port_To_MD_Rule_45 extends Basic_Rule {
-
 
 		ArrayList<File> jpgFileList; // 当前目录下的 jpg 文件
 		ArrayList<StockExifJpg> jpgExifList; // 当前从 jpg读取信息后生成的原始数据
 
-
-
 		boolean is_stock; // 考研 类型
 
-		Jpg_Stock_Port_To_MD_Rule_45(){
+		Jpg_Stock_Port_To_MD_Rule_45() {
 			super("#", 45, 4); //
 			jpgFileList = new ArrayList<File>();
 			jpgExifList = new ArrayList<StockExifJpg>();
 
-
 		}
-
 
 		@Override
 		boolean allowEmptyDirFileList() {
@@ -2840,7 +7769,7 @@ public class G2_ApplyRuleFor_TypeFile {
 		String simpleDesc() {
 
 			return "\n" + Cur_Bat_Name + " #_" + rule_index
-					+ "  stock_true  ###   生成 股票吐槽相关 的.md 读取当前文件夹下的jpg文件的exif信息 生成 这些 jpg_stock_port 中的 创建日期 初始资金 股票列表 用户评论信息    " ;
+					+ "  stock_true  ###   生成 股票吐槽相关 的.md 读取当前文件夹下的jpg文件的exif信息 生成 这些 jpg_stock_port 中的 创建日期 初始资金 股票列表 用户评论信息    ";
 
 		}
 
@@ -2856,26 +7785,21 @@ public class G2_ApplyRuleFor_TypeFile {
 					is_stock = true;
 				}
 
-
 			}
 
-			if(!is_stock) {
+			if (!is_stock) {
 				System.out.println("当前输入的参数 没有包含 stock_true  参数 请检查! ");
 				return false;
 			}
-
-
 
 			// TODO Auto-generated method stub
 			return super.initParamsWithInputList(inputParamList);
 		}
 
-
-
 		@Override
 		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
-											  HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
-											  ArrayList<File> curRealFileList) {
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 // TODO Auto-generated method stub
 			jpgFileList = getAllSubFile(curDirFile, ".jpg");
 
@@ -2889,10 +7813,9 @@ public class G2_ApplyRuleFor_TypeFile {
 				File jpgFile = jpgFileList.get(i);
 				StockExifJpg mStockExifJpg = new StockExifJpg(jpgFile);
 
-				if(mStockExifJpg.isImageEnable) {
+				if (mStockExifJpg.isImageEnable) {
 					jpgExifList.add(mStockExifJpg);
 				}
-
 
 			}
 
@@ -2904,7 +7827,6 @@ public class G2_ApplyRuleFor_TypeFile {
 				return null;
 			}
 
-
 			jpgExifList.sort(new Comparator<StockExifJpg>() {
 				@Override
 				public int compare(StockExifJpg o1, StockExifJpg o2) {
@@ -2912,7 +7834,6 @@ public class G2_ApplyRuleFor_TypeFile {
 				}
 
 			});
-
 
 			ArrayList<String> mMdContentList = BuildStockMDContent(jpgExifList);
 
@@ -2934,7 +7855,6 @@ public class G2_ApplyRuleFor_TypeFile {
 //			 * TOC
 //			 {:toc}
 
-
 			segerate_MdContentList.add("---");
 			if (is_stock) {
 				segerate_MdContentList.add("layout: post");
@@ -2945,17 +7865,14 @@ public class G2_ApplyRuleFor_TypeFile {
 				segerate_MdContentList.add("typora-root-url: ..\\..\\");
 				segerate_MdContentList.add("typora-copy-images-to: ..\\..\\public\\zimage\\jpg_stock_port");
 
-
 			}
 			segerate_MdContentList.add("---");
 			segerate_MdContentList.add("\n");
 
-			segerate_MdContentList.add("## 简介_UserBean("+jpgExifList.size()+")");
+			segerate_MdContentList.add("## 简介_UserBean(" + jpgExifList.size() + ")");
 			segerate_MdContentList.add(" * TOC");
 			segerate_MdContentList.add(" {:toc}");
 			segerate_MdContentList.add("\n");
-
-
 
 			for (int i = 0; i < mMdContentList.size(); i++) {
 				String contentLine = mMdContentList.get(i);
@@ -2966,29 +7883,25 @@ public class G2_ApplyRuleFor_TypeFile {
 			writeContentToFile(G2_Temp_Text_File, segerate_MdContentList);
 			NotePadOpenTargetFile(G2_Temp_Text_File.getAbsolutePath());
 
-
-
 			return super.applySubFileListRule4(curFileList, subFileTypeMap, curDirList, curRealFileList);
-
 
 		}
 
+		ArrayList<String> BuildStockMDContent(ArrayList<StockExifJpg> jpgExifList) {
+			ArrayList<String> stockMDList = new ArrayList<String>();
 
-		ArrayList<String> BuildStockMDContent(ArrayList<StockExifJpg> jpgExifList ){
-			ArrayList<String> stockMDList = new 	ArrayList<String> ();
+			// 1. 首先对 jpg 进行 改名
 
-			// 1. 首先对  jpg 进行 改名
-
-			//   读取 每一个 jpgStockExif   生成 MD 文件
+			// 读取 每一个 jpgStockExif 生成 MD 文件
 
 			for (int i = 0; i < jpgExifList.size(); i++) {
 				StockExifJpg jpgExifitem = jpgExifList.get(i);
 //				System.out.println("jpg_exif[" + i + "] = " + jpgExifitem.toString());
 				jpgExifitem.renameOperation();
 
-				ArrayList<String> exifMDList = 	jpgExifitem.buildStockContent();
+				ArrayList<String> exifMDList = jpgExifitem.buildStockContent();
 
-				if(exifMDList != null && exifMDList.size() > 0 ) {
+				if (exifMDList != null && exifMDList.size() > 0) {
 					stockMDList.addAll(exifMDList);
 				}
 
@@ -2996,12 +7909,9 @@ public class G2_ApplyRuleFor_TypeFile {
 
 			return stockMDList;
 
-
 		}
 
-
-
-		class StockExifJpg {   // 在 JPG 中 读取到的 exif 相关的股票信息
+		class StockExifJpg { // 在 JPG 中 读取到的 exif 相关的股票信息
 
 			@Override
 			public String toString() {
@@ -3011,26 +7921,20 @@ public class G2_ApplyRuleFor_TypeFile {
 						+ ", stockItemList=" + stockItemList + "]";
 			}
 
-			File jpgFile;   // 对应的 jpg 文件
+			File jpgFile; // 对应的 jpg 文件
 
+			String image_url_prefix; // 初始资金
+			File reNameFile; // 重命名后的那个文件
+			String createDateStr; // 创建日期
+			String initMoneyDouble; // 初始资金
 
-			String image_url_prefix;  // 初始资金
-			File reNameFile ;  // 重命名后的那个文件
-			String createDateStr;   // 创建日期
-			String initMoneyDouble;  // 初始资金
+			ArrayList<String> stockMatchRawList; // 【万科A:000002:20:10000】 这样的字符串的集合
 
+			boolean isImageEnable; // 图片是否 符合 exif 条件
+			String rawExifStr; // 从文件读取到的 exif 信息的 集合 组成一句话
 
-			ArrayList<String> stockMatchRawList;  // 【万科A:000002:20:10000】 这样的字符串的集合
-
-			boolean isImageEnable ; // 图片是否 符合 exif 条件
-			String  rawExifStr;   //  从文件读取到的 exif 信息的 集合 组成一句话
-
-
-
-
-			String userCommentStr ;    //   用户评论字符串  把初始资金 创建日期  股票列表都去除后 剩下的
-			ArrayList<StockItemExifInfo> stockItemList ; // 从 exif 中 读取到的 股票信息
-
+			String userCommentStr; // 用户评论字符串 把初始资金 创建日期 股票列表都去除后 剩下的
+			ArrayList<StockItemExifInfo> stockItemList; // 从 exif 中 读取到的 股票信息
 
 //			### 2021.12.12_20,000,000
 //
@@ -3045,34 +7949,32 @@ public class G2_ApplyRuleFor_TypeFile {
 //
 //			```
 
-			public ArrayList<String> 		buildStockContent(){
-				ArrayList<String>  stockMDList = new 	ArrayList<String> ();
-				DecimalFormat decimalFormat_A  = new DecimalFormat(",#00");
-				DecimalFormat decimalFormat_B  = new DecimalFormat("#00.00");
-				//  创建 自身的 MD文件的 内容
+			public ArrayList<String> buildStockContent() {
+				ArrayList<String> stockMDList = new ArrayList<String>();
+				DecimalFormat decimalFormat_A = new DecimalFormat(",#00");
+				DecimalFormat decimalFormat_B = new DecimalFormat("#00.00");
+				// 创建 自身的 MD文件的 内容
 
 				String reNameFileName = reNameFile.getName();
 
-				stockMDList.add("### "+ createDateStr+"_"+decimalFormat_A.format(Double.parseDouble(initMoneyDouble)) );
+				stockMDList.add(
+						"### " + createDateStr + "_" + decimalFormat_A.format(Double.parseDouble(initMoneyDouble)));
 
+				for (int i = 0; i < stockItemList.size(); i++) {
 
-				for (int i = 0; i < stockItemList.size() ; i++) {
+					StockItemExifInfo stockExif = stockItemList.get(i);
 
-					StockItemExifInfo  stockExif = stockItemList.get(i);
-
-					stockMDList.add("#### "+stockExif.stockName+"_"+(decimalFormat_B.format(stockExif.costPriceForOne))+"_"+stockExif.stockKeepCount);
-
-
+					stockMDList.add("#### " + stockExif.stockName + "_"
+							+ (decimalFormat_B.format(stockExif.costPriceForOne)) + "_" + stockExif.stockKeepCount);
 
 				}
-
 
 				stockMDList.add("```");
 				stockMDList.add(userCommentStr);
 				stockMDList.add("```");
 
-
-				stockMDList.add("<img src=\"" +  (image_url_prefix +reNameFileName)  + "\"  height=\"33%\" width=\"33%\"  >");
+				stockMDList.add(
+						"<img src=\"" + (image_url_prefix + reNameFileName) + "\"  height=\"33%\" width=\"33%\"  >");
 
 				stockMDList.add("");
 
@@ -3081,27 +7983,25 @@ public class G2_ApplyRuleFor_TypeFile {
 
 			}
 
-
-			public 	void renameOperation() {
-
-
+			public void renameOperation() {
 
 				String originFileName = jpgFile.getName();
 				String parentPath = jpgFile.getParentFile().getAbsolutePath();
 				String dynamicFileName = getMatchFileName();
 
-				if(dynamicFileName != null && !dynamicFileName.equals(originFileName)) {
+				if (dynamicFileName != null && !dynamicFileName.equals(originFileName)) {
 
-					if(tryReName(jpgFile, dynamicFileName)) {
+					if (tryReName(jpgFile, dynamicFileName)) {
 
-						System.out.println("当前 jpgFile 文件名["+originFileName+"]已经 改为 动态计算的名字["+dynamicFileName+"]  改名成功");
-						reNameFile = new File(parentPath+File.separator+dynamicFileName);
-					}else {
+						System.out.println(
+								"当前 jpgFile 文件名[" + originFileName + "]已经 改为 动态计算的名字[" + dynamicFileName + "]  改名成功");
+						reNameFile = new File(parentPath + File.separator + dynamicFileName);
+					} else {
 
-						System.out.println("当前 jpgFile 文件名["+originFileName+"] 改为 动态计算的名字["+dynamicFileName+"] 改名失败 ");
+						System.out.println(
+								"当前 jpgFile 文件名[" + originFileName + "] 改为 动态计算的名字[" + dynamicFileName + "] 改名失败 ");
 						reNameFile = jpgFile;
 					}
-
 
 				} else {
 
@@ -3111,26 +8011,24 @@ public class G2_ApplyRuleFor_TypeFile {
 
 			}
 
-
-
 			// 读取 exif 后 匹配到的
-			public	String	getMatchFileName(){
+			public String getMatchFileName() {
 				StringBuilder sb = new StringBuilder();
 
 //				2021.11.11_福田汽车-21.21-2131_格力电器-31.41-3141_10000000.jpg
 
-				if(stockItemList == null) {
+				if (stockItemList == null) {
 					return jpgFile.getName();
 				}
-				DecimalFormat decimalFormat_A  = new DecimalFormat(",#00");
-				DecimalFormat decimalFormat_B  = new DecimalFormat("#00.00");
+				DecimalFormat decimalFormat_A = new DecimalFormat(",#00");
+				DecimalFormat decimalFormat_B = new DecimalFormat("#00.00");
 
 				sb.append(createDateStr);
 				sb.append("_");
 
 				for (int i = 0; i < stockItemList.size(); i++) {
 					StockItemExifInfo stockItem = stockItemList.get(i);
-					String stockName =   stockItem.stockName;
+					String stockName = stockItem.stockName;
 					sb.append(stockName);
 					sb.append("-");
 					sb.append(decimalFormat_B.format(stockItem.costPriceForOne));
@@ -3144,50 +8042,48 @@ public class G2_ApplyRuleFor_TypeFile {
 
 			}
 
-			StockExifJpg(File rawFile){
+			StockExifJpg(File rawFile) {
 				jpgFile = rawFile;
 				isImageEnable = true;
-				if(!jpgFile.exists() || !jpgFile.getName().toLowerCase().endsWith(".jpg")) {
+				if (!jpgFile.exists() || !jpgFile.getName().toLowerCase().endsWith(".jpg")) {
 					isImageEnable = false;
 					return;
 				}
 
 				rawExifStr = getAllExifStr(jpgFile);
 				image_url_prefix = "/public/zimage/jpg_stock_port/";
-				if(rawExifStr  == null || "".equals(rawExifStr)){
-					System.out.println("jpg_stock_port  imageFile["+jpgFile.getAbsolutePath()+"] 无法读取到 exif信息");
+				if (rawExifStr == null || "".equals(rawExifStr)) {
+					System.out.println("jpg_stock_port  imageFile[" + jpgFile.getAbsolutePath() + "] 无法读取到 exif信息");
 					isImageEnable = false;
 					return;
 				}
 
+				String initMoneyStr = calculStringMiddleForOne(rawExifStr, "【初始资金:", "】");
+				String createDateStrTemp = calculStringMiddleForOne(rawExifStr, "【创建日期:", "】");
 
-				String  initMoneyStr = calculStringMiddleForOne(rawExifStr,"【初始资金:","】");
-				String createDateStrTemp =  calculStringMiddleForOne(rawExifStr,"【创建日期:","】");
-
-
-				print(" 【createDateStrTemp ["+createDateStrTemp+"]】");
-				if(initMoneyStr  == null || "".equals(initMoneyStr)  || createDateStrTemp  == null || "".equals(createDateStrTemp)   ){
+				print(" 【createDateStrTemp [" + createDateStrTemp + "]】");
+				if (initMoneyStr == null || "".equals(initMoneyStr) || createDateStrTemp == null
+						|| "".equals(createDateStrTemp)) {
 					System.out.println("无法读取到 初始资金 创建日期 exif 信息 ");
 					isImageEnable = false;
 					return;
 				}
 
-				createDateStr =   createDateStrTemp;
-				if(!isNumeric(initMoneyStr)) {
+				createDateStr = createDateStrTemp;
+				if (!isNumeric(initMoneyStr)) {
 					System.out.println("无法读取到 初始资金 exif 信息 ");
 					isImageEnable = false;
 					return;
 				}
 
-
 				initMoneyDouble = initMoneyStr;
 
-				String stockOnlyStr = rawExifStr.replace("【初始资金:"+initMoneyStr+"】", "");
-				stockOnlyStr = stockOnlyStr.replace("【创建日期:"+createDateStr+"】", "");
+				String stockOnlyStr = rawExifStr.replace("【初始资金:" + initMoneyStr + "】", "");
+				stockOnlyStr = stockOnlyStr.replace("【创建日期:" + createDateStr + "】", "");
 				// 【福田汽车:600166:3.5:100000】
-				ArrayList<String> matchStockStrList =  calculExifStockTagList(stockOnlyStr);
+				ArrayList<String> matchStockStrList = calculExifStockTagList(stockOnlyStr);
 
-				if(matchStockStrList == null && matchStockStrList.size() <= 0 ) {
+				if (matchStockStrList == null && matchStockStrList.size() <= 0) {
 
 					System.out.println("无法读取到 股票信息 如【福田汽车:600166:3.5:100000】   exif 信息 ");
 					isImageEnable = false;
@@ -3196,57 +8092,47 @@ public class G2_ApplyRuleFor_TypeFile {
 
 				stockMatchRawList = matchStockStrList;
 
-				userCommentStr  = calculUserComment(createDateStr , initMoneyStr , stockMatchRawList , rawExifStr );
+				userCommentStr = calculUserComment(createDateStr, initMoneyStr, stockMatchRawList, rawExifStr);
 
-				print("userCommentStr = ["+userCommentStr+"]");
-
+				print("userCommentStr = [" + userCommentStr + "]");
 
 				// 对 stockItemList 进行初始化
 				stockItemList = new ArrayList<StockItemExifInfo>();
 
-
-				// 对 【福田汽车:600166:3.5:100000】   这样的数据 解析
+				// 对 【福田汽车:600166:3.5:100000】 这样的数据 解析
 				for (int i = 0; i < stockMatchRawList.size(); i++) {
 					String oneStockStr = stockMatchRawList.get(i);
-					String[]  stockArrTag = oneStockStr.split(":");
-					if(stockArrTag == null || stockArrTag.length != 4 ){
+					String[] stockArrTag = oneStockStr.split(":");
+					if (stockArrTag == null || stockArrTag.length != 4) {
 						continue;
 					}
 
+					String tsName = stockArrTag[0];
+					String tsCode = stockArrTag[1];
+					String buyPriceForOne = stockArrTag[2];
+					String buyCount = stockArrTag[3];
 
-
-					String   tsName =   stockArrTag[0];
-					String tsCode =     stockArrTag[1];
-					String buyPriceForOne =    stockArrTag[2];
-					String buyCount =      stockArrTag[3];
-
-
-					StockItemExifInfo stockItem  = new StockItemExifInfo();
+					StockItemExifInfo stockItem = new StockItemExifInfo();
 					stockItem.setCostPriceForOne(Double.parseDouble(buyPriceForOne));
 					stockItem.setStockKeepCount(Long.parseLong(buyCount));
 					stockItem.setStockName(tsName);
 					stockItem.setTsCode(tsCode);
 
-
 					stockItemList.add(stockItem);
 
 				}
 
-
-
 			}
 
-
-
-
-			// 去除 日期  去除 初始资金  去除 股票 剩下的  就是  comment
-			public  String calculUserComment(String dateStr , String moneyStr , ArrayList<String> stockTagList , String rawStr){
+			// 去除 日期 去除 初始资金 去除 股票 剩下的 就是 comment
+			public String calculUserComment(String dateStr, String moneyStr, ArrayList<String> stockTagList,
+					String rawStr) {
 
 				String reusltStr = rawStr.replace(" ", "");
 
-				System.out.println(" 创建日期 = "+ "【创建日期:"+dateStr+"】" + " reusltStr="+reusltStr);
-				reusltStr = reusltStr.replace("【创建日期:"+dateStr+"】", "");
-				reusltStr = reusltStr.replace("【初始资金:"+moneyStr+"】", "");
+				System.out.println(" 创建日期 = " + "【创建日期:" + dateStr + "】" + " reusltStr=" + reusltStr);
+				reusltStr = reusltStr.replace("【创建日期:" + dateStr + "】", "");
+				reusltStr = reusltStr.replace("【初始资金:" + moneyStr + "】", "");
 
 				for (int i = 0; i < stockTagList.size(); i++) {
 					String stockTagItem = stockTagList.get(i);
@@ -3254,44 +8140,40 @@ public class G2_ApplyRuleFor_TypeFile {
 
 				}
 
-				reusltStr = 	  reusltStr.replace("【", "");
-				reusltStr = 	  reusltStr.replace("】", "");
+				reusltStr = reusltStr.replace("【", "");
+				reusltStr = reusltStr.replace("】", "");
 
 				return reusltStr;
 
 			}
 
-			public  ArrayList<String> calculExifStockTagList(String rawStr){
+			public ArrayList<String> calculExifStockTagList(String rawStr) {
 				// 【初始资金:100000】【创建日期:2021.11.11】【福田汽车:600166:3.5:100000】
-				ArrayList<String>  stockMatchList = new  ArrayList<String>();
-
+				ArrayList<String> stockMatchList = new ArrayList<String>();
 
 				String[] stockArr = rawStr.split("】");
 				for (int i = 0; i < stockArr.length; i++) {
 					String tagItem = stockArr[i].trim();
-					System.out.println("stockArr["+i+"] = "+ stockArr[i]);
-					if(tagItem.startsWith("【初始资金:") || tagItem.startsWith("【创建日期:")) {
+					System.out.println("stockArr[" + i + "] = " + stockArr[i]);
+					if (tagItem.startsWith("【初始资金:") || tagItem.startsWith("【创建日期:")) {
 						continue;
 					}
 					String clearBlank = tagItem.replace("【", "").replace("】", "");
-					if(!clearBlank.contains(":")) {
+					if (!clearBlank.contains(":")) {
 						System.out.println("当前 ImageUserBean 不包含 分隔符:引号");
 						continue;
 					}
-					String[] oneStockArr =  clearBlank.split(":");
-					if(oneStockArr == null || oneStockArr.length != 4){
+					String[] oneStockArr = clearBlank.split(":");
+					if (oneStockArr == null || oneStockArr.length != 4) {
 						System.out.println("当前 ImageStockBean 【名称:代码:买入价格:买入数量】 格式不对请检查");
 						continue;
 					}
 
-
 					for (int j = 0; j < oneStockArr.length; j++) {
-						System.out.println("oneStockArr["+j+"] = "+ oneStockArr[j]);
+						System.out.println("oneStockArr[" + j + "] = " + oneStockArr[j]);
 					}
 
 					stockMatchList.add(clearBlank);
-
-
 
 				}
 
@@ -3299,25 +8181,24 @@ public class G2_ApplyRuleFor_TypeFile {
 
 			}
 
-			public void	print(String log){
+			public void print(String log) {
 
 				System.out.println(log);
 			}
 
-
-
-			public  String calculStringMiddleForOne (String rawStr, String preStr , String endStr) {
+			public String calculStringMiddleForOne(String rawStr, String preStr, String endStr) {
 				String matchStr = null;
-				String tempStrA =   rawStr.substring( rawStr.indexOf(preStr)+preStr.length());
-				System.out.println(" 读取到  imageUser 的 exif 信息 ImageUser_exifInfo = "+rawStr+"   tempStrA="+tempStrA);
-				String tempStrB =    tempStrA.substring(0,tempStrA.indexOf(endStr));
-				System.out.println(" 读取到  imageUser 的 exif 信息 ImageUser_exifInfo = "+rawStr+"   tempStrB="+tempStrB);
+				String tempStrA = rawStr.substring(rawStr.indexOf(preStr) + preStr.length());
+				System.out.println(
+						" 读取到  imageUser 的 exif 信息 ImageUser_exifInfo = " + rawStr + "   tempStrA=" + tempStrA);
+				String tempStrB = tempStrA.substring(0, tempStrA.indexOf(endStr));
+				System.out.println(
+						" 读取到  imageUser 的 exif 信息 ImageUser_exifInfo = " + rawStr + "   tempStrB=" + tempStrB);
 				return tempStrB;
 
 			}
 
-
-			public  String  getAllExifStr(File imageFile ){
+			public String getAllExifStr(File imageFile) {
 				String mMatchStr = null;
 
 				String mImageDescription_Utf8 = null;
@@ -3385,7 +8266,8 @@ public class G2_ApplyRuleFor_TypeFile {
 
 					}
 
-					mMatchStr = getExifInfoAsOneStr(mImageModel_Utf8,mImageMake_Utf8,mImageArtist_Utf8,mImageCopyright_Utf8,mImageDescription_Utf8,mPhotoUserComment_Utf8);
+					mMatchStr = getExifInfoAsOneStr(mImageModel_Utf8, mImageMake_Utf8, mImageArtist_Utf8,
+							mImageCopyright_Utf8, mImageDescription_Utf8, mPhotoUserComment_Utf8);
 
 				} catch (JpegProcessingException e) {
 					e.printStackTrace();
@@ -3395,17 +8277,16 @@ public class G2_ApplyRuleFor_TypeFile {
 					e.printStackTrace();
 				}
 
-
-				if(mMatchStr == null || "".equals(mMatchStr)){
+				if (mMatchStr == null || "".equals(mMatchStr)) {
 					System.out.println(" 没有读取到  imageUser 的 exif 信息 ");
 					return null;
 				}
-				System.out.println(" 读取到  imageUser 的 exif 信息 ImageUser_exifInfo = "+mMatchStr);
+				System.out.println(" 读取到  imageUser 的 exif 信息 ImageUser_exifInfo = " + mMatchStr);
 				return mMatchStr;
 
 			}
 
-			public      String  getExifInfoAsOneStr(String A1 , String B2 ,String C3 , String D4 , String E5 , String F6){
+			public String getExifInfoAsOneStr(String A1, String B2, String C3, String D4, String E5, String F6) {
 				StringBuilder sb = new StringBuilder();
 				sb.append(A1 != null ? A1.trim() : "");
 				sb.append(B2 != null ? B2.trim() : "");
@@ -3418,61 +8299,48 @@ public class G2_ApplyRuleFor_TypeFile {
 
 			}
 
-
-
 		}
 
-		class StockItemExifInfo{
+		class StockItemExifInfo {
 
-			public	String stockName;  // 股票名称
-			public	String tsCode;  // ts代码
-			public	double costPriceForOne; // 成本
-			public	long   stockKeepCount;  //  持有数量
-
-
+			public String stockName; // 股票名称
+			public String tsCode; // ts代码
+			public double costPriceForOne; // 成本
+			public long stockKeepCount; // 持有数量
 
 			public String getStockName() {
 				return stockName;
 			}
 
-
 			public void setStockName(String stockName) {
 				this.stockName = stockName;
 			}
-
 
 			public String getTsCode() {
 				return tsCode;
 			}
 
-
 			public void setTsCode(String tsCode) {
 				this.tsCode = tsCode;
 			}
-
 
 			public double getCostPriceForOne() {
 				return costPriceForOne;
 			}
 
-
 			public void setCostPriceForOne(double costPriceForOne) {
 				this.costPriceForOne = costPriceForOne;
 			}
-
 
 			public long getStockKeepCount() {
 				return stockKeepCount;
 			}
 
-
 			public void setStockKeepCount(long stockKeepCount) {
 				this.stockKeepCount = stockKeepCount;
 			}
 
-
-
-			public	double getSrockAllCost() {
+			public double getSrockAllCost() {
 
 				return costPriceForOne * stockKeepCount;
 			}
@@ -3481,19 +8349,14 @@ public class G2_ApplyRuleFor_TypeFile {
 
 	}
 
-
 	// operation_type 操作类型 1--读取文件内容字符串 进行修改 2--对文件对文件内容(字节)--进行修改 3.对全体子文件进行的随性的操作
 	// 属性进行修改(文件名称)
 //     // 4.对当前子文件(包括子目录 子文件 --不包含孙目录 孙文件) 5. 从shell 中获取到的路径 去对某一个文件进行操作
 
-
-
 	class Land_Port_Mp4Rename_Rule_44 extends Basic_Rule {
-
 
 		Land_Port_Mp4Rename_Rule_44() {
 			super("#", 44, 4); //
-
 
 			mSrcMP4FileList = new ArrayList<File>();
 
@@ -3501,26 +8364,23 @@ public class G2_ApplyRuleFor_TypeFile {
 
 			mPortMP4FileList = new ArrayList<File>();
 
-
 		}
 
-
-		File mSouTuDir ;   //  当前视频的缩略图文件夹
+		File mSouTuDir; // 当前视频的缩略图文件夹
 
 		ArrayList<File> mSrcMP4FileList; // Shell 目录下原始文件目录
 		ArrayList<File> mLandMP4FileList; // Shell/Land_Port_TimeStamp/Land/ 文件夹下的文件
 		ArrayList<File> mPortMP4FileList; // Shell/Land_Port_TimeStamp/Land/ 文件夹下的文件
 
 		// 在缩图中的名称对应的 是否是 isport的属性
-		Map<String,Boolean> notypeFileName_IsPort_Map_InSuotu;
+		Map<String, Boolean> notypeFileName_IsPort_Map_InSuotu;
 
 		@Override
 		boolean initParamsWithInputList(ArrayList<String> inputParamList) {
 			// TODO Auto-generated method stub
 
-
-			File[] listFile = 	curDirFile.listFiles();
-			if(listFile == null || listFile.length == 0) {
+			File[] listFile = curDirFile.listFiles();
+			if (listFile == null || listFile.length == 0) {
 				System.out.println("当前执行目录文件为空 无法执行程序 请检查!!  ");
 				return false;
 			}
@@ -3528,16 +8388,16 @@ public class G2_ApplyRuleFor_TypeFile {
 			for (int i = 0; i < listFile.length; i++) {
 				File curFile = listFile[i];
 				String fileName = curFile.getName();
-				if(curFile.isDirectory() && fileName.startsWith("SuoTu_MP4_")) {
+				if (curFile.isDirectory() && fileName.startsWith("SuoTu_MP4_")) {
 					mSouTuDir = curFile;
 
 				}
 			}
 
-			if(mSouTuDir == null || !mSouTuDir.exists()
-					||  mSouTuDir.listFiles() == null || mSouTuDir.listFiles().length == 0) {
+			if (mSouTuDir == null || !mSouTuDir.exists() || mSouTuDir.listFiles() == null
+					|| mSouTuDir.listFiles().length == 0) {
 
-				System.out.println("当前缩略图文件夹为空 请检查:  mSouTuDir = "+ mSouTuDir );
+				System.out.println("当前缩略图文件夹为空 请检查:  mSouTuDir = " + mSouTuDir);
 				System.out.println("Tip: ");
 				System.out.println("当前程序需要先执行zmpeg_ffmpeg_G8.bat 9     ## 把当前目录下的 Mp4 生成缩略图");
 				System.out.println(" 当前程序依赖 软件  ffmpeg.exe ");
@@ -3550,21 +8410,20 @@ public class G2_ApplyRuleFor_TypeFile {
 			return super.initParamsWithInputList(inputParamList);
 		}
 
-
-		void	initMapWithSuoTuDir(File suotuDir){
-			notypeFileName_IsPort_Map_InSuotu = new HashMap<String,Boolean>();
+		void initMapWithSuoTuDir(File suotuDir) {
+			notypeFileName_IsPort_Map_InSuotu = new HashMap<String, Boolean>();
 			File[] fileList = suotuDir.listFiles();
 
 			for (int i = 0; i < fileList.length; i++) {
 				File curFile = fileList[i];
 				String type = getFileTypeWithPoint(curFile.getName());
 				String fileNameNoPoint = getFileNameNoPoint(curFile.getName());
-				if(".jpg".equals(type)) {
+				if (".jpg".equals(type)) {
 					ImageIcon imageIcon = new ImageIcon(curFile.getAbsolutePath());
 					int high = imageIcon.getIconHeight();
 					int width = imageIcon.getIconWidth();
 					boolean isPort = true;
-					if(width > high) {
+					if (width > high) {
 						isPort = false;
 					} else {
 						isPort = true;
@@ -3576,22 +8435,16 @@ public class G2_ApplyRuleFor_TypeFile {
 
 			}
 
-
-
 			deleteDirectory(suotuDir.getAbsolutePath());
 
-
-
-			System.out.println("notypeFileName_IsPort_Map Size["+notypeFileName_IsPort_Map_InSuotu.size()+"]");
+			System.out.println("notypeFileName_IsPort_Map Size[" + notypeFileName_IsPort_Map_InSuotu.size() + "]");
 
 		}
 
-
-		boolean  isVideoPort_MP4Parser(File videoFile){
+		boolean isVideoPort_MP4Parser(File videoFile) {
 			boolean isport = true;
 			try {
 				IsoFile isoFile = new IsoFile(new FileInputStream(videoFile).getChannel());
-
 
 				MovieBox movieBox = org.mp4parser.tools.Path.getPath(isoFile, "moov");
 // 可以打印这个 movieBox  toString 看看里面有啥
@@ -3606,13 +8459,14 @@ public class G2_ApplyRuleFor_TypeFile {
 						width = (int) tBbx.getTrackHeaderBox().getWidth();
 						height = (int) tBbx.getTrackHeaderBox().getHeight();
 
-						if(width > height) {
+						if (width > height) {
 
 							isport = false;
 						}
 
-						System.out.println("filename["+videoFile.getName()+"]"+"   width["+width+"]"+"  hight["+height+"]"+"   isport["+isport+"]" +"  duration["+duration+"]");
-
+						System.out.println(
+								"filename[" + videoFile.getName() + "]" + "   width[" + width + "]" + "  hight["
+										+ height + "]" + "   isport[" + isport + "]" + "  duration[" + duration + "]");
 
 						break;
 					}
@@ -3622,15 +8476,14 @@ public class G2_ApplyRuleFor_TypeFile {
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				System.out.println("异常发生 e="+e);
+				System.out.println("异常发生 e=" + e);
 			}
 
 			return isport;
 
 		}
 
-
-		boolean  isVideoPort_MultimediaInfo(File mp4File){
+		boolean isVideoPort_MultimediaInfo(File mp4File) {
 			boolean isport = true;
 
 			Encoder encoder = new Encoder();
@@ -3638,20 +8491,20 @@ public class G2_ApplyRuleFor_TypeFile {
 			try {
 				MultimediaInfo m = encoder.getInfo(mp4File);
 
+				VideoSize size = m.getVideo().getSize();
 
-				VideoSize size =   m.getVideo().getSize();
+				long duration = m.getDuration();
 
-				long duration =   m.getDuration();
-
-
-				int lastsecond = (int)duration/1000 -1;
+				int lastsecond = (int) duration / 1000 - 1;
 
 				int height = size.getHeight();
-				int width =   size.getWidth();
-				if(height < width) {
+				int width = size.getWidth();
+				if (height < width) {
 					isport = false;
 				}
-				System.out.println("filename["+mp4File.getName()+"]"+"   width["+width+"]"+"    hight["+height+"]"+"   isport["+isport+"]   duration["+duration+"]  lastsecond["+lastsecond+"]");
+				System.out.println("filename[" + mp4File.getName() + "]" + "   width[" + width + "]" + "    hight["
+						+ height + "]" + "   isport[" + isport + "]   duration[" + duration + "]  lastsecond["
+						+ lastsecond + "]");
 
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -3661,12 +8514,10 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		}
 
-
-
 		@Override
 		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
-											  HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
-											  ArrayList<File> curRealFileList) {
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 
 			for (int i = 0; i < curRealFileList.size(); i++) {
 				File fileItem = curRealFileList.get(i);
@@ -3679,13 +8530,11 @@ public class G2_ApplyRuleFor_TypeFile {
 
 			}
 
-
-
 			for (int i = 0; i < mSrcMP4FileList.size(); i++) {
 				File mp4File = mSrcMP4FileList.get(i);
 				String mp4NameNoType = getFileNameNoPoint(mp4File.getName());
 
-				if(notypeFileName_IsPort_Map_InSuotu.containsKey(mp4NameNoType)) {
+				if (notypeFileName_IsPort_Map_InSuotu.containsKey(mp4NameNoType)) {
 					Boolean isPort = notypeFileName_IsPort_Map_InSuotu.get(mp4NameNoType);
 					if (isPort) {
 						mPortMP4FileList.add(mp4File);
@@ -3693,28 +8542,27 @@ public class G2_ApplyRuleFor_TypeFile {
 						mLandMP4FileList.add(mp4File);
 					}
 
+				} else {
 
-				}else {
-
-					System.out.println("当前文件 mp4File="+mp4File.getName()+" 无法在缩略图文件夹 "+mSouTuDir+" 找到对应的缩略图!! 无法判断");
+					System.out.println(
+							"当前文件 mp4File=" + mp4File.getName() + " 无法在缩略图文件夹 " + mSouTuDir + " 找到对应的缩略图!! 无法判断");
 
 				}
 
-
-
 			}
 
-			int allOperationFileCount = mSrcMP4FileList.size()+mPortMP4FileList.size();
+			int allOperationFileCount = mSrcMP4FileList.size() + mPortMP4FileList.size();
 
 			for (int i = 0; i < mPortMP4FileList.size(); i++) {
 				File mp4File = mPortMP4FileList.get(i);
 				String fileName = mp4File.getName();
-				if(fileName.startsWith("Port_")) {  // 已经有分类   cintinue
+				if (fileName.startsWith("Port_")) { // 已经有分类 cintinue
 					continue;
 				}
-				String new_name = "Port_"+fileName;
+				String new_name = "Port_" + fileName;
 
-				System.out.println("Port["+i+"] AllPort["+mPortMP4FileList.size()+"]  AllMP4["+allOperationFileCount+"]  OldName["+fileName+"]  newName["+new_name+"]");
+				System.out.println("Port[" + i + "] AllPort[" + mPortMP4FileList.size() + "]  AllMP4["
+						+ allOperationFileCount + "]  OldName[" + fileName + "]  newName[" + new_name + "]");
 				tryReName(mp4File, new_name);
 
 			}
@@ -3722,68 +8570,62 @@ public class G2_ApplyRuleFor_TypeFile {
 			for (int i = 0; i < mLandMP4FileList.size(); i++) {
 				File mp4File = mLandMP4FileList.get(i);
 				String fileName = mp4File.getName();
-				if(fileName.startsWith("Land_")) {  // 已经有分类   cintinue
+				if (fileName.startsWith("Land_")) { // 已经有分类 cintinue
 					continue;
 				}
-				String new_name = "Land_"+fileName;
+				String new_name = "Land_" + fileName;
 				System.out.println();
-				System.out.println("Land["+i+"] AllLand["+mLandMP4FileList.size()+"]  AllMP4["+allOperationFileCount+"]  OldName["+fileName+"]  newName["+new_name+"]");
+				System.out.println("Land[" + i + "] AllLand[" + mLandMP4FileList.size() + "]  AllMP4["
+						+ allOperationFileCount + "]  OldName[" + fileName + "]  newName[" + new_name + "]");
 
 				tryReName(mp4File, new_name);
 
 			}
 
-
-
-			System.out.println(""+rule_index +" 对Video 进行 Port_ 和 Land_ 的重命名完成!");
+			System.out.println("" + rule_index + " 对Video 进行 Port_ 和 Land_ 的重命名完成!");
 
 			return super.applySubFileListRule4(curFileList, subFileTypeMap, curDirList, curRealFileList);
 		}
 
-
-
 		@Override
 		String simpleDesc() {
 
-			return "\n" + "zmpeg_ffmpeg_G8.bat 9 && "+  Cur_Bat_Name + " #_" + rule_index+"   ###  对当前的目录中的MP4文件 先生成动态 缩略图文件夹 获取正确宽高后 以 Port_ 和 Land_前缀来重命名MP4文件名称   ";
+			return "\n" + "zmpeg_ffmpeg_G8.bat 9 && " + Cur_Bat_Name + " #_" + rule_index
+					+ "   ###  对当前的目录中的MP4文件 先生成动态 缩略图文件夹 获取正确宽高后 以 Port_ 和 Land_前缀来重命名MP4文件名称   ";
 		}
-
 
 	}
 
 	class SqlitTxt_Return_FirstBlankStr_Rule_43 extends Basic_Rule {
 
-		File operationFile ;   //  不能为空
-		String sqlitstr_tag;   // 从外输入的 对txt文件进行切割的 标示 不能为空
+		File operationFile; // 不能为空
+		String sqlitstr_tag; // 从外输入的 对txt文件进行切割的 标示 不能为空
 
 		SqlitTxt_Return_FirstBlankStr_Rule_43() {
 			super("#", 43, 4); //
 
 		}
 
-
 		@Override
-		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList, HashMap<String, ArrayList<File>> subFileTypeMap,
-											  ArrayList<File> curDirList, ArrayList<File> curRealFileList) {
+		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 			// TODO Auto-generated method stub
 
+			String Tag = ReadFileContent(operationFile);
+			String[] tagArr = Tag.split(sqlitstr_tag);
 
-
-
-			String Tag= ReadFileContent(operationFile);
-			String[]  tagArr = Tag.split(sqlitstr_tag);
-
-			ArrayList<String> matchStrList = new ArrayList<String> ();
-			matchStrList.add("════════════════════"+"切割Tag="+sqlitstr_tag+" ════════════════════");
+			ArrayList<String> matchStrList = new ArrayList<String>();
+			matchStrList.add("════════════════════" + "切割Tag=" + sqlitstr_tag + " ════════════════════");
 			for (int i = 0; i < tagArr.length; i++) {
 				String stritem = tagArr[i];
 
 				// 为了 获取 分隔后的每行, 每行包含一些空格，所以 这里取到每行空格之前的字符串
-				String[] blankArr = 	stritem.split(" ");
-				if(blankArr != null) {
+				String[] blankArr = stritem.split(" ");
+				if (blankArr != null) {
 					String oneBlankStr = blankArr[0];
-					oneBlankStr = oneBlankStr.replace("\"", "");  // 去除引号
-					if(oneBlankStr.equals("")) {
+					oneBlankStr = oneBlankStr.replace("\"", ""); // 去除引号
+					if (oneBlankStr.equals("")) {
 						continue;
 					}
 
@@ -3792,7 +8634,6 @@ public class G2_ApplyRuleFor_TypeFile {
 //					System.out.println("index["+i+"]:oneBlank【"+oneBlankStr+"】:["+tagArr[i]+"]");
 
 				}
-
 
 			}
 
@@ -3804,17 +8645,14 @@ public class G2_ApplyRuleFor_TypeFile {
 
 			});
 
-			ArrayList<String> resultStrList = new ArrayList<String> ();
-			resultStrList.add("输入参数已经结果:  sqlitstr["+sqlitstr_tag+"]"+"  operationFile["+operationFile.getAbsolutePath()+"]");
+			ArrayList<String> resultStrList = new ArrayList<String>();
+			resultStrList.add("输入参数已经结果:  sqlitstr[" + sqlitstr_tag + "]" + "  operationFile["
+					+ operationFile.getAbsolutePath() + "]");
 
 			resultStrList.addAll(matchStrList);
 
-
-
 			writeContentToFile(G2_Temp_Text_File, resultStrList);
 			NotePadOpenTargetFile(G2_Temp_Text_File.getAbsolutePath());
-
-
 
 			return super.applySubFileListRule4(curFileList, subFileTypeMap, curDirList, curRealFileList);
 		}
@@ -3826,58 +8664,57 @@ public class G2_ApplyRuleFor_TypeFile {
 			for (int i = 0; i < inputParamList.size(); i++) {
 				String paramItem = inputParamList.get(i);
 
-				if(paramItem.contains("sqlitstr_")) {
+				if (paramItem.contains("sqlitstr_")) {
 					sqlitstr_tag = paramItem.replace("sqlitstr_", "");
 					continue;
 
 				}
 
-				File targetFile = new File(curDirPath+File.separator+paramItem);
+				File targetFile = new File(curDirPath + File.separator + paramItem);
 
-				if(targetFile.exists()) {
+				if (targetFile.exists()) {
 
 					operationFile = targetFile;
 				}
 
 			}
 
-			if(operationFile == null || !operationFile.exists()) {
+			if (operationFile == null || !operationFile.exists()) {
 
-				System.out.println("当前 规则:"+rule_index+" 需要输入的文件为空, 请检查输入！！");
+				System.out.println("当前 规则:" + rule_index + " 需要输入的文件为空, 请检查输入！！");
 				return false;
 			}
 
+			if (sqlitstr_tag == null || sqlitstr_tag.equals("")) {
 
-
-			if(sqlitstr_tag == null || sqlitstr_tag.equals("")) {
-
-				System.out.println("当前 规则:"+rule_index+" 需要输入切割字符串 sqlitstr_XXX 为空！！, 请检查输入！！");
+				System.out.println("当前 规则:" + rule_index + " 需要输入切割字符串 sqlitstr_XXX 为空！！, 请检查输入！！");
 				return false;
 			}
 
 			return super.initParamsWithInputList(inputParamList);
 		}
 
-
-
 		@Override
 		String simpleDesc() {
 
-			return "\n" + Cur_Bat_Name + " #_" + rule_index+"  2.txt sqlitstr_href     ### 一个本地操作文件以及一个切割符,返回切割后的每行的第一个空格前的字符串 ";
+			return "\n" + Cur_Bat_Name + " #_" + rule_index
+					+ "  2.txt sqlitstr_href     ### 一个本地操作文件以及一个切割符,返回切割后的每行的第一个空格前的字符串 ";
 		}
-
 
 	}
 
-
 	class GetHttpCode_Rule_42 extends Basic_Rule {
-		//  必须以 http 开头
-		String searchHttpUrl ;   // 从输入传入的 需要得到 的 http 源码的 网页的地址
-		ChromeDriver mChromeDriver ;
-		String curPositionHtmlCodeStr;   // 每次得到的 html代码的值 用于突然用户终止程序时 使用
+
+		boolean html2md_flag; // html2md_true // 把当前的 html 转为 md的操作
+
+		// 必须以 http 开头
+		String searchHttpUrl; // 从输入传入的 需要得到 的 http 源码的 网页的地址
+		ChromeDriver mChromeDriver;
+		String curPositionHtmlCodeStr; // 每次得到的 html代码的值 用于突然用户终止程序时 使用
+
 		GetHttpCode_Rule_42() {
 			super("#", 42, 4); //
-
+			html2md_flag = false;
 		}
 
 		@Override
@@ -3887,18 +8724,21 @@ public class G2_ApplyRuleFor_TypeFile {
 			for (int i = 0; i < inputParamList.size(); i++) {
 				String paramItem = inputParamList.get(i);
 				String paramItem_lower_trim = paramItem.toLowerCase().trim();
-				System.out.println("paramItem["+i+"] = "+paramItem_lower_trim);
+				System.out.println("paramItem[" + i + "] = " + paramItem_lower_trim);
 				if (paramItem_lower_trim.startsWith("http")) {
-					searchHttpUrl = paramItem_lower_trim;
+					searchHttpUrl = paramItem;
+				}
+
+				if (paramItem_lower_trim.startsWith("html2md_true")) {
+					html2md_flag = true;
 				}
 
 			}
 
-			if(searchHttpUrl == null) {
+			if (searchHttpUrl == null) {
 				System.out.println("当前输入的网页为空  请检查输入!!!");
 				return false;
 			}
-
 
 			File ChromeDriverFile = new File(zbinPath + File.separator + "G2_chromedriver_v91.exe");
 
@@ -3912,12 +8752,12 @@ public class G2_ApplyRuleFor_TypeFile {
 
 			mChromeDriver = new ChromeDriver(CUR_CHROME_OPTIONS);
 
+			System.out.println("searchHttpUrl=【" + searchHttpUrl + "】  html2md_flag=【" + html2md_flag + "】");
 
 			return super.initParamsWithInputList(inputParamList);
 		}
 
-
-		void registerShutDownLister(){
+		void registerShutDownLister() {
 			Runtime.getRuntime().addShutdownHook(new Thread() {
 				public void run() {
 					try {
@@ -3927,9 +8767,9 @@ public class G2_ApplyRuleFor_TypeFile {
 						writeContentToFile(G2_Temp_Text_File, curPositionHtmlCodeStr);
 						NotePadOpenTargetFile(G2_Temp_Text_File.getAbsolutePath());
 
-						System.out.println("获得【"+searchHttpUrl+"】 MainPage HtmlCode 突然终止 部分成功 !! ");
-						System.out.println("════════"+"════════");
-						//some cleaning up code...
+						System.out.println("获得【" + searchHttpUrl + "】 MainPage HtmlCode 突然终止 部分成功 !! ");
+						System.out.println("════════" + "════════");
+						// some cleaning up code...
 
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
@@ -3941,39 +8781,787 @@ public class G2_ApplyRuleFor_TypeFile {
 		}
 
 		@Override
-		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList, HashMap<String, ArrayList<File>> subFileTypeMap,
-											  ArrayList<File> curDirList, ArrayList<File> curRealFileList) {
+		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 			// TODO Auto-generated method stub
 
-			registerShutDownLister();
+			if (!html2md_flag) { // 确保 html2md 时 不打开 G2_Temp
+				registerShutDownLister();
+			}
 
 			String httpPageCode = BrowserOperation_WithRootUrl(searchHttpUrl);
 
+			if (httpPageCode != null) {
 
-			if(httpPageCode != null) {
+				if (html2md_flag) {
+					System.out.println("开始 进行 Html 转 MD 的文件的操作! ");
 
-				writeContentToFile(G2_Temp_Text_File, httpPageCode);
-				NotePadOpenTargetFile(G2_Temp_Text_File.getAbsolutePath());
-				System.out.println("获得【"+searchHttpUrl+"】 MainPage HtmlCode 成功!! ");
-			}else {
-				System.out.println("获得【"+searchHttpUrl+"】 MainPage HtmlCode 失败!! ");
+					Html_2_MD_Operation(G2_Temp_Text_File);
+					System.out.println("执行  Html 转 MD 的文件的操作 成功! ! ");
+					return null;
+				} else {
+
+					writeContentToFile(G2_Temp_Text_File, httpPageCode);
+					NotePadOpenTargetFile(G2_Temp_Text_File.getAbsolutePath());
+					System.out.println("获得【" + searchHttpUrl + "】 MainPage HtmlCode 成功!! ");
+
+				}
+			} else {
+				System.out.println("获得【" + searchHttpUrl + "】 MainPage HtmlCode 失败!! ");
 
 			}
-
-
 
 			return super.applySubFileListRule4(curFileList, subFileTypeMap, curDirList, curRealFileList);
 		}
 
-
 		@Override
 		String simpleDesc() {
+			return "\n" + Cur_Bat_Name + " #_" + rule_index
+					+ " https://www.baidu.com   ### 传递一个http路径打开它的html源码(tip:有些页面浏览器另存为的html由于某些html页面) "
 
-			return "\n" + Cur_Bat_Name + " #_" + rule_index+" https://www.baidu.com   ### 传递一个http路径打开它的html源码(tip:有些页面浏览器另存为的html由于某些html页面) ";
+					+ "\n" + Cur_Bat_Name + " #_" + rule_index
+					+ " https://zhou-yuxin.github.io/articles/2016/%E6%97%A0%E7%BA%BF%E7%BD%91%E7%BB%9CWPA2%E5%8A%A0%E5%AF%86%E7%9A%84%E7%A0%B4%E8%A7%A3/index.html  html2md_true   ### 传递一个http路径打开它的html源码 并解析到 MD文件(以github.io工程的文件夹格式) ";
 		}
 
-		String BrowserOperation_WithRootUrl(String mMainUrl) {
+		// html2md ====================begin==========================
 
+		// 模拟主页
+//		String rootUrl = "https://zhou-yuxin.github.io/articles/2016/%E6%97%A0%E7%BA%BF%E7%BD%91%E7%BB%9CWPA2%E5%8A%A0%E5%AF%86%E7%9A%84%E7%A0%B4%E8%A7%A3/";
+
+		String rootUrl = "https://qiankunli.github.io";
+		String rootUrl_possible_url1 = "https://qiankunli.github.io";
+		// https://qiankunli.github.io/2022/03/20/xxxx资源
+
+		// 当前的主页 https://qiankunli.github.io/2022/03/20/flink.html
+		//
+
+		// <p><img src="/public/upload/compute/flink_design.png" alt="" /></p>
+		// https://qiankunli.github.io/ public/upload/compute/flink_design.png
+		// https://qiankunli.github.io/ 资源的主页
+		// <img src="x.jpg"> 中的 x.jpg 对应的 src的 绝对的路径
+
+		HashMap<String, String> srcImageUrl_ZimageUrl_Map; // <img src="x.jpg">【key】 <img src="x.jpg"> 【value】<img
+		// src="//../zimage/architect/01_sorttable.jpg">
+		HashMap<String, String> srcImageUrl_AbsUrl_Map; // <img src="x.jpg">【key】 https://www.baidu.com/x.jpg【value】
+		HashMap<String, String> srcImageUrl_AbsUrl_Possibale1_Map; // <img src="x.jpg">【key】
+																	// https://www.baidu.com/x.jpg【value】
+
+		HashMap<String, File> srcImageUrl_LocalFile_Map; // 1.jpg 对应的 本地的 public/zimage/html2md/1.jpg
+
+		ArrayList<String> srcImageUrl_List; // <img src="x.jpg"> 的原始 内容为了最终方便 替换
+		ArrayList<String> innderHtmlTag; // 需要去除的 tag
+
+		File curMDShellDir; // 本地的shell执行的路径
+		// html_2_md_timestemp
+		File html_md_timestamp_dir; // html_2_md_20220818_192012/ 当前目录下 生成的 html_2_md_timestamp
+		String html_md_timestamp_dirname; // html_2_md_20220818_192012
+
+		File html_zimage_dir; // html_2_md_20220818_192012/zukgit.github.io/public/zimage/html2md/
+		File html_2_mdfile_dir; // html_2_md_20220818_192012/zukgit.github.io/_posts/Technology/html2md/
+		// html_2_md_20220818_192012/zukgit.github.io
+		// html_2_md_20220818_192012/zukgit.github.io/public/zimage/html2md/
+		// 【html_zimage_dir】
+		// html_2_md_20220818_192012/zukgit.github.io/public/zimage/html2md/xxxx.jpg
+		// html_2_md_20220818_192012/zukgit.github.io/_posts/Technology/html2md/
+		// html_2_md_20220818_192012/zukgit.github.io/_posts/Technology/html2md/{title}.md
+
+		String md_title; // 当前html的 title 属性 当做 md 文件的名称
+		File md_file; // 目标的 md 文件
+
+		String time_stamp_str; // 日期格式
+
+		// md 文件的头部
+		ArrayList<String> mdHeadList;
+
+		void init_http_url() {
+			String inputUrl = searchHttpUrl;
+
+			rootUrl = searchHttpUrl;
+			rootUrl_possible_url1 = searchHttpUrl;
+			if (inputUrl.endsWith(".html")) {
+				// /
+				rootUrl = inputUrl.substring(0, inputUrl.lastIndexOf("/"));
+
+			}
+
+			// https://qiankunli.github.io
+			if (searchHttpUrl.contains("github.io")) {
+				rootUrl_possible_url1 = searchHttpUrl.substring(0,
+						searchHttpUrl.indexOf("github.io") + "github.io".length());
+
+			}
+
+			System.out.println("searchHttpUrl=【" + searchHttpUrl + "】   rootUrl=【" + rootUrl
+					+ "】   rootUrl_possible_url1=" + rootUrl_possible_url1);
+
+		}
+
+		void Html_2_MD_Operation(File httpCodeFile) {
+			init_html2md_value();
+			init_http_url();
+			String httpCodeFileName = time_stamp_str + "_" + httpCodeFile.getName();
+			File curShell_TxtFile = new File(curDirFile.getAbsolutePath() + File.separator + httpCodeFileName);
+			fileCopy(httpCodeFile, curShell_TxtFile);
+
+			Html_2_MD(curShell_TxtFile);
+
+		}
+
+		void Html_2_MD(File fileItem) {
+
+			curMDShellDir = fileItem.getParentFile();
+			System.out.println("curShellDir = " + curMDShellDir);
+
+			initHtml2MD_Dir(curMDShellDir); // 初始化 那些 需要用到的目录
+
+			ArrayList<String> allMD_StrList = new ArrayList<String>();
+			ArrayList<String> fixedMD_StrList = new ArrayList<String>();
+			ArrayList<String> rawHtml_StrList = ReadFileContentAsList(fileItem);
+
+			// 0. <h1> 转为 # <h6> 转为 ######
+
+			// 1. <p> 转为 空 去除掉
+			// 1.1 <img src="1.png"> 转为 相对路径 需要计算 src的绝对路径 所以需要依据参数得到 这里假设有 保留
+// 下载到本地 并命名为 	20220818_3142.png
+//				<img src="//../zimage/html2md/20220818_3142.png">
+			// 1.2 <a> </a> 可保留
+
+			// 2. <pre> 转为 "\n```\n" <pre> 转为 "\n```\n"
+
+			// 3. 最后处理
+			// 去除 <body class="p" > 给定参数 body 去除 <body 开头 以及 在它之后的 > 的这段内容
+			// <div id="main"> <article id=" <article id= <\ 开头的 以及之后的> 去除
+
+			for (int j = 0; j < rawHtml_StrList.size(); j++) {
+				String oneLineStr = rawHtml_StrList.get(j);
+				String fixedLineStr = new String(oneLineStr);
+				;
+
+				// 0. <h1> 转为 # <h6> 转为 ######
+				fixedLineStr = title_to_jing(oneLineStr);
+				// 1. <p> operation
+				fixedLineStr = clear_p_br_tag(fixedLineStr);
+
+				// 2. <pre> operation
+				fixedLineStr = clear_pre_tag(fixedLineStr);
+
+				// 3. 去除 <body class="p" >
+				fixedLineStr = clear_inner_tag(fixedLineStr);
+
+				// &lt;==< &gt;==> 的转换
+				fixedLineStr = clear_lt_gt_tag(fixedLineStr);
+
+				// amp; 转为 空格
+				fixedLineStr = clear_amp_tag(fixedLineStr);
+
+				fixedMD_StrList.add(fixedLineStr);
+			}
+
+			// 2022-09-13-
+			md_file = new File(html_2_mdfile_dir + File.separator + getYear_Month_Day() + "-" + md_title + ".md");
+
+			initHeadList(md_title); // 初始化 mdHeadList
+
+			// allMD_StrList = mdHeadList + fixedMD_StrList
+
+			System.out.println("srcImageUrl_List.size() = " + srcImageUrl_List.size());
+
+//					HashMap<String,String> srcImageUrl_ZimageUrl_Map;  //<img src="x.jpg">【key】 <img src="x.jpg">    【value】<img src="//../zimage/architect/01_sorttable.jpg">
+//					HashMap<String,String> srcImageUrl_AbsUrl_Map;  //<img src="x.jpg">【key】   https://www.baidu.com/x.jpg【value】
+//					HashMap<String,File> srcImageUrl_LocalFile_Map;
+
+			for (int j = 0; j < srcImageUrl_List.size(); j++) {
+				String imageUrlItem = srcImageUrl_List.get(j);
+				String networkAbsUrl = srcImageUrl_AbsUrl_Map.get(imageUrlItem);
+				String networkAbsUrl_Possible1 = srcImageUrl_AbsUrl_Map.get(imageUrlItem);
+				String publicImage_Src_Url = srcImageUrl_ZimageUrl_Map.get(imageUrlItem);
+				File localImgFile = srcImageUrl_LocalFile_Map.get(imageUrlItem);
+
+				System.out.println("image[" + j + "][" + srcImageUrl_List.size() + "]  MD_File="
+						+ md_file.getAbsolutePath() + "   showUrl=" + imageUrlItem + "  networkUrl:" + networkAbsUrl
+						+ " publicSrc:" + publicImage_Src_Url + "  localFile:" + localImgFile.getAbsolutePath()
+						+ " possible_url1=【" + networkAbsUrl_Possible1 + "】");
+
+				if (!downloadImage(localImgFile, networkAbsUrl)) {
+					System.out.println("mainUrl:" + networkAbsUrl + "  没有下载成功 尝试使用备用路径 networkAbsUrl_Possible1="
+							+ networkAbsUrl_Possible1);
+
+					if (!downloadImage(localImgFile, networkAbsUrl_Possible1)) {
+						System.out.println(" FUCK 主路径和配用路径都下载失败!! " + "mainUrl:" + networkAbsUrl
+								+ "  没有下载成功 尝试使用备用路径 networkAbsUrl_Possible1=" + networkAbsUrl_Possible1);
+
+					}
+
+				}
+			}
+
+			allMD_StrList.addAll(mdHeadList);
+
+			// 去除 占用多行的 注释 <!-- --> 和 <script> 以及 </script>
+			ArrayList<String> clearScriptMDList = clearMultiZhuShi_clearMultiScript(fixedMD_StrList);
+
+			// 多行空格转为 一行 空格 使得 整体 看起来紧凑
+			ArrayList<String> clear_MultiBlankMDList = clearMultiBlank(clearScriptMDList);
+			allMD_StrList.addAll(clear_MultiBlankMDList);
+
+//				writeContentToFile(I9_Temp_Text_File, fixedMD_StrList);
+//				NotePadOpenTargetFile(I9_Temp_Text_File.getAbsolutePath());
+
+			writeContentToFile(md_file, allMD_StrList);
+			NotePadOpenTargetFile(md_file.getAbsolutePath());
+
+		}
+
+		void init_html2md_value() {
+			srcImageUrl_ZimageUrl_Map = new HashMap<String, String>();
+			srcImageUrl_AbsUrl_Map = new HashMap<String, String>();
+			srcImageUrl_AbsUrl_Possibale1_Map = new HashMap<String, String>();
+			srcImageUrl_List = new ArrayList<String>();
+			srcImageUrl_LocalFile_Map = new HashMap<String, File>();
+			mdHeadList = new ArrayList<String>();
+			time_stamp_str = getTimeStampyyyyMMdd_HHmmss();
+			init_innerTag_List();
+
+		}
+
+		void init_innerTag_List() {
+			innderHtmlTag = new ArrayList<String>();
+			innderHtmlTag.add("html");
+			innderHtmlTag.add("head");
+//			innderHtmlTag.add("title");
+			innderHtmlTag.add("link");
+			innderHtmlTag.add("body");
+			innderHtmlTag.add("header");
+			innderHtmlTag.add("meta");
+			innderHtmlTag.add("div");
+			innderHtmlTag.add("article");
+
+			innderHtmlTag.add("i");
+			innderHtmlTag.add("!doctype html");
+			innderHtmlTag.add("br");
+			innderHtmlTag.add("li");
+			innderHtmlTag.add("ul");
+			innderHtmlTag.add("table");
+
+			innderHtmlTag.add("tr");
+
+			innderHtmlTag.add("td");
+			innderHtmlTag.add("button");
+			innderHtmlTag.add("ol");
+
+			innderHtmlTag.add("hr");
+			innderHtmlTag.add("thead");
+
+			innderHtmlTag.add("th");
+
+			innderHtmlTag.add("footer");
+			innderHtmlTag.add("tbody");
+			innderHtmlTag.add("code");
+			innderHtmlTag.add("span");
+//			innderHtmlTag.add("!--");
+//			innderHtmlTag.add("script");
+
+		}
+
+//		---
+//		layout: post
+//		title: {title}
+//		category: html2md
+//		tags: html2md
+//		keywords:
+//		typora-root-url:..\..\..\
+//		typora-copy-images-to:..\..\..\public\zimage\html2md
+//		---
+
+		void initHeadList(String title) {
+
+			mdHeadList.add("---");
+			mdHeadList.add("layout: post");
+			if (title == null || title.startsWith("unknow")) {
+				mdHeadList.add("title: " + "unknow");
+
+			} else {
+				mdHeadList.add("title: " + title);
+			}
+			mdHeadList.add("category: html2md");
+			mdHeadList.add("tags: html2md");
+			mdHeadList.add("keywords: ");
+			mdHeadList.add("typora-root-url: ..\\..\\..\\");
+			mdHeadList.add("typora-copy-images-to: ..\\..\\..\\public\\zimage\\html2md");
+			mdHeadList.add("---");
+
+			mdHeadList.add("\n");
+
+			mdHeadList.add("## 简介");
+			mdHeadList.add(" * TOC");
+			mdHeadList.add(" {:toc}");
+
+			mdHeadList.add("\n");
+			mdHeadList.add("\n");
+
+		}
+
+		void initHtml2MD_Dir(File shellDirFile) {
+			String shellPath = shellDirFile.getAbsolutePath();
+
+			html_md_timestamp_dirname = "html_2_md" + "_" + time_stamp_str;
+			md_title = "unknow" + time_stamp_str;
+
+			html_md_timestamp_dir = new File(shellPath + File.separator + html_md_timestamp_dirname);
+			html_zimage_dir = new File(
+					html_md_timestamp_dir.getAbsolutePath() + File.separator + "zukgit.github.io" + File.separator
+							+ "public" + File.separator + "zimage" + File.separator + "html2md" + File.separator);
+			html_2_mdfile_dir = new File(
+					html_md_timestamp_dir.getAbsolutePath() + File.separator + "zukgit.github.io" + File.separator
+							+ "_posts" + File.separator + "Technology" + File.separator + "html2md" + File.separator);
+
+		}
+
+		ArrayList<String> clearMultiBlank(ArrayList<String> rawMDList) {
+			ArrayList<String> clearMultiBlankList = new ArrayList<String>();
+
+			boolean is_preline_blank = false;
+			for (int i = 0; i < rawMDList.size(); i++) {
+				String oneLine = rawMDList.get(i);
+				String clear_blank_str = oneLine.replace("    ", "").replace(" ", "").trim();
+
+				if ("".equals(clear_blank_str)) {
+					if (!is_preline_blank) {
+						clearMultiBlankList.add("");
+					}
+					is_preline_blank = true;
+
+					continue;
+				} else {
+					is_preline_blank = false;
+					// 缩进 必须是 2 6 之间 不能是 4 否则会影响后面的 空格
+					if (oneLine.startsWith("    ") && !oneLine.startsWith("     ")) {
+						oneLine = oneLine.replace("    ", "  ");
+
+					}
+					clearMultiBlankList.add(oneLine);
+				}
+
+			}
+
+			return clearMultiBlankList;
+		}
+
+		ArrayList<String> clearMultiZhuShi_clearMultiScript(ArrayList<String> rawMDList) {
+			ArrayList<String> fixedMDList = new ArrayList<String>();
+
+			boolean isEmptyLine_ZhuShi = false; // 是否包含在多行注释内 是否包含在 多行 script 内
+
+			boolean isEmptyLine_Script = false; // 是否包含在多行注释内 是否包含在 多行 script 内
+
+			int isInCodeCount = 0; // 在 code 中的 代码是 不需要 去除的
+			for (int i = 0; i < rawMDList.size(); i++) {
+				String rawLine = rawMDList.get(i);
+				String fixedLine = new String(rawLine);
+
+				// <script 和 </script> 在同一行 那么 去除 这些
+				if (rawLine.contains("<script") && rawLine.contains("</script>")) {
+					String matchStr = getSubString_WithPre_WithEnd(rawLine, "<script", "</script>");
+					if (matchStr != null) {
+						fixedLine = rawLine.replace(matchStr, "");
+						fixedLine = fixedLine.replace("<script", "");
+						fixedLine = fixedLine.replace("</script>", "");
+						fixedMDList.add(fixedLine);
+						continue;
+					}
+
+				}
+
+				if (rawLine.contains("<!--") && rawLine.contains("-->")) {
+					String matchStr = getSubString_WithPre_WithEnd(rawLine, "<!--", "-->");
+					if (matchStr != null) {
+						fixedLine = rawLine.replace(matchStr, "");
+						fixedLine = fixedLine.replace("<!--", "");
+						fixedLine = fixedLine.replace("-->", "");
+						fixedMDList.add(fixedLine);
+						continue;
+					}
+
+				}
+
+				// 多行 script
+				if (rawLine.contains("<script") && !rawLine.contains("</script>")) {
+					isEmptyLine_Script = true;
+				}
+
+				if (!rawLine.contains("<script") && rawLine.contains("</script>")) {
+					isEmptyLine_Script = false;
+					continue; // 这一行 也不要了
+				}
+
+				// 多行 script
+				if (rawLine.contains("<!--") && !rawLine.contains("-->")) {
+					isEmptyLine_ZhuShi = true;
+				}
+
+				if (!rawLine.contains("<!--") && rawLine.contains("-->")) {
+					isEmptyLine_ZhuShi = false;
+					continue; // 这一行 也不要了
+				}
+
+				if (rawLine.startsWith("```")) {
+					isInCodeCount++;
+				}
+
+				// isInCodeCount%2 != 1 &&说明是在 code 中
+				if (!isEmptyLine_Script && !isEmptyLine_ZhuShi && (isInCodeCount % 2 != 1)) {
+					fixedMDList.add(fixedLine);
+				}
+
+			}
+
+			return fixedMDList;
+
+		}
+		// &lt;==< &gt;==> 的转换
+//		fixedLineStr = clear_lt_gt_tag(fixedLineStr);
+
+		// 特殊字符串的处理
+		String clear_amp_tag(String rawLine) {
+			String fixedLineStr = new String(rawLine);
+			fixedLineStr = fixedLineStr.replace("amp;", "");
+
+			return fixedLineStr;
+		}
+
+		// 特殊字符串的处理
+		String clear_lt_gt_tag(String rawLine) {
+			String fixedLineStr = new String(rawLine);
+			fixedLineStr = fixedLineStr.replace("&lt;", "<");
+			fixedLineStr = fixedLineStr.replace("&gt;", ">");
+
+			if (fixedLineStr.contains("[") && !fixedLineStr.contains("]") && isContainChinese(fixedLineStr)) {
+				fixedLineStr = fixedLineStr.replace("[", "【");
+
+			}
+
+			return fixedLineStr;
+		}
+
+		boolean downloadImage(File targetImgFile, String networkUrl) {
+			boolean downFlag = false;
+			int byteRead;
+
+			try {
+				// 写入文件
+				File fileSavePath = new File(targetImgFile.getAbsolutePath());
+				// 注:如果保存文件夹不存在,那么则创建该文件夹
+				File fileParent = fileSavePath.getParentFile();
+				if (!fileParent.exists()) {
+					fileParent.mkdirs();
+				}
+
+				URL url = new URL(networkUrl);
+				URLConnection conn = url.openConnection();
+
+				InputStream inStream = conn.getInputStream();
+
+				FileOutputStream fs = new FileOutputStream(fileSavePath);
+				byte[] buffer = new byte[1024];
+				long beginTimeStamp = System.currentTimeMillis();
+				System.out.println("FileOutputStream.write  写入本地文件  Begin   比较 downRawVideo_耗时_B ");
+				while ((byteRead = inStream.read(buffer)) != -1) {
+					fs.write(buffer, 0, byteRead);
+				}
+				long endTimeStamp = System.currentTimeMillis();
+				long distance_second = (endTimeStamp - beginTimeStamp) / 1000;
+
+				System.out.println(
+						"FileOutputStream.write  写入本地文件  End ( downRawVideo_耗时_B【" + distance_second + " 秒】 耗时得很)");
+
+				inStream.close();
+				fs.close();
+
+			} catch (Exception e) {
+				// TODO: handle exception
+				System.out.println("下载 " + networkUrl + " 图片失败: e=" + e);
+			}
+
+			if (targetImgFile.exists() && targetImgFile.length() > 10) {
+				downFlag = true;
+			}
+
+			return downFlag;
+
+		}
+
+		String clear_inner_tag(String rawLine) {
+			String fixed_LineStr = new String(rawLine);
+			for (int i = 0; i < innderHtmlTag.size(); i++) {
+				String tag = innderHtmlTag.get(i);
+				String beginTag = "<" + tag + ">";
+				String beginTag_Innder = "<" + tag + " ";
+				String EndTag = "</" + tag + ">";
+
+				// <head> </head> 同在一行
+				if (fixed_LineStr.contains(beginTag) && fixed_LineStr.contains(EndTag)) {
+					fixed_LineStr = fixed_LineStr.replace(beginTag, "");
+					fixed_LineStr = fixed_LineStr.replace(EndTag, "");
+				} else if (fixed_LineStr.contains(beginTag) && !fixed_LineStr.contains(EndTag)) {
+					// 只包含 <head> 没有 </head> 的 字样
+					fixed_LineStr = fixed_LineStr.replace(beginTag, "");
+				} else if (!fixed_LineStr.contains(beginTag) && fixed_LineStr.contains(EndTag)) {
+					// 只包含 </head> 没有 <head> 的 字样
+					fixed_LineStr = fixed_LineStr.replace(EndTag, "");
+				}
+
+				// da <link rel="stylesheet" type="text/css" media="all"
+				// href="../../../style.css"> dada // <div class="highlight">
+				if (fixed_LineStr.contains(beginTag_Innder)) {
+					String indderStr = getSubString_WithPre_WithEnd(fixed_LineStr, beginTag_Innder, ">");
+
+					if (indderStr != null) {
+
+						fixed_LineStr = fixed_LineStr.replace(indderStr, "");
+
+						while (fixed_LineStr.contains(beginTag_Innder)) {
+							String step_place_str = getSubString_WithPre_WithEnd(fixed_LineStr, beginTag_Innder, ">");
+							if (step_place_str != null) {
+								fixed_LineStr = fixed_LineStr.replace(step_place_str, "");
+							}
+
+						}
+
+					}
+
+				}
+
+			}
+
+			if (fixed_LineStr.contains("<title>") && fixed_LineStr.contains("</title>")) {
+
+				md_title = fixed_LineStr.replace("<title>", "").replace("</title>", "").replace("	", "")
+						.replace("=", "").replace(" ", "").replace("!", "").replace("&", "").replace("#", "")
+						.replace("@", "").replace("|", "").replace("%", "").replace("&", "").trim();
+			}
+
+			return fixed_LineStr;
+
+		}
+
+		String clear_strong_tag(String rawLine) {
+			String fixedLineStr = new String(rawLine);
+			fixedLineStr = fixedLineStr.replace("<strong>", "!");
+			fixedLineStr = fixedLineStr.replace("</strong>", "!");
+			return fixedLineStr;
+		}
+
+		String clear_pre_tag(String rawLine) {
+			String fixedLineStr = new String(rawLine);
+
+			fixedLineStr = fixedLineStr.replace("<pre>", "\n```\n");
+			fixedLineStr = fixedLineStr.replace("</pre>", "\n```\n");
+
+			// <pre class="highlight"> 也要 改成 ```
+			if (fixedLineStr.contains("<pre ")) { //
+				String match_Inner_Pre_Tag = getSubString_WithPre_WithEnd(fixedLineStr, "<pre ", ">");
+
+				if (match_Inner_Pre_Tag != null) {
+					fixedLineStr = fixedLineStr.replace(match_Inner_Pre_Tag, "\n```\n");
+
+				}
+
+			}
+			return fixedLineStr;
+		}
+
+		// 获得 第一个匹配到的 前缀 和 后缀的 字符串
+		String getSubString_WithPre_WithEnd(String oldExp, String pre, String end) {
+			String result = oldExp;
+			int matchIndex = 0;
+			int end_FirstIndex = result.indexOf(end, matchIndex);
+
+			int begin_ExpIndex = calculNearPairIndex(result, end_FirstIndex, pre); //
+
+			while (begin_ExpIndex == -1) {
+				matchIndex++;
+				end_FirstIndex = result.indexOf(end, matchIndex);
+
+				begin_ExpIndex = calculNearPairIndex(result, end_FirstIndex, pre); //
+
+				if (matchIndex > 100) {
+					System.out.println("无法匹配到A " + " begin_ExpIndex = " + begin_ExpIndex + " end_FirstIndex="
+							+ end_FirstIndex + "  oldExp=【" + oldExp + "】     pre=【" + pre + "】  end=【" + end + "】");
+
+					return null;
+				}
+			}
+// begin_ExpIndex = -1 end_FirstIndex=34  oldExp=【      <a class="pjaxlink" href="/"><img src="/public/upload/gavatar/gavatar.jpg" class="img-rounded avatar"></a>】     pre=【<img】  end=【>】
+			if (end_FirstIndex == -1) {
+				System.out.println("无法匹配到B " + " begin_ExpIndex = " + begin_ExpIndex + " end_FirstIndex="
+						+ end_FirstIndex + "  oldExp=【" + oldExp + "】     pre=【" + pre + "】  end=【" + end + "】");
+
+				return null;
+			}
+
+			String targetExpNoOut = result.substring(begin_ExpIndex + 1, end_FirstIndex); // 包前 不包后
+			String targetExpWithOut = result.substring(begin_ExpIndex, end_FirstIndex + end.length()); // 包前 包后 加上 后缀的长度
+			// System.out.println(" oldExp = " + oldExp);
+			// System.out.println(" targetExpWithOut = " + targetExpWithOut);
+			// System.out.println(" targetExpNoOut = " + targetExpNoOut);
+			// System.out.println(" begin_ExpIndex = " + begin_ExpIndex + " end_FirstIndex
+			// =" + end_FirstIndex);
+			System.out.println(" begin_ExpIndex = " + begin_ExpIndex + " end_FirstIndex=" + end_FirstIndex
+					+ "  oldExp=【" + oldExp + "】     pre=【" + pre + "】  end=【" + end + "】" + " targetExpWithOut=【"
+					+ targetExpWithOut + "】");
+
+			return targetExpWithOut;
+		}
+
+		// 计算 在 字符串 originStr 中 在位置 endIndex 之前 最近的那个 匹配上的 matchStr的 索引
+		int calculNearPairIndex(String originStr, int endIndex, String matchStr) {
+			int beginIndex = 0;
+			String subStr = originStr.substring(0, endIndex);
+			beginIndex = subStr.lastIndexOf(matchStr);
+			return beginIndex;
+
+		}
+
+		String clear_p_br_tag(String rawLine) {
+			String fixedLineStr = new String(rawLine);
+			fixedLineStr = fixedLineStr.replace("<p>", "");
+			fixedLineStr = fixedLineStr.replace("</p>", "");
+			fixedLineStr = fixedLineStr.replace("<br>", "");
+
+			// <img src="2.jpeg">
+			if (fixedLineStr.contains("<img") && fixedLineStr.contains(">")) {
+				// 类似从 <p> faa <img src="2.jpeg"> fafa</p> 计算得到 <img src="2.jpeg">
+				String imageNamePre = time_stamp_str;
+
+				// <img src="1.png">
+				// 转为 <img src="/public/zimage/html2md/"+time"1.png">
+				System.out.println("当前的 <p> 中包含 链接<img >   fixedLineStr=" + fixedLineStr);
+
+				String fixedmatchImgCode = getSubString_WithPre_WithEnd(fixedLineStr, "<img", ">");
+
+//				int whileCount = 0 ;
+//				while(fixedmatchImgCode == null) {
+//					String fixed_ImageCode_temp = getSubString_WithPre_WithEnd(fixedLineStr,"<img",">");
+//					if(fixed_ImageCode_temp != null) {
+//						fixedmatchImgCode = fixed_ImageCode_temp;
+//					}else {
+//						if(whileCount > 10) {
+//							break;
+//						}
+//
+//					}
+//					whileCount++;
+//				}
+
+				String matchImgCode = fixedmatchImgCode;
+
+				matchImgCode = matchImgCode.replace("<img", "").replace("/>", "").replace(">", "").replace("src=", "")
+						.replace("\"", "").replace(" ", "");
+//				srcImageUrl_ZimageUrl_Map= new HashMap<String,String>();
+//				srcImageUrl_AbsUrl_Map= new HashMap<String,String>();
+//				srcImageUrl_List = new ArrayList<String> ();
+				System.out.println("matchImgCode = " + matchImgCode);
+				if (!srcImageUrl_List.contains(matchImgCode)) {
+
+					// 动态计算 绝对路径的 url
+					String match_abs_imgsrc = rootUrl + "/" + matchImgCode;
+					String match_abs_imgsrc_possible1 = rootUrl_possible_url1 + "/" + matchImgCode;
+
+					String oneName_NoSep_FileName = matchImgCode.replace("/", "_");
+					String match_relative_imgsrc = "/public/zimage/html2md/" + time_stamp_str + "_"
+							+ oneName_NoSep_FileName;
+
+//
+					File match_relative_img_file = new File(html_zimage_dir.getAbsolutePath() + File.separator
+							+ time_stamp_str + "_" + oneName_NoSep_FileName);
+
+					srcImageUrl_List.add(matchImgCode);
+					srcImageUrl_LocalFile_Map.put(matchImgCode, match_relative_img_file);
+					srcImageUrl_AbsUrl_Map.put(matchImgCode, match_abs_imgsrc);
+					srcImageUrl_AbsUrl_Possibale1_Map.put(matchImgCode, match_abs_imgsrc_possible1);
+					srcImageUrl_ZimageUrl_Map.put(matchImgCode, match_relative_imgsrc);
+
+//				    String match_relative_imagecode = "<img src=\""+match_relative_imgsrc+"\">";
+
+					// <img src="1.png">
+					// 转为 <img src="/public/zimage/html2md/"+time"1.png">
+					fixedLineStr = fixedLineStr.replace(matchImgCode, match_relative_imgsrc);
+
+					// zimage/html_to_md/timestamp.jpg
+				}
+
+			}
+
+			if (fixedLineStr.contains("<a") && fixedLineStr.contains(">")) {
+
+				System.out.println("当前的 <p> 中包含 链接<a> 保留  fixedLineStr=" + fixedLineStr);
+
+			}
+
+			return fixedLineStr;
+		}
+
+		String title_to_jing(String rawLine) {
+			String fixedLineStr = new String(rawLine);
+			// 0. <h1> 转为 # <h6> 转为 ######
+			// <h1 class="entry-title">无线网络WPA2加密的破解</h1>
+
+			fixedLineStr = fixedLineStr.replace("	", "");
+			if (fixedLineStr.contains("<h1") && fixedLineStr.contains("</h1>")) {
+				String h_tag_innder = getSubString_WithPre_WithEnd(fixedLineStr, "<h1", ">");
+
+				fixedLineStr = fixedLineStr.replace(h_tag_innder, "");
+				fixedLineStr = fixedLineStr.replace("</h1>", "");
+				fixedLineStr = "## " + fixedLineStr;
+			}
+
+			if (fixedLineStr.contains("<h2") && fixedLineStr.contains("</h2>")) {
+				String h_tag_innder = getSubString_WithPre_WithEnd(fixedLineStr, "<h2", ">");
+
+				fixedLineStr = fixedLineStr.replace(h_tag_innder, "");
+				fixedLineStr = fixedLineStr.replace("</h2>", "");
+				fixedLineStr = "### " + fixedLineStr;
+			}
+
+			if (fixedLineStr.contains("<h3") && fixedLineStr.contains("</h3>")) {
+				String h_tag_innder = getSubString_WithPre_WithEnd(fixedLineStr, "<h3", ">");
+
+				fixedLineStr = fixedLineStr.replace(h_tag_innder, "");
+				fixedLineStr = fixedLineStr.replace("</h3>", "");
+				fixedLineStr = "#### " + fixedLineStr;
+			}
+
+			if (fixedLineStr.contains("<h4") && fixedLineStr.contains("</h4>")) {
+				String h_tag_innder = getSubString_WithPre_WithEnd(fixedLineStr, "<h4", ">");
+
+				fixedLineStr = fixedLineStr.replace(h_tag_innder, "");
+				fixedLineStr = fixedLineStr.replace("</h4>", "");
+				fixedLineStr = "##### " + fixedLineStr;
+			}
+
+			if (fixedLineStr.contains("<h5") && fixedLineStr.contains("</h5>")) {
+				String h_tag_innder = getSubString_WithPre_WithEnd(fixedLineStr, "<h5", ">");
+
+				fixedLineStr = fixedLineStr.replace(h_tag_innder, "");
+				fixedLineStr = fixedLineStr.replace("</h5>", "");
+				fixedLineStr = "###### " + fixedLineStr;
+			}
+
+			if (fixedLineStr.contains("<h6") && fixedLineStr.contains("</h6>")) {
+				String h_tag_innder = getSubString_WithPre_WithEnd(fixedLineStr, "<h6", ">");
+
+				fixedLineStr = fixedLineStr.replace(h_tag_innder, "");
+				fixedLineStr = fixedLineStr.replace("</h6>", "");
+				fixedLineStr = "###### " + fixedLineStr;
+			}
+
+			return fixedLineStr;
+		}
+
+		// html2md ==================== end ==========================
+
+		String BrowserOperation_WithRootUrl(String mMainUrl) {
 
 			String mainPageHtmlStr = null;
 			File ChromeDriverFile = new File(zbinPath + File.separator + "G2_chromedriver_v91.exe");
@@ -3984,7 +9572,7 @@ public class G2_ApplyRuleFor_TypeFile {
 			int loop_index = 0;
 			try {
 				long waitTime = 1000;
-				long timeout = 60_000;   // 15 秒 // 给他 1分钟
+				long timeout = 60_000; // 15 秒 // 给他 1分钟
 
 				driver.get(mMainUrl);
 				String title = driver.getTitle();
@@ -4014,11 +9602,9 @@ public class G2_ApplyRuleFor_TypeFile {
 
 			}
 
-
-
 			if (mainPageHtmlStr != null) {
 
-				System.out.println("当前已经得到网页Html代码如下:\n"+mainPageHtmlStr);
+				System.out.println("当前已经得到网页Html代码如下:\n" + mainPageHtmlStr);
 
 			} else {
 				System.out.println("rootUrl.mHtmlStr  ==== null ");
@@ -4026,10 +9612,6 @@ public class G2_ApplyRuleFor_TypeFile {
 
 			return mainPageHtmlStr;
 		}
-
-
-
-
 
 	}
 // 规则:
@@ -4045,13 +9627,10 @@ public class G2_ApplyRuleFor_TypeFile {
 	// 读取当前文件夹下的jpg文件(仅仅时当前目录) 然后 读取当前的jpg的 artist Desc Make Mode Copyright
 	// UserComment 信息 来生成 .md文件
 
-
-
-
 //	_______ type=[.jpg] index=[1] name=[2021-08-04_144330.jpg]  Exif Begin  _______
 //			JpgIndex[1] == Artist[隔热_] Desc[个问题_] Make[疯玩五天_] Mode[废物废物_] Copyright[如果我问过我_] UserComment[问他我问过_]
 
-	volatile  int   mCategory_JpgExif_Count_Rule_41 = 0;
+	volatile int mCategory_JpgExif_Count_Rule_41 = 0;
 
 	class Read_Jpg_Exif_Info_Create_MDContent_Rule_41 extends Basic_Rule {
 		ArrayList<File> jpgFileList; // 当前目录下的 jpg 文件
@@ -4062,10 +9641,8 @@ public class G2_ApplyRuleFor_TypeFile {
 		boolean is_kaoyan; // 考研 类型
 		boolean is_gaokao; // 高考 类型
 
-
-
-		ArrayList<String> English_CharList;   // A-Z 的 集合
-		ArrayList<String> Chinese_CharList;   // 中文的集合  "公式集合"   "导式集合"  "结尾叹"
+		ArrayList<String> English_CharList; // A-Z 的 集合
+		ArrayList<String> Chinese_CharList; // 中文的集合 "公式集合" "导式集合" "结尾叹"
 
 		ArrayList<String> mCategoryItemList_In_Jpg; // 所有 分类 的 类型 二级分类的类型
 
@@ -4076,9 +9653,6 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		Map<String, ArrayList<String>> mOneWord_CategoryArr_Map;
 		//
-
-
-
 
 		@Override
 		boolean initParamsWithInputList(ArrayList<String> inputParamList) {
@@ -4128,6 +9702,7 @@ public class G2_ApplyRuleFor_TypeFile {
 			Chinese_CharList.add("结尾叹");
 
 		}
+
 		void initEnglishChar() {
 			English_CharList = new ArrayList<String>();
 			mCategoryItemList_In_Jpg = new ArrayList<String>();
@@ -4245,7 +9820,7 @@ public class G2_ApplyRuleFor_TypeFile {
 						itemStr = itemStr.replace("_", "").replace(" ", "").trim();
 						mCategoryList.add(itemStr);
 
-						//zukgit
+						// zukgit
 						String Alphabet_Word = getFirstZiMu(itemStr);
 
 						if (mEnglishChar_CategoryList_Map.get(Alphabet_Word) == null) {
@@ -4436,24 +10011,22 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		}
 
-
-		boolean isContainInChineseCategory(ArrayList<String> mChineseCategoryList , String matchStr ) {
+		boolean isContainInChineseCategory(ArrayList<String> mChineseCategoryList, String matchStr) {
 
 			for (int i = 0; i < mChineseCategoryList.size(); i++) {
-				String chineseStr =  mChineseCategoryList.get(i);
-				if(matchStr.contains(chineseStr)) {
+				String chineseStr = mChineseCategoryList.get(i);
+				if (matchStr.contains(chineseStr)) {
 					return true;
 				}
 			}
 			return false;
 
-
-
 		}
+
 		@Override
 		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
-											  HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
-											  ArrayList<File> curRealFileList) {
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 // TODO Auto-generated method stub
 			jpgFileList = getAllSubFile(curDirFile, ".jpg");
 
@@ -4510,11 +10083,11 @@ public class G2_ApplyRuleFor_TypeFile {
 
 			}
 
-			//  初始化英语字母 A-B-C-D-E....-Z 的 Category
+			// 初始化英语字母 A-B-C-D-E....-Z 的 Category
 			for (int i = 0; i < mCategoryItemList_In_Jpg.size(); i++) {
 				String categoryItem = mCategoryItemList_In_Jpg.get(i);
-				boolean isContainInChineseCategory =  isContainInChineseCategory(Chinese_CharList ,categoryItem);
-				if(isContainInChineseCategory) {
+				boolean isContainInChineseCategory = isContainInChineseCategory(Chinese_CharList, categoryItem);
+				if (isContainInChineseCategory) {
 					continue;
 				}
 				String firstCharName = getFirstZiMu(categoryItem);
@@ -4533,13 +10106,13 @@ public class G2_ApplyRuleFor_TypeFile {
 				System.out.println("category[" + (i + 1) + "] == " + firstCharName + "   " + categoryItem);
 			}
 
-			// 初始化 中文的  "结尾叹" "公式集合" "导式集合" category 的
+			// 初始化 中文的 "结尾叹" "公式集合" "导式集合" category 的
 			for (int i = 0; i < mCategoryItemList_In_Jpg.size(); i++) {
-				//   排查出符合逻辑的  categoryItem xx zukgit
+				// 排查出符合逻辑的 categoryItem xx zukgit
 				String categoryItem = mCategoryItemList_In_Jpg.get(i);
 				for (int j = 0; j < Chinese_CharList.size(); j++) {
 					String chineseCategory = Chinese_CharList.get(j);
-					if(categoryItem.contains(chineseCategory)) {
+					if (categoryItem.contains(chineseCategory)) {
 
 						ArrayList<String> matchCategoryList = mOneWord_CategoryArr_Map.get(chineseCategory);
 
@@ -4559,12 +10132,10 @@ public class G2_ApplyRuleFor_TypeFile {
 
 				}
 
-
 			}
 
-
-			ArrayList<String> mMdContentList = BuildMDContent(English_CharList, Chinese_CharList , mOneWord_CategoryArr_Map,
-					mCategory_JpgExifList_Map);
+			ArrayList<String> mMdContentList = BuildMDContent(English_CharList, Chinese_CharList,
+					mOneWord_CategoryArr_Map, mCategory_JpgExifList_Map);
 
 // 对 MD文件 进行分隔处理
 			ArrayList<String> segerate_MdContentList = new ArrayList<String>();
@@ -4576,33 +10147,29 @@ public class G2_ApplyRuleFor_TypeFile {
 				segerate_MdContentList.add("tags: Math");
 				segerate_MdContentList.add("keywords: 数学 高考");
 				segerate_MdContentList.add("typora-root-url: ..\\..\\");
-				segerate_MdContentList.add("typora-copy-images-to: ..\\..\\public\\zimage\\zschool_media\\jpg_gaokao_land");
+				segerate_MdContentList
+						.add("typora-copy-images-to: ..\\..\\public\\zimage\\zschool_media\\jpg_gaokao_land");
 
-
-			} else if(is_kaoyan) {
+			} else if (is_kaoyan) {
 				segerate_MdContentList.add("title: 研究考试学习");
 				segerate_MdContentList.add("category: 学习");
 				segerate_MdContentList.add("tags: Math");
 				segerate_MdContentList.add("keywords: 数学 考研");
 				segerate_MdContentList.add("typora-root-url: ..\\..\\");
-				segerate_MdContentList.add("typora-copy-images-to: ..\\..\\public\\zimage\\zschool_media\\jpg_kaoyan_land");
+				segerate_MdContentList
+						.add("typora-copy-images-to: ..\\..\\public\\zimage\\zschool_media\\jpg_kaoyan_land");
 
-
-				//   追加   到mMdContentList  后面的 一些信息
-				ArrayList<String> appendForKaoYanList = new 	ArrayList<String>();
-
-
+				// 追加 到mMdContentList 后面的 一些信息
+				ArrayList<String> appendForKaoYanList = new ArrayList<String>();
 
 			}
 			segerate_MdContentList.add("---");
 			segerate_MdContentList.add("\n");
 
-			segerate_MdContentList.add("## 简介_项式量("+mCategory_JpgExif_Count_Rule_41+")");
+			segerate_MdContentList.add("## 简介_项式量(" + mCategory_JpgExif_Count_Rule_41 + ")");
 			segerate_MdContentList.add(" * TOC");
 			segerate_MdContentList.add(" {:toc}");
 			segerate_MdContentList.add("\n");
-
-
 
 			for (int i = 0; i < mMdContentList.size(); i++) {
 				String contentLine = mMdContentList.get(i);
@@ -4616,22 +10183,18 @@ public class G2_ApplyRuleFor_TypeFile {
 			return super.applySubFileListRule4(curFileList, subFileTypeMap, curDirList, curRealFileList);
 		}
 
-
-
 		ArrayList<String> BuildMDContent(ArrayList<String> mEnglishCharList, ArrayList<String> mChineseCharList,
-										 Map<String, ArrayList<String>> xOneWord_CategoryArr_Map,
-										 Map<String, ArrayList<Jpg_Exif>> mCategory_JpgExifList_Map) {
+				Map<String, ArrayList<String>> xOneWord_CategoryArr_Map,
+				Map<String, ArrayList<Jpg_Exif>> mCategory_JpgExifList_Map) {
 
 //	StringBuilder mMDContentSB = new StringBuilder();
 
 			ArrayList<String> mMDContentStrList = new ArrayList<String>();
 
-			//    添加 英语 Category
+			// 添加 英语 Category
 			for (int i = 0; i < mEnglishCharList.size(); i++) {
 				String charWord = mEnglishCharList.get(i);
 				mMDContentStrList.add("## " + charWord);
-
-
 
 				ArrayList<String> matchCategoryList = xOneWord_CategoryArr_Map.get(charWord);
 
@@ -4690,7 +10253,6 @@ public class G2_ApplyRuleFor_TypeFile {
 								mMDContentStrList.add("**题目源信息:**  ");
 								mMDContentStrList.add("```\n" + originBirthPlaceInfo + "\n````");
 
-
 							}
 
 						}
@@ -4700,18 +10262,16 @@ public class G2_ApplyRuleFor_TypeFile {
 				}
 			}
 
-
-
-			//    添加 中文  Category
+			// 添加 中文 Category
 			for (int i = 0; i < mChineseCharList.size(); i++) {
 
 				String ChineseCategoryWord = mChineseCharList.get(i);
 				mMDContentStrList.add("## " + ChineseCategoryWord);
 
-				if(ChineseCategoryWord.equals("结尾叹")) {
+				if (ChineseCategoryWord.equals("结尾叹")) {
 
 					mMDContentStrList.add("**涉及知识点**  ");
-					mMDContentStrList.add("```\n" +"为后辈们做些能遗留的东西,莫望无前吾辈自强......" + "\n````");
+					mMDContentStrList.add("```\n" + "为后辈们做些能遗留的东西,莫望无前吾辈自强......" + "\n````");
 
 					continue;
 				}
@@ -4782,7 +10342,6 @@ public class G2_ApplyRuleFor_TypeFile {
 				}
 			}
 
-
 			System.out.println(" ============== 打印 MD 内容  Begin ============== ");
 			for (int i = 0; i < mMDContentStrList.size(); i++) {
 				String oneLine = mMDContentStrList.get(i);
@@ -4813,7 +10372,7 @@ public class G2_ApplyRuleFor_TypeFile {
 	}
 
 	class Monitor_Browser_ForWindows_Rule_40 extends Basic_Rule {
-		//		 1-----详细 下载路径        2----详细下载路径      3-----详细下载路径
+		// 1-----详细 下载路径 2----详细下载路径 3-----详细下载路径
 		Map<String, Integer> mDisplayUrl_Index_Map;
 
 		File ImageDownloadDir;
@@ -5169,7 +10728,7 @@ public class G2_ApplyRuleFor_TypeFile {
 
 					while (categoryValueB.nextPageUrl != null
 							&& categoryValueB.nextPageUrl.equals(categoryValueB.mCategoryPageUrlList
-							.get(categoryValueB.mCategoryPageUrlList.size() - 1))
+									.get(categoryValueB.mCategoryPageUrlList.size() - 1))
 							&& categoryValueB.mCategoryPageUrlList.size() <= categoryValueB.searchPageSize) {
 						System.out.println("nextPageUrl[" + categoryValueB.nextPageUrl + "]  next_index[" + next_index
 								+ "]   categoryValueB.mCategoryPageUrlList.size()["
@@ -5295,7 +10854,7 @@ public class G2_ApplyRuleFor_TypeFile {
 		}
 
 		void BrowserOperation_WithCategoryUrl(RootUrl_A rootUrl_A, CategoryUrl_B categoryUrl_B,
-											  String href_categoryUrl) {
+				String href_categoryUrl) {
 
 			String firstPageHtml_InCategory = null;
 //			for (int i = 0; i < categoryUrl_B.mKeyWordList.size(); i++) {
@@ -5512,7 +11071,7 @@ public class G2_ApplyRuleFor_TypeFile {
 		}
 
 		void TryAnalysisHrefForDisplayUrl(RootUrl_A rootUrl_A, CategoryUrl_B categpryUrl_B, DisplayUrl_C displayUrl_C,
-										  String hrefUrl) {
+				String hrefUrl) {
 
 			// 1_1_kcafalm.jpg 第一个详情页面的第1个照片 第一个1 一定对应了一个详情的地址
 			// 1_2_xafafma.jpg
@@ -5711,7 +11270,7 @@ public class G2_ApplyRuleFor_TypeFile {
 		}
 
 		ArrayList<String> calcul_categoryurl_from_html_CategoryB(RootUrl_A mRootUrl_A, CategoryUrl_B mCategoryUrl_B,
-																 String linkA_text, String categoryFirstPageHtmlCode) {
+				String linkA_text, String categoryFirstPageHtmlCode) {
 			ArrayList<String> result_href_List = null;
 
 			ArrayList<String> fixed_href_List = new ArrayList<String>();
@@ -5826,7 +11385,6 @@ public class G2_ApplyRuleFor_TypeFile {
 	// 属性进行修改(文件名称)
 //     // 4.对当前子文件(包括子目录 子文件 --不包含孙目录 孙文件) 5. 从shell 中获取到的路径 去对某一个文件进行操作
 
-
 	public static class TwitterVideo {
 		public long duration;
 		public long size;
@@ -5835,12 +11393,176 @@ public class G2_ApplyRuleFor_TypeFile {
 		@Override
 		public String toString() {
 			// TODO Auto-generated method stub
-			return "[url]=[ "+url+" ]"+ "  [size]=["+size+"]" + "  [duration]=["+duration+"]";
+			return "[url]=[ " + url + " ]" + "  [size]=[" + size + "]" + "  [duration]=[" + duration + "]";
 		}
 	}
 
-	public static  int  download_failed_time = 0;
+	public static int download_failed_time = 0;
 
+	public enum EmailTypeEnum {
+		NEW_EMAIL, REPLY
+	}
+
+	static class EmailInfo {
+		private String subject;
+		private String sender;
+		private String senderName;
+		private Date sendAt;
+		private String body;
+		private String messageId;
+		private String replyMessageId;
+		private String sourceFileKey;
+		private String ticketId;
+		private String ticketTableName;
+		private EmailTypeEnum emailTypeEnum;
+		private ArrayList<File> attachments;
+
+		public String getSubject() {
+			return subject;
+		}
+
+		public void setSubject(String subject) {
+			this.subject = subject;
+		}
+
+		public String getSender() {
+			return sender;
+		}
+
+		public void setSender(String sender) {
+			this.sender = sender;
+		}
+
+		public String getSenderName() {
+			return senderName;
+		}
+
+		public void setSenderName(String senderName) {
+			this.senderName = senderName;
+		}
+
+		public Date getSendAt() {
+			return sendAt;
+		}
+
+		public void setSendAt(Date sendAt) {
+			this.sendAt = sendAt;
+		}
+
+		public String getBody() {
+			return body;
+		}
+
+		public void setBody(String body) {
+			this.body = body;
+		}
+
+		public List<File> getAttachments() {
+			return attachments;
+		}
+
+		public void setAttachments(ArrayList<File> attachments) {
+			this.attachments = attachments;
+		}
+
+		public String getMessageId() {
+			return messageId;
+		}
+
+		public void setMessageId(String messageId) {
+			this.messageId = messageId;
+		}
+
+		public String getSourceFileKey() {
+			return sourceFileKey;
+		}
+
+		public void setSourceFileKey(String sourceFileKey) {
+			this.sourceFileKey = sourceFileKey;
+		}
+
+		public String getReplyMessageId() {
+			return replyMessageId;
+		}
+
+		public void setReplyMessageId(String replyMessageId) {
+			this.replyMessageId = replyMessageId;
+		}
+
+		public String getTicketId() {
+			return ticketId;
+		}
+
+		public void setTicketId(String ticketId) {
+			this.ticketId = ticketId;
+		}
+
+		public String getTicketTableName() {
+			return ticketTableName;
+		}
+
+		public void setTicketTableName(String ticketTableName) {
+			this.ticketTableName = ticketTableName;
+		}
+
+		public EmailTypeEnum getEmailTypeEnum() {
+			return emailTypeEnum;
+		}
+
+		public void setEmailTypeEnum(EmailTypeEnum emailTypeEnum) {
+			this.emailTypeEnum = emailTypeEnum;
+		}
+
+		@Override
+		public String toString() {
+			return "EmailInfo [subject=" + subject + ", sender=" + sender + ", senderName=" + senderName + ", sendAt="
+					+ sendAt + ", body=" + body + ", messageId=" + messageId + ", replyMessageId=" + replyMessageId
+					+ ", sourceFileKey=" + sourceFileKey + ", ticketId=" + ticketId + ", ticketTableName="
+					+ ticketTableName + ", emailTypeEnum=" + emailTypeEnum + ", attachments=" + attachments + "]";
+		}
+
+	}
+
+	public static class EmailContext {
+		private List<EmailInfo> emailInfos;
+		private javax.mail.Message[] messages;
+		private javax.mail.Folder folder;
+
+		@Override
+		public String toString() {
+			StringBuilder sb = new StringBuilder();
+
+			for (int i = 0; i < messages.length; i++) {
+				sb.append(messages[i].toString());
+			}
+			return "EmailContext [emailInfos=" + emailInfos + ", messages=[" + sb.toString() + "]" + ", folder="
+					+ folder + "]";
+		}
+
+		public List<EmailInfo> getEmailInfos() {
+			return emailInfos;
+		}
+
+		public void setEmailInfos(List<EmailInfo> emailInfos) {
+			this.emailInfos = emailInfos;
+		}
+
+		public javax.mail.Folder getFolder() {
+			return folder;
+		}
+
+		public void setFolder(javax.mail.Folder folder) {
+			this.folder = folder;
+		}
+
+		public javax.mail.Message[] getMessages() {
+			return messages;
+		}
+
+		public void setMessages(javax.mail.Message[] messages) {
+			this.messages = messages;
+		}
+	}
 
 	class Monitor_WeChatFile_ForWindows_Rule_39 extends Basic_Rule {
 // C:\Users\zukgit\Documents\WeChat Files\xxxx\FileStorage\File\2021-07
@@ -5851,6 +11573,12 @@ public class G2_ApplyRuleFor_TypeFile {
 		File mLastTxtFile; // 最新的 TXT 文件
 		ArrayList<String> urlStrList; // url 字符串列表
 
+		
+		//
+		int mMailFirstMinute = 3;
+		int mMailInteval = 30;
+		int last_email_count = 0; // 最新的 email的数量
+		HashMap<Integer, ArrayList<EmailInfo>> minute_mailListMap; // key 是当前的分钟的值 value 是当前接收到 cmdermail cmdmail 邮件的集合
 
 		File mDownloadedRootFile;
 		File mDownloadedMonthDir; // 在 G2_Monitor_Download/YYYYMM/ 年年年年月月的 目录文件
@@ -5862,17 +11590,27 @@ public class G2_ApplyRuleFor_TypeFile {
 		// 下载的视频 是否 以 MD5 进行命名
 		boolean isMDName = false;
 
+		boolean isBootUp_VBS_Start = false; // 是否是开机 vbs 启动的进程
+
 		boolean isLogFile = false;
-		StringBuilder mLogSB ;
-		File mLogFile ;
+		StringBuilder mLogSB;
+		
+		int sendMailCount = 1 ;   // 发送  mail的 数量 
+
+		ArrayList<String> mOneTimeLogList; // 一次运行的Log
+
+		File mLogFile;
 
 		// zcmd_run_[]//
-		ArrayList<String> zcmdRunCommandList;  // 在 文件中 识别出的 zcmd_run_的命令的集合
+		ArrayList<String> zcmdRunCommandList; // 在 文件中 识别出的 zcmd_run_的命令的集合
+		
+		ArrayList<String> zMailCmdRunCommandList; //  在 邮件中 读取到的 执行的命令的集合 
+		ArrayList<EmailInfo> zAlreadRunMailCommandList; //  执行的命令的集合 以及 时间戳  执行过的 就不执行了 
+		
 
-		File cmderExePath  ;  // cmder.exe 文件的绝对路径  使得程序 能再 cmder.exe上执行程序 有环境变量的优势
-		// 写入的 需要 cmder.exe 需要执行的 命令的 集合    使用 && 来串连
-		File cmder_prexe_bat_file ; // C:\Users\zhuzj5\Desktop\zbin\win_zbin\zcmder_prexe_G2.bat
-
+		File cmderExePath; // cmder.exe 文件的绝对路径 使得程序 能再 cmder.exe上执行程序 有环境变量的优势
+		// 写入的 需要 cmder.exe 需要执行的 命令的 集合 使用 && 来串连
+		File cmder_prexe_bat_file; // C:\Users\zhuzj5\Desktop\zbin\win_zbin\zcmder_prexe_G2.bat
 
 		Monitor_WeChatFile_ForWindows_Rule_39() {
 			super("#", 39, 3); // 不包括
@@ -5885,9 +11623,14 @@ public class G2_ApplyRuleFor_TypeFile {
 			searchRootFileList = new ArrayList<File>();
 			isLogFile = false;
 			mLogSB = new StringBuilder();
-			mLogFile =  new File(zbinPath + File.separator +"win_zbin"+File.separator+"zrule_apply_G2_39rule.log");
-
+			mLogFile = new File(zbinPath + File.separator + "win_zbin" + File.separator + "zrule_apply_G2_39rule.log");
+			mOneTimeLogList = new ArrayList<String>();
 			// cmderExePath 是写死的
+			zMailCmdRunCommandList = new ArrayList<String>();
+			minute_mailListMap = new HashMap<Integer, ArrayList<EmailInfo>>();
+			last_email_count = 0;
+			zAlreadRunMailCommandList = new ArrayList<EmailInfo>();
+			sendMailCount = 1;
 		}
 
 		@Override
@@ -5901,6 +11644,7 @@ public class G2_ApplyRuleFor_TypeFile {
 			boolean Flag = true;
 
 			for (int i = 0; i < inputParamList.size(); i++) {
+
 				String paramItem = inputParamList.get(i);
 				String paramItem_lower_trim = paramItem.toLowerCase().trim();
 
@@ -5908,124 +11652,114 @@ public class G2_ApplyRuleFor_TypeFile {
 					isMDName = true;
 				}
 
+				if ("bootup_true".equals(paramItem_lower_trim)) {
+					isBootUp_VBS_Start = true;
+				}
+
 				if ("logfile_true".equals(paramItem_lower_trim)) {
 					isLogFile = false;
 				}
 
-
 			}
+
+			System.out.println(
+					"isLogFile=" + isLogFile + "   isbootup=" + isBootUp_VBS_Start + "   isMDName=" + isMDName);
 
 			return super.initParamsWithInputList(inputParamList) && Flag;
 		}
 
-		@Override
-		boolean initParams4InputParam(String inputParam) {
-			System.out.println("inputParam = " + inputParam + "  curDirPath = " + curDirPath);
-			if (curDirPath == null) {
-				System.out.println("当前的Shell 路径为空！！！ " + "inputParam = " + inputParam + "  curDirPath = " + curDirPath);
-				return false;
-			}
-			String shellAbsPath = curDirPath;
-
-			String doucumentPath = System.getProperties().getProperty("user.home") + File.separator + "Documents";
-			String wechatPathPre = System.getProperties().getProperty("user.home") + File.separator + "Documents"
-					+ File.separator + "WeChat Files";
-
-			String tecentAbsFile = System.getProperties().getProperty("user.home") + File.separator + "Documents"
-					+ File.separator + "Tencent Files";
-
-			File wechatDocumentDirFile = new File(wechatPathPre);
-			File tecentDocumentDirFile = new File(tecentAbsFile);
-
-			/*
-			 * if (!shellAbsPath.startsWith(doucumentPath)) { System.out.println(
-			 * "当前的Shell 路径不是 Document["+doucumentPath+"] 下的路径 的目录 ！！！ " + "inputParam = " +
-			 * inputParam + "  curDirPath = " + curDirPath);
-			 *
-			 * return false; }
-			 */
-
-			File shellFile = new File(curDirPath);
-			String shellDirName = shellFile.getName();
-			String shellDirName_clearBlank = shellDirName.replace("-", ""); // 2021-07
-			String shellFileAbsPath = shellFile.getAbsolutePath();
-
-			String wechatRootPath = System.getProperties().getProperty("user.home") + File.separator + "Documents"
-					+ File.separator + "WeChat Files";
-
-			String now_yyyymm = getTimeStamp_YYYYMM();
-			// C:\Users\zhuzj5\Documents\WeChat Files
-			/*
-			 * if (!now_yyyymm.equals(shellDirName_clearBlank)) {
-			 * System.out.println("当前的Shell是 WeChat的目录  但不是最新月份下的目录 ！！！ " + "inputParam = "
-			 * + inputParam + "  curDirPath = " + curDirPath);
-			 * System.out.println("最新目录结果类似于: " +
-			 * " C:\\Users\\zukgit\\Documents\\WeChat Files\\xxxx\\FileStorage\\File\\2021-07"
-			 * ); return false; }
-			 */
-
-			// 如果不是wechat的目录 那么提示 路径不对
-//			if (!shellFileAbsPath.startsWith(wechatRootPath)) {
-//				System.out.println("当前的Shell是 WeChat的目录 下的目录 ！！！ " + "inputParam = " + inputParam
-//						+ "  curDirPath = " + curDirPath +"   wechatRootPath = "+ wechatRootPath +"   shellFileAbsPath="+ shellFileAbsPath );
-//				System.out.println("最新目录结果类似于: "
-//						+ " C:\\Users\\zukgit\\Documents\\WeChat Files\\xxxx\\FileStorage\\File\\2021-07");
-//				return false;
-//			}
-//
-			if (!wechatDocumentDirFile.exists() && !tecentDocumentDirFile.exists()) {
-
-				System.out.println("当前 Document目录[" + doucumentPath + "] ");
-				return false;
-			}
-
-			if (!mDownloadedRootFile.exists()) {
-				mDownloadedRootFile.mkdirs();
-			}
-
-			if (!mDownloadedMonthDir.exists()) {
-				mDownloadedMonthDir.mkdirs();
-			}
-
-			if (!mDownloadedMonthDir.exists()) {
-				System.out.println(
-						"当前文件下载保存路径不存在_请检查这个保存文件的目录 mDownloadedMonthDir = " + mDownloadedMonthDir.getAbsolutePath());
-				return false;
-
-			}
-
-			mWeChatRootFile = wechatDocumentDirFile;
-			mTencentRootFile = tecentDocumentDirFile;
-
-			if (mWeChatRootFile.exists()) {
-				searchRootFileList.add(mWeChatRootFile);
-				System.out.println("当前 WeChat目录存在 将持续为您监听");
-			} else {
-				System.out.println("当前 WeChat目录不存在   !!! File Not Exist =" + mWeChatRootFile.getAbsolutePath());
-			}
-
-			if (mTencentRootFile.exists()) {
-				searchRootFileList.add(mTencentRootFile);
-				System.out.println("当前 Tecent[QQ] 目录存在 将持续为您监听");
-			} else {
-				System.out.println("当前 Tecent[QQ]目录不存在   !!! File Not Exist =" + mTencentRootFile.getAbsolutePath());
-
-			}
-
-			mLastTxtFile = calLastTxtFileInFileList(searchRootFileList);
-			curAlredyDoTxtFileList = getAllSubFileInFileList(searchRootFileList, ".txt");
-
-//			File[] fileArr = mWeChatRootFile.listFiles();
-//			if (fileArr == null || fileArr.length == 0) {
-//				System.out.println("当前目录文件为空,将休眠1分钟后继续监测!!");
-//
-//			} else {
-//				mLastTxtFile = calLastTxtFileInList(mWeChatRootFile);
-//				curAlredyDoTxtFileList = getAllSubFile(mWeChatRootFile,".txt");
-//			}
-
-			return super.initParams4InputParam(inputParam);
-		}
+		/*
+		 * @Override boolean initParams4InputParam(String inputParam) {
+		 * System.out.println("inputParam = " + inputParam + "  curDirPath = " +
+		 * curDirPath); if (curDirPath == null) { System.out.println("当前的Shell 路径为空！！！ "
+		 * + "inputParam = " + inputParam + "  curDirPath = " + curDirPath); return
+		 * false; } String shellAbsPath = curDirPath;
+		 * 
+		 * String doucumentPath = System.getProperties().getProperty("user.home") +
+		 * File.separator + "Documents"; String wechatPathPre =
+		 * System.getProperties().getProperty("user.home") + File.separator +
+		 * "Documents" + File.separator + "WeChat Files";
+		 * 
+		 * String tecentAbsFile = System.getProperties().getProperty("user.home") +
+		 * File.separator + "Documents" + File.separator + "Tencent Files";
+		 * 
+		 * File wechatDocumentDirFile = new File(wechatPathPre); File
+		 * tecentDocumentDirFile = new File(tecentAbsFile);
+		 * 
+		 * 
+		 * if (!shellAbsPath.startsWith(doucumentPath)) { System.out.println(
+		 * "当前的Shell 路径不是 Document["+doucumentPath+"] 下的路径 的目录 ！！！ " + "inputParam = " +
+		 * inputParam + "  curDirPath = " + curDirPath);
+		 *
+		 * return false; }
+		 * 
+		 * 
+		 * File shellFile = new File(curDirPath); String shellDirName =
+		 * shellFile.getName(); String shellDirName_clearBlank =
+		 * shellDirName.replace("-", ""); // 2021-07 String shellFileAbsPath =
+		 * shellFile.getAbsolutePath();
+		 * 
+		 * String wechatRootPath = System.getProperties().getProperty("user.home") +
+		 * File.separator + "Documents" + File.separator + "WeChat Files";
+		 * 
+		 * String now_yyyymm = getTimeStamp_YYYYMM(); //
+		 * C:\Users\zhuzj5\Documents\WeChat Files
+		 * 
+		 * if (!now_yyyymm.equals(shellDirName_clearBlank)) {
+		 * System.out.println("当前的Shell是 WeChat的目录  但不是最新月份下的目录 ！！！ " + "inputParam = "
+		 * + inputParam + "  curDirPath = " + curDirPath);
+		 * System.out.println("最新目录结果类似于: " +
+		 * " C:\\Users\\zukgit\\Documents\\WeChat Files\\xxxx\\FileStorage\\File\\2021-07"
+		 * ); return false; }
+		 * 
+		 * 
+		 * // 如果不是wechat的目录 那么提示 路径不对 // if
+		 * (!shellFileAbsPath.startsWith(wechatRootPath)) { //
+		 * System.out.println("当前的Shell是 WeChat的目录 下的目录 ！！！ " + "inputParam = " +
+		 * inputParam // + "  curDirPath = " + curDirPath +"   wechatRootPath = "+
+		 * wechatRootPath +"   shellFileAbsPath="+ shellFileAbsPath ); //
+		 * System.out.println("最新目录结果类似于: " // +
+		 * " C:\\Users\\zukgit\\Documents\\WeChat Files\\xxxx\\FileStorage\\File\\2021-07"
+		 * ); // return false; // } // if (!wechatDocumentDirFile.exists() &&
+		 * !tecentDocumentDirFile.exists()) {
+		 * 
+		 * System.out.println("当前 Document目录[" + doucumentPath + "] "); return false; }
+		 * 
+		 * if (!mDownloadedRootFile.exists()) { mDownloadedRootFile.mkdirs(); }
+		 * 
+		 * if (!mDownloadedMonthDir.exists()) { mDownloadedMonthDir.mkdirs(); }
+		 * 
+		 * if (!mDownloadedMonthDir.exists()) { System.out.println(
+		 * "当前文件下载保存路径不存在_请检查这个保存文件的目录 mDownloadedMonthDir = " +
+		 * mDownloadedMonthDir.getAbsolutePath()); return false;
+		 * 
+		 * }
+		 * 
+		 * mWeChatRootFile = wechatDocumentDirFile; mTencentRootFile =
+		 * tecentDocumentDirFile;
+		 * 
+		 * if (mWeChatRootFile.exists()) { searchRootFileList.add(mWeChatRootFile);
+		 * System.out.println("当前 WeChat目录存在 将持续为您监听"); } else {
+		 * System.out.println("当前 WeChat目录不存在   !!! File Not Exist =" +
+		 * mWeChatRootFile.getAbsolutePath()); }
+		 * 
+		 * if (mTencentRootFile.exists()) { searchRootFileList.add(mTencentRootFile);
+		 * System.out.println("当前 Tecent[QQ] 目录存在 将持续为您监听"); } else {
+		 * System.out.println("当前 Tecent[QQ]目录不存在   !!! File Not Exist =" +
+		 * mTencentRootFile.getAbsolutePath());
+		 * 
+		 * }
+		 * 
+		 * mLastTxtFile = calLastTxtFileInFileList(searchRootFileList);
+		 * curAlredyDoTxtFileList = getAllSubFileInFileList(searchRootFileList, ".txt");
+		 * 
+		 * // File[] fileArr = mWeChatRootFile.listFiles(); // if (fileArr == null ||
+		 * fileArr.length == 0) { // System.out.println("当前目录文件为空,将休眠1分钟后继续监测!!"); // //
+		 * } else { // mLastTxtFile = calLastTxtFileInList(mWeChatRootFile); //
+		 * curAlredyDoTxtFileList = getAllSubFile(mWeChatRootFile,".txt"); // }
+		 * 
+		 * return super.initParams4InputParam(inputParam); }
+		 */
 
 		String getSearchFileTip(ArrayList<File> searchFileList) {
 			StringBuilder sb = new StringBuilder();
@@ -6051,28 +11785,52 @@ public class G2_ApplyRuleFor_TypeFile {
 						File lastTxtFile = calLastTxtFileInFileList(searchRootFileList);
 						if (lastTxtFile == null) {
 							mLastTxtFile = null;
-							System.out.println("当前搜索目录[" + searchFileTip + "]没有Txt文件!!  睡眠1分钟后继续检测！！！ ");
+							System.out.println("当前搜索目录[" + searchFileTip + "] mailFirst["+mMailFirstMinute+"]"+"mailInteval["+mMailInteval+"]"+"没有Txt文件!!  睡眠1分钟后继续检测！！！ ");
 						} else if (mLastTxtFile != null
 								&& lastTxtFile.getAbsolutePath().equals(mLastTxtFile.getAbsolutePath())) {
 
 							System.out
-									.println("当前搜索目录[" + searchFileTip + "]没有Txt文件!!!!  没有产生最新的Txt文件   睡眠1分钟后继续检测！！！ ");
+									.println("当前搜索目录[" + searchFileTip + "] mailFirst["+mMailFirstMinute+"] mailInteval["+mMailInteval+"] 没有Txt文件!!!!  没有产生最新的Txt文件   睡眠1分钟后继续检测！！！ ");
 						} else if (lastTxtFile != null && lastTxtFile != mLastTxtFile) {
 							System.out.println("当前检测到最新的 TXT 文件  lastTxtFile = " + lastTxtFile.getName()
 									+ " 创建新线程 打印内容！！！ 【lastTxtFile == mLastTxtFile】==【" + (lastTxtFile == mLastTxtFile)
 									+ "】   lastTxtFile=" + lastTxtFile.getAbsolutePath() + "  mLastTxtFile="
 									+ mLastTxtFile.getAbsolutePath());
 							mLastTxtFile = lastTxtFile;
-							NewFileOperation(mLastTxtFile);
+							NewFileOperation(mLastTxtFile, minute_count);
 						} else {
 							System.out.println("什么情况" + "   lastTxtFile=" + lastTxtFile.getAbsolutePath()
 									+ "  mLastTxtFile=" + mLastTxtFile.getAbsolutePath());
 						}
-						minute_count++;
-						System.out.println("══════════════════ " + "Minute[" + minute_count + "]:" + getTimeStamp()
-								+ " ════════ mLastTxtFile=" + (mLastTxtFile == null ? "null" : mLastTxtFile.getName()));
 
+			
+
+						// ================== 检测 cmdmail 邮件 Begin ================
+
+						
+						Receive_Monitor_Mail_Operation(minute_count);
+
+						// ================== 检测 cmdmail 邮件 End ================
+
+						// 第3分钟 以及 每隔 30分钟 发个邮件 ?
+						int minutes_inteval = mMailInteval; // 发邮件的间隔  2  
+						int first_send_miute = mMailFirstMinute; // 起始发送文件的分钟数 1
+						if (minute_count == first_send_miute
+								|| (minute_count != 0 && minute_count % minutes_inteval == 0)) {
+							if (isBootUp_VBS_Start) { //
+								Send_Monitor_Email(minute_count, first_send_miute, minutes_inteval, mOneTimeLogList,
+										mLastTxtFile, mWeChatRootFile, mTencentRootFile, zcmdRunCommandList, zMailCmdRunCommandList ,
+										searchRootFileList, curAlredyDoTxtFileList);
+								// 发送邮件
+							}
+							mOneTimeLogList.clear();
+						}
+
+						System.out.println("══════════════════ " + "Minute[" + minute_count + "] mailFirst["+mMailFirstMinute+"] mailInteval["+mMailInteval+"]:" + getTimeStamp()
+						+ " ════════ mLastTxtFile=" + (mLastTxtFile == null ? "null" : mLastTxtFile.getName()));
+						
 						Thread.sleep((long) ONE_MINUTES_MILLSECOND);
+						minute_count++;
 
 					} catch (InterruptedException e) {
 						e.printStackTrace();
@@ -6086,6 +11844,747 @@ public class G2_ApplyRuleFor_TypeFile {
 		}
 
 		int curUrlIndex_InTxtFile;
+
+		//
+		void Receive_Monitor_Mail_Operation(int minute_count) {
+			
+			
+			new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					EmailContext emalContext = null;
+					try {
+						emalContext = receive_mailcmd_Context(minute_count, "imap", "imap.qq.com", "382581427@qq.com",
+								"kyioxkexvqdtbjhd");
+
+						if (minute_mailListMap.get(minute_count) != null && minute_mailListMap.get(minute_count).size() > 0) {
+							ArrayList<EmailInfo> match_minutes_MailList = minute_mailListMap.get(minute_count);
+
+							System.out.println("match_minutes_MailList.size() = "+ match_minutes_MailList.size());
+							for (int i = 0; i < match_minutes_MailList.size(); i++) {
+
+								EmailInfo emailInfo = match_minutes_MailList.get(i);
+								String mSubject = emailInfo.getSubject();
+
+								System.out.println("AA_Receive_Monitor_Mail_Operation  minute_count=" + minute_count + " mail[" + i
+										+ "][" + match_minutes_MailList.size() + "]  Subkect= " + mSubject);
+								
+								if(!isEmailInfoExist(zAlreadRunMailCommandList,emailInfo)) {
+									zAlreadRunMailCommandList.add(emailInfo);
+									exe_cmd_email_operation(minute_count, emailInfo);
+								}else {
+									
+									System.out.println("当前已经存在相同的 EmailInfoList emailInfo="+emailInfo);
+								}
+								
+								
+								System.out.println("BB_Receive_Monitor_Mail_Operation  minute_count=" + minute_count + " mail[" + i
+										+ "][" + match_minutes_MailList.size() + "]  Subkect= " + mSubject);
+
+							}
+
+						}else {
+							System.out.println("match_minutes_MailList.size() = 0 null  minute_count="+minute_count);
+						}
+
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					
+				}
+			}).start();
+			
+			
+			
+			
+
+
+		}
+
+		
+		boolean isEmailInfoExist(ArrayList<EmailInfo> usedEmailList , EmailInfo curEmail) {
+			boolean isExist = false;
+			
+			for (int i = 0; i < usedEmailList.size(); i++) {
+				
+				EmailInfo  mEmailInfo = 	usedEmailList.get(i);
+				
+				if(mEmailInfo.body.equals(curEmail.body)  && mEmailInfo.subject.equals(curEmail.subject)) {
+					return true;
+				}
+				
+			}
+			
+			
+			
+			return isExist;
+			
+			
+			
+		}
+		void exe_cmd_email_operation(int minutes_count, EmailInfo emailInfo) {
+			String mSubject = emailInfo.getSubject();
+		
+			String task_identify = minutes_count+"_"+mSubject;
+			System.out.println("exe_cmd_email_operation  minutes_count="+minutes_count+"    task_identify="+task_identify+"的任务!    containFlag=");
+			mLogSB.append("_______________mailcmder_run_[minute:" + minutes_count + "]  subject[" + mSubject
+					+ "] Begin ____");
+
+			System.out.println("_______ exe_cmd_email_operation ________mailcmder_run_[minute:" + minutes_count + "]  subject[" + mSubject
+					+ "] Begin ____");
+//			mSubject    // mailcmd_zhuzj5_run_【afafafa】 %win_zbin%/zrule_apply_G2.bat #_48 voice_12345678900987654321
+
+			StringBuilder tipSb = new StringBuilder();
+
+			if (mSubject.contains("mailcmd_") && mSubject.contains("【") && mSubject.contains("】")) {
+
+				String command_pre_flag = "mailcmd_";
+				String userName_raw = mSubject.substring(mSubject.indexOf("【"));
+				String userName_fix = userName_raw.replace(command_pre_flag, "").replace("_run_", "").trim();
+
+				String command = mSubject.substring(mSubject.indexOf("】") + 1).trim();
+
+				System.out.println(
+						"minutes_count=" + minutes_count + "   userName_fix=" + userName_fix + "   cmdercommand=" + command);
+
+				command = command.replace("%win_zbin%", Win_Lin_Mac_ZbinPath);
+				String command_fixed = command.replace("%zbin%", zbinPath);
+				
+		
+				String result = "";
+				new Thread(new Runnable() {   // 让 子线程  去执行  否则 卡住 主线程
+					
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+					
+						zMailCmdRunCommandList.add(command_fixed);
+						String result = execCMD(command_fixed);
+						System.out.println("execCMD command【"+command_fixed+"】 result="+result);
+
+					}
+				}).start();
+		
+				System.out.println("minutes_count=" + minutes_count + "   userName_fix=" + userName_fix
+						+ "   cmder_command=" + command + "  result=" + result);
+
+			}else {
+				
+				System.out.println(
+						"AA minutes_count=" + minutes_count + "   Subject_command=" + mSubject  );
+			}
+
+			if (mSubject.contains("mailcmder_") && mSubject.contains("【") && mSubject.contains("】")) {
+				String command_pre_flag = "mailcmder_";
+				String userName_raw = mSubject.substring(mSubject.indexOf("【"));
+				String userName_fix = userName_raw.replace(command_pre_flag, "").replace("_run_", "").trim();
+				String command = mSubject.substring(mSubject.indexOf("】") + 1).trim();
+
+				System.out.println("minutes_count=" + minutes_count + "   userName_fix=" + userName_fix
+						+ "   cmd_command=" + command);
+			
+				command = command.replace("%win_zbin%", Win_Lin_Mac_ZbinPath);
+				String command_fixed = command.replace("%zbin%", zbinPath);
+				
+				String result = "";
+				new Thread(new Runnable() { // 让 子线程  去执行  否则 卡住 主线程
+		
+					@Override
+					public void run() {
+						// TODO Auto-generated method stub
+					
+						zMailCmdRunCommandList.add(command_fixed);
+						String result = run_cmder(command_fixed); // cmd 运行
+						System.out.println("run_cmder  command【"+command_fixed+"】 result="+result);
+					}
+				}).start();
+				
+				
+
+				System.out.println("minutes_count=" + minutes_count + "   userName_fix=" + userName_fix
+						+ "   cmdcommand=" + command + " result=" + result);
+
+			}else {
+				
+				System.out.println(
+						"BB minutes_count=" + minutes_count + "   Subject_command=" + mSubject  );
+			}
+
+			mLogSB.append(
+					"_______________mailcmder_run_[minute:" + minutes_count + "]  subject[" + mSubject + "] End ____");
+			System.out.println(
+					"_______________mailcmder_run_[minute:" + minutes_count + "]  subject[" + mSubject + "] End ____");
+
+		}
+
+		/**
+		 * 接收邮件
+		 */
+		public EmailContext receive_mailcmd_Context(int minutes, String protocol, String host, String username,
+				String password) throws Exception {
+			// 读取收件箱
+			System.out.println("receive_CmdMail 方法开始! AA");
+			EmailContext emailContext = readInbox(protocol, host, username, password);
+			System.out.println("receive_CmdMail 方法结束! BB  ");
+			if (emailContext == null) {
+				return null;
+			}
+			// 处理邮件
+			ArrayList<EmailInfo> result = parseCmdMessage(emailContext.messages);
+			emailContext.setEmailInfos(result);
+			minute_mailListMap.put(minutes, result);
+			System.out.println("receive_CmdMail CC  ");
+			return emailContext;
+		}
+
+		/**
+		 * 解析邮件
+		 * 
+		 * @param allMessages 要解析的邮件列表
+		 */
+		public ArrayList<EmailInfo> parseCmdMessage(javax.mail.Message... allMessages) throws MessagingException {
+			if (allMessages == null || allMessages.length < 1) {
+				throw new MessagingException("未找到要解析的邮件!");
+			}
+
+			ArrayList<EmailInfo> mCmdMailInfoList = new ArrayList<EmailInfo>();
+
+			// 解析所有邮件
+			System.out.println("parseMessage 解析邮件begin  messages.length = " + allMessages.length);
+			int all_eamil_count = allMessages.length;
+			int receive_mail_count = 0;
+			System.out.println("messages.length = " + allMessages.length);
+			if (last_email_count == 0) { // 首次监听邮件时候 邮件长度为0
+
+				last_email_count = all_eamil_count;
+				System.out.println("当前的邮件长度为: " + last_email_count);
+				receive_mail_count = allMessages.length - last_email_count;
+			} else {
+
+				receive_mail_count = all_eamil_count - last_email_count;
+
+				System.out.println("当前静默期间 收到 receive_mail_count=" + receive_mail_count + "封邮件!");
+
+			}
+
+			System.out.println("当前的需要读取的邮件长度为: receive_mail_count=" + receive_mail_count);
+
+			if (receive_mail_count <= 0) {
+
+				System.out.println("当前静默期间 收到的邮件为0  receive_mail_count=" + receive_mail_count + "  继续静默!");
+				return mCmdMailInfoList;
+			}
+
+			// mailcmd_zhuzj5_xxxxxxxxxx
+			// mailcmder_gjh123_xxxxxxxxxx
+
+			for (int i = allMessages.length - receive_mail_count; i < allMessages.length; i++) {
+				if (!allMessages[i].getFolder().isOpen()) {
+					allMessages[i].getFolder().open(javax.mail.Folder.READ_WRITE);
+				}
+				MimeMessage msg = (MimeMessage) allMessages[i];
+				EmailInfo emailInfo = new EmailInfo();
+				try {
+
+				
+					
+					String mSubject_Content = msg.getSubject();
+					System.out.println("当前的需要读取的邮件长度为: AA receive_mail_count=" + receive_mail_count +" mSubject_Content="+mSubject_Content);
+					if (mSubject_Content == null || "".equals(mSubject_Content)) {
+						continue;
+					}
+					System.out.println("当前的需要读取的邮件长度为: BB receive_mail_count=" + receive_mail_count +" mSubject_Content="+mSubject_Content);
+
+					if (!(mSubject_Content.startsWith("mailcmd_") || mSubject_Content.startsWith("mailcmder_"))) {
+						// 只 读取 特定 主题 subject 主题的 邮件
+						continue;
+					}
+					System.out.println("当前的需要读取的邮件长度为: CC receive_mail_count=" + receive_mail_count +" mSubject_Content="+mSubject_Content);
+
+					emailInfo.setSubject(msg.getSubject());
+					emailInfo.setSender(getFrom(msg));
+					emailInfo.setSenderName(getSenderName(msg));
+					emailInfo.setSendAt(msg.getSentDate());
+					emailInfo.setMessageId(msg.getMessageID());
+					// 邮件源文件
+					emailInfo.setSourceFileKey(saveSourceEmailFile(msg));
+					emailInfo.setReplyMessageId(getHeader(msg, "In-Reply-To"));
+					String body = getTextFromMessage(msg);
+					body = obtainEmailType(emailInfo, body);
+
+					try {
+						System.out.println("当前的需要读取的邮件长度为: DD receive_mail_count=" + receive_mail_count +" mSubject_Content="+mSubject_Content);
+
+						emailInfo.setBody(body.toString());
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
+					if (isContainAttachment(msg)) {
+						emailInfo.setAttachments(saveAttachment(msg));
+					}
+					System.out.println("当前的需要读取的邮件长度为: EE receive_mail_count=" + receive_mail_count +" mSubject_Content="+mSubject_Content);
+
+					mCmdMailInfoList.add(emailInfo);
+					if (allMessages[i].getFolder().isOpen()) {
+						allMessages[i].getFolder().close(true);
+					}
+					
+					System.out.println("当前的需要读取的邮件长度为: FF receive_mail_count=" + receive_mail_count +" mSubject_Content="+mSubject_Content);
+
+				} catch (Exception e) {
+					System.out.println("读取邮件失败");
+					e.printStackTrace();
+				}
+			}
+			System.out.println("parseMessage 方法结束: List<EmailInfo>.size()  =" + mCmdMailInfoList.size());
+			return mCmdMailInfoList;
+		}
+
+		/**
+		 * 保存附件
+		 *
+		 * @param part 邮件中多个组合体中的其中一个组合体
+		 * @throws UnsupportedEncodingException
+		 * @throws MessagingException
+		 * @throws IOException
+		 */
+		private ArrayList<File> saveAttachment(javax.mail.Part part)
+				throws UnsupportedEncodingException, MessagingException, IOException {
+			System.out.println(" hashCode :" + part.hashCode());
+
+			ArrayList<File> attchFileList = new ArrayList<File>();
+
+			if (part.isMimeType("multipart/*")) {
+				javax.mail.Multipart multipart = (javax.mail.Multipart) part.getContent();
+				int partCount = multipart.getCount();
+				for (int i = 0; i < partCount; i++) {
+					javax.mail.BodyPart bodyPart = multipart.getBodyPart(i);
+					String disp = bodyPart.getDisposition();
+					if (disp != null) {
+						String fileName = decodeText(bodyPart.getFileName());
+						System.out.println(" fileName :" + fileName);
+						// 通过getInputStream方法下载附件
+						InputStream attatchIns = bodyPart.getInputStream();
+
+						File attchFile = new File(mDownloadedRootFile + fileName);
+						FileOutputStream fos = new FileOutputStream(attchFile);
+						byte[] b = new byte[1024];
+						while ((attatchIns.read(b)) != -1) {
+							fos.write(b);// 写入数据
+						}
+
+						attatchIns.close();
+						fos.close();// 保存数据
+
+						attchFileList.add(attchFile);
+
+					}
+				}
+			}
+
+			return attchFileList;
+		}
+
+		public String decodeText(String encodeText) throws UnsupportedEncodingException {
+			if (encodeText == null || "".equals(encodeText)) {
+				return "";
+			} else {
+				return MimeUtility.decodeText(encodeText).replaceAll("/", "_");
+			}
+		}
+
+		// 查看是否包含附件
+		public boolean isContainAttachment(javax.mail.Part part)
+				throws MessagingException, IOException, InterruptedException {
+			// 是否包含multipart内容
+			if (part.isMimeType("multipart/*")) {
+				// 转换content为MimeMultipart对象
+				MimeMultipart multipart = (MimeMultipart) part.getContent();
+				// 获取bodyPart的数量
+				int partCount = multipart.getCount();
+				for (int i = 0; i < partCount; i++) {
+					javax.mail.BodyPart bodyPart = multipart.getBodyPart(i);
+					// 返回bodyPart的配置
+					String disp = bodyPart.getDisposition();
+					// 是否包含附件
+					if (disp != null && (disp.equalsIgnoreCase(javax.mail.Part.ATTACHMENT)
+							|| disp.equalsIgnoreCase(javax.mail.Part.INLINE))) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		/**
+		 * 提取邮件类型
+		 * 
+		 * @param emailInfo
+		 * @param body
+		 */
+		public String obtainEmailType(EmailInfo emailInfo, String body) {
+			if (body == null) {
+				emailInfo.setEmailTypeEnum(EmailTypeEnum.NEW_EMAIL);
+				return null;
+			}
+			if (body.contains("《hidden《") && body.contains("》hidden》")) {
+				emailInfo.setEmailTypeEnum(EmailTypeEnum.REPLY);
+				String startFlag = "《hidden《";
+				int start = body.lastIndexOf(startFlag);
+				int end = body.lastIndexOf("》hidden》");
+				String info = body.substring(start + startFlag.length(), end);
+				String[] split = info.split(":");
+				if (split.length != 2) {
+					emailInfo.setEmailTypeEnum(EmailTypeEnum.NEW_EMAIL);
+				} else {
+					emailInfo.setTicketId(split[0]);
+					emailInfo.setTicketTableName(split[1]);
+				}
+			} else {
+				emailInfo.setEmailTypeEnum(EmailTypeEnum.NEW_EMAIL);
+			}
+			return body;
+		}
+
+		public String getTextFromMessage(javax.mail.Message message) throws MessagingException, IOException {
+			String result = "";
+			if (message.isMimeType("text/plain") || message.isMimeType("text/html")) {
+				result = message.getContent().toString();
+			} else if (message.isMimeType("multipart/mixed")) {
+				result = getTextFromMimeMultipart((javax.mail.Multipart) message.getContent());
+			} else if (message.isMimeType("multipart/alternative")) {
+				result = getTextFromMimeMultipart((javax.mail.Multipart) message.getContent());
+			}
+			return result;
+		}
+
+		public String getTextFromMimeMultipart(javax.mail.Multipart mimeMultipart)
+				throws MessagingException, IOException {
+			String result = "";
+			int count = mimeMultipart.getCount();
+			for (int i = 0; i < count; i++) {
+				javax.mail.BodyPart bodyPart = mimeMultipart.getBodyPart(i);
+				if (bodyPart.isMimeType("text/plain")) {
+					result = result + bodyPart.getContent();
+				} else if (bodyPart.isMimeType("text/html")) {
+					String html = (String) bodyPart.getContent();
+					result = result + html;
+				} else if (bodyPart.getContent() instanceof javax.mail.Multipart) {
+					result = result + getTextFromMimeMultipart((javax.mail.Multipart) bodyPart.getContent());
+				} else if (bodyPart.isMimeType("text/html")) {
+					String html = (String) bodyPart.getContent();
+					result = result + html;
+				} else if (bodyPart.getContent() instanceof javax.mail.Multipart) {
+					result = result + getTextFromMimeMultipart((javax.mail.Multipart) bodyPart.getContent());
+				}
+			}
+			return result;
+		}
+
+		public String saveSourceEmailFile(MimeMessage msg) {
+			return "source_file_key";
+		}
+
+		public String getHeader(MimeMessage mimeMessage, String header) {
+			String[] headers = new String[0];
+			try {
+				headers = mimeMessage.getHeader(header);
+			} catch (MessagingException e) {
+				e.printStackTrace();
+			}
+			return headers != null && headers.length > 0 ? headers[0] : null;
+		}
+
+		// ----------------------------------------------------------------------------------------------
+
+		/**
+		 * 获得邮件主题
+		 * 
+		 * @param msg 邮件内容
+		 * @return 解码后的邮件主题
+		 */
+		public String getSubject(MimeMessage msg) throws UnsupportedEncodingException, MessagingException {
+			return MimeUtility.decodeText(msg.getSubject());
+		}
+
+		// ----------------------------------------------------------------------------------------------
+
+		/**
+		 * 获取发件人
+		 * 
+		 * @param msg
+		 * @return
+		 */
+		public String getSenderName(MimeMessage msg) throws MessagingException {
+			javax.mail.Address[] froms = msg.getFrom();
+			if (froms.length < 1) {
+				return "";
+			}
+			javax.mail.internet.InternetAddress address = (javax.mail.internet.InternetAddress) froms[0];
+			return address.getPersonal();
+		}
+
+		// ----------------------------------------------------------------------------------------------
+
+		/**
+		 * 获得邮件发件人
+		 * 
+		 * @param msg 邮件内容
+		 * @return 姓名 <Email地址>
+		 * @throws MessagingException
+		 * @throws UnsupportedEncodingException
+		 */
+		public String getFrom(MimeMessage msg) throws MessagingException {
+			javax.mail.Address[] froms = msg.getFrom();
+			if (froms.length < 1) {
+				return "";
+			}
+			javax.mail.internet.InternetAddress address = (javax.mail.internet.InternetAddress) froms[0];
+			return address.getAddress();
+		}
+
+		/**
+		 * Flag 类型列举如下 Flags.Flag.ANSWERED 邮件回复标记，标识邮件是否已回复。 Flags.Flag.DELETED
+		 * 邮件删除标记，标识邮件是否需要删除。 Flags.Flag.DRAFT 草稿邮件标记，标识邮件是否为草稿。 Flags.Flag.FLAGGED
+		 * 表示邮件是否为回收站中的邮件。 Flags.Flag.RECENT 新邮件标记，表示邮件是否为新邮件。 Flags.Flag.SEEN
+		 * 邮件阅读标记，标识邮件是否已被阅读。 Flags.Flag.USER 底层系统是否支持用户自定义标记，只读。
+		 */
+		public EmailContext readInbox(String protocol, String host, String user, String password) throws Exception {
+			// 邮件配置类
+			Properties properties = new Properties();
+			javax.mail.Session session = javax.mail.Session.getDefaultInstance(properties);
+			// session.setDebug(true);
+			javax.mail.Store store = session.getStore(protocol);
+			System.out.println("readInbox connect  方法开始! ");
+
+			store.connect(host, user, password);
+			System.out.println("readInbox connect 方法结束 ! ");
+
+			// 获得用户的邮件帐户
+			System.out.println("readInbox getFolder 方法开始 ! ");
+			javax.mail.Folder folder = store.getFolder("INBOX");
+
+			System.out.println("readInbox getFolder 方法结束 ! ");
+			if (folder == null) {
+				System.out.println("获取邮箱文件信息为空");
+			}
+
+			int message_count = folder.getMessageCount();
+			System.out.println("获取邮箱文件信息数量  message_count = " + message_count);
+
+			EmailContext emailContext = new EmailContext();
+			// 设置对邮件帐户的访问权限可以读写
+			folder.open(javax.mail.Folder.READ_WRITE);
+
+			SearchTerm flagTerm = new FlagTerm(new javax.mail.Flags(javax.mail.Flags.Flag.RECENT), false);// 搜索未读邮件
+			System.out.println("readInbox search 方法开始 ! ");
+			javax.mail.Message[] messages = folder.search(flagTerm);
+			System.out.println("readInbox search 方法结束 ! ");
+
+			System.out.println("readInbox A  messages.length=" + messages.length);
+
+			if (messages == null || messages.length == 0) {
+				return null;
+			}
+
+			System.out.println("readInbox  B  messages=");
+
+//		        for (int i = 0, count = messages.length; i < count; i++) {//将读取的邮件标位已读状态
+//		            messages[i].setFlag(Flags.Flag.SEEN, true);
+//		        }
+
+			System.out.println("readInbox  C  messages="  );
+			emailContext.setMessages(messages);
+			emailContext.setFolder(folder);
+			System.out.println("readInbox readInbox End   "  );
+
+			return emailContext;
+		}
+
+		void Send_Monitor_Email(int minute_count, int first_send_minute, int minute_inteval, ArrayList<String> LogList,
+				File lastTxtFile, File wechatDir, File qqDir, ArrayList<String> cmdList, ArrayList<String> mailCmdList, ArrayList<File> searchDirList,
+				ArrayList<File> usedTxtFileList) {
+
+			ArrayList<String> paramStrList = new ArrayList<String>();
+
+			ArrayList<String> extraInfoList = new ArrayList<String>();
+
+			mLogSB.append(
+					"minute_count[" + minute_count + "] Begin_getWifiInfoList() " + getTimeStampyyyyMMdd_HHmmss());
+			if (isLogFile) {
+				writeContentToFile(mLogFile, mLogSB.toString());
+			}
+			ArrayList<String> wifiInfoList = getWifiInfoList();
+//		ArrayList<String> wifiInfoList = 	new ArrayList<String>();
+
+			if (wifiInfoList != null || wifiInfoList.size() == 0) {
+				mLogSB.append(
+						"minute_count[" + minute_count + "]_End_getWifiInfoList()=0  " + getTimeStampyyyyMMdd_HHmmss());
+			} else {
+				mLogSB.append("minute_count[" + minute_count + "]_End_getWifiInfoList()=" + wifiInfoList.size() + "  "
+						+ getTimeStampyyyyMMdd_HHmmss());
+			}
+
+			if (isLogFile) {
+				writeContentToFile(mLogFile, mLogSB.toString());
+			}
+
+			String pc_userName = System.getenv().get("USERNAME");// 获取用户名
+
+			String mSubjectStr = "uptip" + "_" + pc_userName + "_"+sendMailCount+"[minute:" + minute_count + "][first:"
+					+ first_send_minute + "][inteval:" + minute_inteval + "][lastTxt:" + (lastTxtFile != null?lastTxtFile.getName():"null") + "]"
+					+ "_" + getTimeStamp_HHmmss();
+
+			paramStrList.add("[USERNAME:" + pc_userName + "]");
+			paramStrList.add("[isBootUp:" + isBootUp_VBS_Start + "]");
+			paramStrList.add("[minute:" + minute_count + "]");
+			paramStrList.add("[first_minute:" + first_send_minute + "]");
+			paramStrList.add("[inteval:" + minute_inteval + "]");
+			
+			if(lastTxtFile  != null) {
+				paramStrList.add("[lastTxt:" + lastTxtFile.getAbsolutePath() + "]" + "__"+ long2yyyyMMdd_HHmmss(lastTxtFile.lastModified()));
+
+			}else {
+				paramStrList.add("[lastTxt:" + lastTxtFile + "]" + "__");
+
+			}
+			
+			if(wechatDir != null) {
+				paramStrList.add("[wechatDir:" + wechatDir.getAbsolutePath() + "]");
+			}else {
+				paramStrList.add("[wechatDir:" + "null" + "]");
+			}
+	
+			if(qqDir != null) {
+				paramStrList.add("[qqDir:" + qqDir.getAbsolutePath() + "]");
+			}else {
+				paramStrList.add("[qqDir:" + "null" + "]");
+			}
+	
+	
+			if (cmdList == null || cmdList.size() == 0) {
+				paramStrList.add("[cmdList.size():0]");
+			} else {
+				paramStrList.add("[cmdList.size():" + cmdList.size() + "]");
+				
+				for (int i = 0; i < cmdList.size(); i++) {
+					paramStrList.add("[cmdList["+i+"]["+cmdList.size()+"]:" + cmdList.get(i)+ "]");
+				}
+			}
+			
+			if (mailCmdList == null || mailCmdList.size() == 0) {
+				paramStrList.add("[mailCmdList.size():0]");
+			} else {
+				paramStrList.add("[mailCmdList.size():" + mailCmdList.size() + "]");
+				for (int i = 0; i < mailCmdList.size(); i++) {
+					paramStrList.add("[mailCmdList["+i+"]["+mailCmdList.size()+"]:" + mailCmdList.get(i)+ "]");
+				}
+				
+			}
+			
+			
+			
+			
+			paramStrList.add("══════" + " 参数展示结束 " + "══════");
+
+			if (wifiInfoList.size() > 0) {
+
+				extraInfoList.add("══════" + "Wifi信息展示开始" + "══════");
+				extraInfoList.addAll(wifiInfoList);
+
+			}
+
+			if (cmdList != null && cmdList.size() > 0) {
+				paramStrList.add("══════" + "lastCmd 开始" + "══════");
+				paramStrList.add("[lastCmd:" + cmdList.get(cmdList.size() - 1) + "]");
+			}
+
+			paramStrList.add("══════" + "searchDir 列表[" + searchDirList.size() + "]" + "══════");
+			for (int i = 0; i < searchDirList.size(); i++) {
+				File searchDir = searchDirList.get(i);
+				paramStrList.add("searchDir[" + i + "][" + searchDirList.size() + "]:" + searchDir.getAbsolutePath());
+			}
+
+			ArrayList<String> lastTxtList = ReadFileContentAsList(lastTxtFile);
+
+			if (lastTxtList != null) {
+				extraInfoList.add("══════" + lastTxtFile.getAbsolutePath() + "文件内容展示开始" + "══════");
+				extraInfoList.addAll(lastTxtList);
+
+			}
+
+			if (usedTxtFileList != null && usedTxtFileList.size() > 0) {
+				extraInfoList.add("══════" + "检测到的txt文件展示 usedTxtFileList[" + usedTxtFileList.size() + "]" + "══════");
+				usedTxtFileList.sort(mFileDateComparion_New_To_Old);
+				for (int i = 0; i < usedTxtFileList.size(); i++) {
+					File usedTxtFile = usedTxtFileList.get(i);
+					extraInfoList.add("usedTxtFile[" + i + "][" + usedTxtFileList.size() + "]:"
+							+ usedTxtFile.getAbsolutePath() + "__" + long2yyyyMMdd_HHmmss(usedTxtFile.lastModified()));
+				}
+			}
+
+			if (LogList.size() > 0) {
+
+				extraInfoList.add("══════" + "Log展示开始" + "══════");
+				extraInfoList.addAll(lastTxtList);
+
+			}
+
+			ArrayList<File> weCharAllFile = getAllSubFile(wechatDir, "*");
+
+			ArrayList<File> QQAllFile = getAllSubFile(qqDir, "*");
+
+			if (weCharAllFile != null && weCharAllFile.size() > 0) {
+				extraInfoList.add("══════WeChat_" + wechatDir.getAbsolutePath() + "目录展示[" + weCharAllFile.size() + "]"
+						+ "══════");
+				weCharAllFile.sort(mFileDateComparion_New_To_Old);
+				for (int i = 0; i < weCharAllFile.size(); i++) {
+					File wechat_file_item = weCharAllFile.get(i);
+
+					extraInfoList.add("wechat_file[" + i + "][" + weCharAllFile.size() + "]__"
+							+ wechat_file_item.getAbsolutePath() + "__"
+							+ long2yyyyMMdd_HHmmss(wechat_file_item.lastModified()));
+				}
+
+			}
+
+			if (QQAllFile != null && QQAllFile.size() > 0) {
+				extraInfoList
+						.add("══════ QQ_" + qqDir.getAbsolutePath() + "目录展示[" + weCharAllFile.size() + "]" + "══════");
+				QQAllFile.sort(mFileDateComparion_New_To_Old);
+				for (int i = 0; i < QQAllFile.size(); i++) {
+					File qq_file_item = QQAllFile.get(i);
+
+					extraInfoList.add("qq_file[" + i + "][" + QQAllFile.size() + "]__" + qq_file_item.getAbsolutePath()
+							+ "__" + long2yyyyMMdd_HHmmss(qq_file_item.lastModified()));
+				}
+			}
+
+			HashMap<File, String> file_desc_map = new HashMap<File, String>();
+
+			File screenImage = getPCScreenFile();
+			String image_desc = pc_userName + "_" + getTimeStampyyyyMMdd_HHmmss() + "屏幕截图";
+			file_desc_map.put(screenImage, image_desc);
+
+			ArrayList<File> attatchFile = new ArrayList<File>();
+			if(lastTxtFile != null) {
+				attatchFile.add(lastTxtFile);
+			}
+		
+
+			try {
+				sendemail(minute_count == first_send_minute , pc_userName, null, mSubjectStr, "Hello Monitor!", paramStrList, extraInfoList, file_desc_map,attatchFile);
+				sendMailCount++;
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				System.out.println("send_email 发生异常 e="+e.getMessage());
+			}
+
+		}
 
 		boolean isInAlreadyDoTxtFileList(ArrayList<File> mFileList, File singleFile) {
 			boolean existFlag = false;
@@ -6110,10 +12609,10 @@ public class G2_ApplyRuleFor_TypeFile {
 		}
 
 		@SuppressWarnings("unchecked")
-		void NewFileOperation(File newFile) {
+		void NewFileOperation(File newFile, int minutes) {
 
 			ArrayList<File> curAllTxtFileList = getAllSubFileInFileList(searchRootFileList, ".txt");
-			curAllTxtFileList.sort(mFileDateComparion);
+			curAllTxtFileList.sort(mFileDateComparion_Old_To_New);
 
 			ArrayList<File> needOperationList = new ArrayList<File>();
 
@@ -6133,10 +12632,19 @@ public class G2_ApplyRuleFor_TypeFile {
 				System.out.println("______________ 新文件操作 lastNewFile[" + newFile.getName() + "] operationFile["
 						+ operationFile.getName() + "]" + " index[" + i + "] needOperationCount["
 						+ needOperationList.size() + "] " + "______________");
+
+				mOneTimeLogList.add("______________ 新文件操作 Minute[" + minutes + "]lastNewFile[" + newFile.getName()
+						+ "] operationFile[" + operationFile.getName() + "]" + " index[" + i + "] needOperationCount["
+						+ needOperationList.size() + "] " + "______________");
+
 				new Thread(new Runnable() {
 					@Override
 					public void run() {
 						ArrayList<String> fileContent = ReadFileContentAsList(operationFile);
+						if(fileContent == null) {
+							System.out.println("ReadFileContentAsList operationFile="+operationFile+"   返回为空! ");
+							return;
+						}
 
 						String filename = operationFile.getName();
 						String fileNameNoPoint = getFileNameNoPoint(filename);
@@ -6152,49 +12660,74 @@ public class G2_ApplyRuleFor_TypeFile {
 							// 一行 中 可能 多个 zcmd_run_ 列表
 							ArrayList<String> oneLineZCmdRunCommandList = new ArrayList<String>();
 
-
-							//  zcmder_run_ 列表 区别于 zcmd_run  一个运行在cmd 一个运行在cmder
+							// zcmder_run_ 列表 区别于 zcmd_run 一个运行在cmd 一个运行在cmder
 							ArrayList<String> oneLineZCmderRunCommandList = new ArrayList<String>();
-
-
 
 							synchronized (this) {
 								toGetUrlFromOneLine_And_InitUrlList(strLine_trim_clearChinese, oneLineUrlList);
-								zcmd_run_toGetZCmdRunFromOneLine_And_InitZCmdList(lineStr, oneLineZCmdRunCommandList,oneLineZCmderRunCommandList);
+								zcmd_run_toGetZCmdRunFromOneLine_And_InitZCmdList(lineStr, oneLineZCmdRunCommandList,
+										oneLineZCmderRunCommandList);
 							}
 							System.out.println("line[" + j + "] : str[" + lineStr + "]  clearChinese["
 									+ strLine_trim_clearChinese + "] result["
 									+ OperationWithOneLine(j, oneLineUrlList, fileNameNoPoint) + "]");
 
-							if(oneLineZCmdRunCommandList.size() >0 ) {
-								mLogSB.append("___________ zcmd_run_xxx Begin["+oneLineZCmdRunCommandList.size()+"] line["+j+"] ___________ "+lineStr+"\n");
+							if (oneLineZCmdRunCommandList.size() > 0) {
+								mLogSB.append("___________ zcmd_run_xxx Begin[" + oneLineZCmdRunCommandList.size()
+										+ "] line[" + j + "] ___________ " + lineStr + "\n");
+								mOneTimeLogList.add("___________ zcmd_run_[" + minutes + "]_Begin["
+										+ oneLineZCmdRunCommandList.size() + "] line[" + j + "] ___________ " + lineStr
+										+ "\n");
+								System.out.println("___________ zcmd_run_xxx Begin[" + oneLineZCmdRunCommandList.size()
+										+ "] line[" + j + "] ___________ " + lineStr + "\n");
+								String comResult = zcmd_run_OperationWithOneLine(j, oneLineZCmdRunCommandList,
+										fileNameNoPoint);
+								System.out.println("zcomResult: " + comResult);
+								System.out.println(
+										"___________ zcmd_run_[" + minutes + "] End[" + oneLineZCmdRunCommandList.size()
+												+ "] line[" + j + "] ___________ " + lineStr + "\n");
+								mLogSB.append(
+										"___________ zcmd_run_[" + minutes + "] End[" + oneLineZCmdRunCommandList.size()
+												+ "] line[" + j + "] ___________ " + lineStr + "\n");
 
-								System.out.println("___________ zcmd_run_xxx Begin["+oneLineZCmdRunCommandList.size()+"] line["+j+"] ___________ "+lineStr+"\n");
-								String comResult = 	zcmd_run_OperationWithOneLine(j, oneLineZCmdRunCommandList, fileNameNoPoint);
-								System.out.println("zcomResult: "+comResult);
-								System.out.println("___________ zcmd_run_xxx End["+oneLineZCmdRunCommandList.size()+"] line["+j+"] ___________ "+lineStr+"\n");
-								mLogSB.append("___________ zcmd_run_xxx End["+oneLineZCmdRunCommandList.size()+"] line["+j+"] ___________ "+lineStr+"\n");
+								mOneTimeLogList.add("CMDResult:" + comResult);
+								mOneTimeLogList.add(
+										"___________ zcmd_run_[" + minutes + "] End[" + oneLineZCmdRunCommandList.size()
+												+ "] line[" + j + "] ___________ " + lineStr + "\n");
 
 							}
 
-							if(oneLineZCmderRunCommandList.size() >0 ) {
+							if (oneLineZCmderRunCommandList.size() > 0) {
 
-								mLogSB.append("___________ zcmder_run_xxx Begin["+oneLineZCmderRunCommandList.size()+"] line["+j+"] ___________ "+lineStr+"\n");
+								mLogSB.append("___________ zcmder_run_xxx Begin[" + oneLineZCmderRunCommandList.size()
+										+ "] line[" + j + "] ___________ " + lineStr + "\n");
+								mOneTimeLogList.add("___________ zcmder_run_[" + minutes + "] Begin["
+										+ oneLineZCmderRunCommandList.size() + "] line[" + j + "] ___________ "
+										+ lineStr + "\n");
 
-								System.out.println("___________ zcmder_run_xxx Begin["+oneLineZCmderRunCommandList.size()+"] line["+j+"] ___________ "+lineStr+"\n");
-								String comResult = 	zcmder_run_OperationWithOneLine(j, oneLineZCmderRunCommandList, fileNameNoPoint);
-								System.out.println("zcomResult: "+comResult);
-								mLogSB.append("zcomResult: "+comResult);
+								System.out.println(
+										"___________ zcmder_run_xxx Begin[" + oneLineZCmderRunCommandList.size()
+												+ "] line[" + j + "] ___________ " + lineStr + "\n");
+								String comResult = zcmder_run_OperationWithOneLine(j, oneLineZCmderRunCommandList,
+										fileNameNoPoint);
+								System.out.println("zcomResult: " + comResult);
+								mLogSB.append("zcomResult: " + comResult);
+								mOneTimeLogList.add("CmderResult:" + comResult);
+								mOneTimeLogList.add("___________ zcmder_run_[" + minutes + "] Begin["
+										+ oneLineZCmderRunCommandList.size() + "] line[" + j + "] ___________ "
+										+ lineStr + "\n");
 
-
-								System.out.println("___________ zcmder_run_xxx End["+oneLineZCmderRunCommandList.size()+"] line["+j+"] ___________ lineStr="+lineStr+"\n");
-								mLogSB.append("___________ zcmder_run_xxx End["+oneLineZCmderRunCommandList.size()+"] line["+j+"] ___________ "+lineStr+"\n");
+								System.out
+										.println("___________ zcmder_run_xxx End[" + oneLineZCmderRunCommandList.size()
+												+ "] line[" + j + "] ___________ lineStr=" + lineStr + "\n");
+								mLogSB.append("___________ zcmder_run_xxx End[" + oneLineZCmderRunCommandList.size()
+										+ "] line[" + j + "] ___________ " + lineStr + "\n");
 
 							}
 
 						}
 
-						if(isLogFile) {
+						if (isLogFile) {
 							writeContentToFile(mLogFile, mLogSB.toString());
 						}
 
@@ -6216,7 +12749,6 @@ public class G2_ApplyRuleFor_TypeFile {
 			return mat.replaceAll(" ");
 		}
 
-
 		// 执行 zcmder_run_ 的程序
 		String zcmd_run_OperationWithOneLine(int index, ArrayList<String> zcmdRunStrList, String fileNameNoPoint) {
 			String tipMessage = null;
@@ -6225,25 +12757,24 @@ public class G2_ApplyRuleFor_TypeFile {
 				return tipMessage;
 			}
 
-
 			StringBuilder tipSb = new StringBuilder();
+			StringBuilder resultSB = new StringBuilder();
+
 			for (int i = 0; i < zcmdRunStrList.size(); i++) {
 				String strLine = zcmdRunStrList.get(i);
 
 				strLine = strLine.replace("%win_zbin%", Win_Lin_Mac_ZbinPath);
 				strLine = strLine.replace("%zbin%", zbinPath);
 
-
-				System.out.println("_______________zmd_run_["+i+"]  commond["+strLine+"] Begin ____");
-				tipSb.append("["+i+"]"+"["+strLine+"]");
-				execCMD(strLine);   //  cmd 运行
-
-				System.out.println("_______________zmd_run_["+i+"]  commond["+strLine+"] End ____");
+				System.out.println("_______________zmd_run_[" + i + "]  commond[" + strLine + "] Begin ____");
+				tipSb.append("[" + i + "]" + "[" + strLine + "]");
+				String result = execCMD(strLine); // cmd 运行
+				tipSb.append("result:" + result);
+				System.out.println("_______________zmd_run_[" + i + "]  commond[" + strLine + "] End ____");
 
 			}
 
-
-			return "zcmd_run_执行【"+tipSb.toString()+"】";
+			return "zcmd_run_执行【" + tipSb.toString() + "】";
 		}
 
 		// 执行 zcmder_run_ 的程序
@@ -6257,34 +12788,29 @@ public class G2_ApplyRuleFor_TypeFile {
 			StringBuilder tipSb = new StringBuilder();
 			for (int i = 0; i < zcmderRunStrList.size(); i++) {
 				String strLine = zcmderRunStrList.get(i);
-				System.out.println("_______________zmder_run_["+i+"]  commond["+strLine+"] Begin ____");
-				mLogSB.append("_______________zmder_run_["+i+"]  commond["+strLine+"] Begin ____");
+				System.out.println("_______________zmder_run_[" + i + "]  commond[" + strLine + "] Begin ____");
+				mLogSB.append("_______________zmder_run_[" + i + "]  commond[" + strLine + "] Begin ____");
 
-
-
-				tipSb.append("["+i+"]"+"["+strLine+"]");
-				run_cmder(strLine);
+				tipSb.append("[" + i + "]" + "[" + strLine + "]");
+				String result = run_cmder(strLine);
 				// cmder 需要写道这里 执行
+				tipSb.append("Result:" + result);
+				System.out.println("_______________zmder_run_[" + i + "]  commond[" + strLine + "] End ____");
 
-				System.out.println("_______________zmder_run_["+i+"]  commond["+strLine+"] End ____");
-
-				mLogSB.append("_______________zmder_run_["+i+"]  commond["+strLine+"] End ____");
-
-
+				mLogSB.append("_______________zmder_run_[" + i + "]  commond[" + strLine + "] End ____");
 
 			}
 
-			mLogSB.append("zcmd_run_执行【"+tipSb.toString()+"】");
+			mLogSB.append("zcmd_run_执行【" + tipSb.toString() + "】");
 
-			return "zcmd_run_执行【"+tipSb.toString()+"】";
+			return "zcmd_run_执行【" + tipSb.toString() + "】";
 		}
 
-
-
-		public  void run_cmder(String command) {
+		public String run_cmder(String command) {
+			String result = "";
 
 			if (CUR_OS_TYPE == OS_TYPE.Windows) {
-				run_cmder_win_bat(command);
+				return run_cmder_win_bat(command);
 			} else if (CUR_OS_TYPE == OS_TYPE.MacOS) {
 
 //				return execCMD_Mac(command);
@@ -6292,28 +12818,19 @@ public class G2_ApplyRuleFor_TypeFile {
 
 //				execCMD_Mac(command);
 			}
-//			return result;
+			return result;
 		}
 
+		public String run_cmder_win_bat(String command) {
+			System.out.println("  run_cmder_win_bat  command=" + command);
 
-		public  void run_cmder_win_bat(String command) {
-			System.out.println("  run_cmder_win_bat  command="+command);
-
-			String batHeadStr = "@echo off\r\n"
-					+ "Setlocal ENABLEDELAYEDEXPANSION\r\n"
-					+ "echo  _____________ cmder_pre_exe _____________\r\n"
-					+ "@ECHO off\r\n"
-					+ "setlocal enabledelayedexpansion\r\n"
-					+ "chcp 65001\r\n"
+			String batHeadStr = "@echo off\r\n" + "Setlocal ENABLEDELAYEDEXPANSION\r\n"
+					+ "echo  _____________ cmder_pre_exe _____________\r\n" + "@ECHO off\r\n"
+					+ "setlocal enabledelayedexpansion\r\n" + "chcp 65001\r\n"
 					+ "rem ══════════════════════════════════════════ System_Init_Aera Begin  ══════════════════════════════════════════\r\n"
-					+ "\r\n"
-					+ "rem 函数定义之前的提示必须以英文结尾 否则 可能 报出一些 找不到之类的 错误 ----  \r\n"
-					+ "rem ________________ 系统路径初始化   \r\n"
-					+ "set init_cd=%cd%\r\n"
-					+ "set init_dp0=%~dp0\r\n"
-					+ "set init_f0=%~f0\r\n"
-					+ "set init_path=%path%\r\n"
-					+ "set init_input_0=%0\r\n"
+					+ "\r\n" + "rem 函数定义之前的提示必须以英文结尾 否则 可能 报出一些 找不到之类的 错误 ----  \r\n"
+					+ "rem ________________ 系统路径初始化   \r\n" + "set init_cd=%cd%\r\n" + "set init_dp0=%~dp0\r\n"
+					+ "set init_f0=%~f0\r\n" + "set init_path=%path%\r\n" + "set init_input_0=%0\r\n"
 					+ "echo init_cd=%init_cd%               rem %cd% === 当前执行命令的当前路径  C:\\Users\\zhuxx  \r\n"
 					+ "echo init_f0=%init_f0%               rem %~f0 === 当前执行文件的全路径       C:\\Users\\xxx\\Desktop\\zbin\\win_zbin\\init_input_0.bat   \r\n"
 					+ "echo init_input_0=%init_input_0%     rem %0 ===当前执行文件的名称 init_input_0=[zbatrule_I9_Rule30.bat]     init_input_0=[zbatrule_I9_Rule30.bat]\r\n"
@@ -6325,18 +12842,10 @@ public class G2_ApplyRuleFor_TypeFile {
 					+ "rem C:\\Program Files (x86)\\Qualcomm\\EUD;C:\\Program Files (x86)\\Qualcomm\\QIKTool\\1.0.109.1;C:\\Windows;C:\\Windows\\System32;D:\\ZWin_Software\\D0_Environment_Zip_Dir_Path\\ADB;D:\\ZWin_Software\\C1_GreenSoft_Zip_Dir\\cmder;D:\\ZWin_Software\\C1_GreenSoft_Zip_Dir\\npp.7.8.9.bin.x64;C:\\Users\\xxx\\Desktop\\zbin\\win_zbin;C:\\Program Files (x86)\\Graphviz2.38\\bin;\r\n"
 					+ "rem D:\\ZWin_Software\\D0_Environment_Zip_Dir_Path\\JDK8_64\\bin;C:\\Program Files\\Tesseract-OCR;C:\\Users\\xxx\\AppData\\Local\\Google\\Chrome\\Application;D:\\ZWin_Software\\D0_Environment_Zip_Dir_Path\\JDK8_64\\jre\\bin;C:\\Users\\xxx\\AppData\\Local\\Android\\Sdk\\platform-tools;D:\\ZWin_Software\\C1_GreenSoft_Zip_Dir\\cmder\\bin;D:\\ZWin_Software\\C1_GreenSoft_Zip_Dir\\cmder\\vendor\\git-for-windows\\cmd;C:\\Program Files\\Tesseract-OCR;C:\\Users\\xxx\\Desktop\\zbin\\lin_zbin;C:\\Users\\xxx\\Desktop\\zbin\\mac_zbin;\r\n"
 					+ "rem C:\\Users\\xxx\\Desktop\\zbin\\win_zbin;C:\\Users\\xxx\\AppData\\Local\\Programs\\Microsoft VS Code\\bin;D:\\ZWin_Software\\C1_GreenSoft_Zip_Dir\\cmder\\vendor\\git-for-windows\\usr\\bin;D:\\ZWin_Software\\C1_GreenSoft_Zip_Dir\\cmder\\vendor\\git-for-windows\\usr\\share\\vim\\vim74;D:\\ZWin_Software\\C1_GreenSoft_Zip_Dir\\cmder\\\r\n"
-					+ "echo=\r\n"
-					+ "echo=\r\n"
-					+ "echo=\r\n"
-					+ "echo=\r\n"
-					+ "\r\n"
-					+ " \r\n"
-					+ "rem ________________ 相对路径初始化   \r\n"
-					+ "set init_userprofile=%userprofile%\r\n"
-					+ "set init_desktop=%userprofile%\\Desktop\r\n"
-					+ "set desktop=%userprofile%\\Desktop\r\n"
-					+ "set init_zbin=%userprofile%\\Desktop\\zbin\r\n"
-					+ "set zbin=%userprofile%\\Desktop\\zbin\r\n"
+					+ "echo=\r\n" + "echo=\r\n" + "echo=\r\n" + "echo=\r\n" + "\r\n" + " \r\n"
+					+ "rem ________________ 相对路径初始化   \r\n" + "set init_userprofile=%userprofile%\r\n"
+					+ "set init_desktop=%userprofile%\\Desktop\r\n" + "set desktop=%userprofile%\\Desktop\r\n"
+					+ "set init_zbin=%userprofile%\\Desktop\\zbin\r\n" + "set zbin=%userprofile%\\Desktop\\zbin\r\n"
 					+ "set win_zbin=%userprofile%\\Desktop\\zbin\\win_zbin\r\n"
 					+ "set init_win_zbin=%userprofile%\\Desktop\\zbin\\win_zbin\r\n"
 					+ "echo init_userprofile=%init_userprofile%     rem %userprofile% 标示为 用户主目录 init_userprofile=C:\\Users\\xxx  \r\n"
@@ -6349,61 +12858,54 @@ public class G2_ApplyRuleFor_TypeFile {
 					+ "\n";
 
 			// 写入 zcmder_prexe_G2.bat 的内容
-			String cmderPrexe_bat_Content = batHeadStr+command;
+			String cmderPrexe_bat_Content = batHeadStr + command;
 
 			// cmder.exe 定义地址
 //			 cmderExePath = new File("D:\\zsoft_dest\\C1_GreenSoft_Zip_Dir\\cmder\\Cmder.exe");
 
 //			cmder_prexe_bat_file = new File(zbinPath + File.separator + "win_zbin"+File.separator+"zcmder_prexe_G2"+Cur_Batch_End);
 
-
 			cmderExePath = new File("D:\\zsoft_dest\\C1_GreenSoft_Zip_Dir\\cmder\\Cmder.exe");
 
-			cmder_prexe_bat_file = new File(zbinPath + File.separator + "win_zbin"+File.separator+"zcmder_prexe_G2.bat");
+			cmder_prexe_bat_file = new File(
+					zbinPath + File.separator + "win_zbin" + File.separator + "zcmder_prexe_G2.bat");
 
 			writeContentToFile(cmder_prexe_bat_file, cmderPrexe_bat_Content);
-			String  fixedCommand = null;
+			String fixedCommand = null;
 
+			if (!cmderExePath.exists()) {
+				System.out.println("\n" + "command=" + command + " cmderExePath 文件不存在  cmderExePath="
+						+ cmderExePath.getAbsolutePath());
 
+				mLogSB.append("\n" + "command=" + command + " cmderExePath 文件不存在  cmderExePath="
+						+ cmderExePath.getAbsolutePath());
 
-			if(!cmderExePath.exists()) {
-				System.out.println("\n"+"command="+command+" cmderExePath 文件不存在  cmderExePath="+cmderExePath.getAbsolutePath());
+				fixedCommand = command;
+			} else if (!cmder_prexe_bat_file.exists()) {
+				System.out.println(
+						" cmder_prexe_bat_file 文件不存在  cmder_prexe_bat_file=" + cmder_prexe_bat_file.getAbsolutePath());
 
-				mLogSB.append("\n"+"command="+command+" cmderExePath 文件不存在  cmderExePath="+cmderExePath.getAbsolutePath());
+				mLogSB.append("\n" + "command=" + command + " cmder_prexe_bat_file 文件不存在  cmder_prexe_bat_file="
+						+ cmder_prexe_bat_file.getAbsolutePath());
 
-				fixedCommand =  command;
-			}else if(!cmder_prexe_bat_file.exists()) {
-				System.out.println(" cmder_prexe_bat_file 文件不存在  cmder_prexe_bat_file="+cmder_prexe_bat_file.getAbsolutePath());
-
-				mLogSB.append("\n"+"command="+command+" cmder_prexe_bat_file 文件不存在  cmder_prexe_bat_file="+cmder_prexe_bat_file.getAbsolutePath());
-
-
-
-				fixedCommand =  command;
+				fixedCommand = command;
 			}
 
-			if(cmderExePath.exists() && cmder_prexe_bat_file.exists()) {
-				// D:\ZWin_Software\C1_GreenSoft_Zip_Dir\cmder\Cmder.exe  /TASK zcmder_prexe_G2.bat
-				fixedCommand = cmderExePath.getAbsolutePath()+" /TASK "+ cmder_prexe_bat_file.getName();
+			if (cmderExePath.exists() && cmder_prexe_bat_file.exists()) {
+				// D:\ZWin_Software\C1_GreenSoft_Zip_Dir\cmder\Cmder.exe /TASK
+				// zcmder_prexe_G2.bat
+				fixedCommand = cmderExePath.getAbsolutePath() + " /TASK " + cmder_prexe_bat_file.getName();
 
 				System.out.println(" cmder.exe 存在 将在 cmder 下执行逻辑! ");
 
-				mLogSB.append("\n"+" cmder.exe 存在 将在 cmder 下执行逻辑!   cmderExePath="+cmderExePath.getAbsolutePath()+"  cmder_prexe_bat_file="+cmder_prexe_bat_file.getAbsolutePath());
-
-
+				mLogSB.append("\n" + " cmder.exe 存在 将在 cmder 下执行逻辑!   cmderExePath=" + cmderExePath.getAbsolutePath()
+						+ "  cmder_prexe_bat_file=" + cmder_prexe_bat_file.getAbsolutePath());
 
 			}
 
-
-
-
-			execCMD(fixedCommand);
-
+			return execCMD(fixedCommand);
 
 		}
-
-
-
 
 		String OperationWithOneLine(int index, ArrayList<String> strLineList, String fileNameNoPoint) {
 			String tipMessage = null;
@@ -6417,14 +12919,15 @@ public class G2_ApplyRuleFor_TypeFile {
 
 				String strLine_trim = strLine.trim();
 				String strLine_trim_clearChinese = clearChinese(strLine_trim);
-				System.out.println("strItem[" + i + "]["+strLineList.size()+"]=" + "[" + strLine_trim_clearChinese + "]  On  One Line ");
+				System.out.println("strItem[" + i + "][" + strLineList.size() + "]=" + "[" + strLine_trim_clearChinese
+						+ "]  On  One Line ");
 				boolean isUrl = toJudgeUrl(strLine_trim_clearChinese);
 				if (isUrl && urlStrList.contains(strLine_trim_clearChinese)) {
 					tipMessage = " 当前url 已经执行过下载操作 跳过逻辑执行";
 					return tipMessage;
 
 				}
-				//   如果是 url 那么 执行下载
+				// 如果是 url 那么 执行下载
 				if (isUrl) {
 					System.out.println("urlStrList.contain() == " + urlStrList.contains(strLine_trim_clearChinese)
 							+ "  url-size=" + urlStrList.size());
@@ -6438,13 +12941,14 @@ public class G2_ApplyRuleFor_TypeFile {
 						ksParseUrl(curUrlIndex_InTxtFile, strLine_trim_clearChinese, fileNameNoPoint);
 						urlStrList.add(strLine_trim_clearChinese);
 						tipMessage = "下载快手视频";
-					} else if(strLine_trim_clearChinese.startsWith("https://profile.zjurl.cn/rogue/ugc/profile") && strLine_trim_clearChinese.contains("user_id")){
-						// https://profile.zjurl.cn/rogue/ugc/profile/?version_code=851&version_name=80501&user_id=3346556174218692&media_id=1632586053830670&request_source=1&active_tab=dongtai&device_id=65&app_name=news_article&share_token=4c7776c5-9a34-443f-b7df-9e6e69c08f17&tt_from=copy_link&utm_source=copy_link&utm_medium=toutiao_android&utm_campaign=client_share?=推荐《Emath》的主页  - 今日头条
-						//   获取 用户的id 去它的主页 拿取 所有的 该用户的视频 然后下载
+					} else if (strLine_trim_clearChinese.startsWith("https://profile.zjurl.cn/rogue/ugc/profile")
+							&& strLine_trim_clearChinese.contains("user_id")) {
+						// https://profile.zjurl.cn/rogue/ugc/profile/?version_code=851&version_name=80501&user_id=3346556174218692&media_id=1632586053830670&request_source=1&active_tab=dongtai&device_id=65&app_name=news_article&share_token=4c7776c5-9a34-443f-b7df-9e6e69c08f17&tt_from=copy_link&utm_source=copy_link&utm_medium=toutiao_android&utm_campaign=client_share?=推荐《Emath》的主页
+						// - 今日头条
+						// 获取 用户的id 去它的主页 拿取 所有的 该用户的视频 然后下载
 						DownloadUserTouTiaoHomeVideo(strLine_trim_clearChinese.trim());
-					}  else if(strLine_trim_clearChinese.startsWith("https://www.ixigua.com/home/")) {
+					} else if (strLine_trim_clearChinese.startsWith("https://www.ixigua.com/home/")) {
 						DownloadUserTouTiaoHomeVideo_IXiGuaHome(strLine_trim_clearChinese);
-
 
 					} else if (strLine_trim_clearChinese.contains("toutiao") // m.toutiaoimg.cn
 							// https://m.toutiaocdn.com/i6982548019329843742
@@ -6452,13 +12956,13 @@ public class G2_ApplyRuleFor_TypeFile {
 						TouTiao_XiGua_Download(curUrlIndex_InTxtFile, strLine_trim_clearChinese);
 						urlStrList.add(strLine_trim_clearChinese);
 						tipMessage = "下载头条西瓜视频";
-					} else if(strLine_trim_clearChinese.contains("https://twitter.com")) {
-						// 	// https://twitter.com/PDChinese/status/1427649465826033672?s=19
-						TW_Download(curUrlIndex_InTxtFile ,strLine_trim_clearChinese);
+					} else if (strLine_trim_clearChinese.contains("https://twitter.com")) {
+						// // https://twitter.com/PDChinese/status/1427649465826033672?s=19
+						TW_Download(curUrlIndex_InTxtFile, strLine_trim_clearChinese);
 
 						tipMessage = "下载TW视频";
 
-					}  else {
+					} else {
 						tipMessage = "当前的URL不是抖音-快手-头条路径 暂不支持下载";
 						System.out.println("当前的URL不是抖音-快手-头条路径 暂不支持下载  URL = " + strLine_trim_clearChinese);
 					}
@@ -6479,84 +12983,76 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		}
 
+		// https://www.ixigua.com/home/3346556174218692
+		public void DownloadUserTouTiaoHomeVideo_IXiGuaHome(String mIxiguaHomeUrl) {
+			if (!mIxiguaHomeUrl.startsWith("https://www.ixigua.com/home/")) {
 
-		// 		https://www.ixigua.com/home/3346556174218692
-		public void DownloadUserTouTiaoHomeVideo_IXiGuaHome(String mIxiguaHomeUrl ) {
-			if(!mIxiguaHomeUrl.startsWith("https://www.ixigua.com/home/")) {
-
-				System.out.println("当前 路径 "+mIxiguaHomeUrl+"  不是 https://www.ixigua.com/home/ 类型的主页路径 无法批量下载");
+				System.out.println("当前 路径 " + mIxiguaHomeUrl + "  不是 https://www.ixigua.com/home/ 类型的主页路径 无法批量下载");
 
 				return;
 			}
 
-
 			String homePageCode = getXiGua_MainPageSource(mIxiguaHomeUrl);
 
-			// 检测 这个 主页下的  href 文件
-			if(homePageCode == null || "".equals(homePageCode)) {
-				System.out.println("当前 获取到的 主页路径 "+homePageCode+" 得到的 html代码为空!  退出执行");
-				return ;
+			// 检测 这个 主页下的 href 文件
+			if (homePageCode == null || "".equals(homePageCode)) {
+				System.out.println("当前 获取到的 主页路径 " + homePageCode + " 得到的 html代码为空!  退出执行");
+				return;
 			}
 
-			System.out.println("当前 获取到的 主页路径 "+homePageCode+" 得到的 html代码!  开始执行检测 href 视频操作!");
+			System.out.println("当前 获取到的 主页路径 " + homePageCode + " 得到的 html代码!  开始执行检测 href 视频操作!");
 			TryHrefAnalysis(homePageCode);
-
 
 		}
 
-		// https://profile.zjurl.cn/rogue/ugc/profile/?version_code=851&version_name=80501&user_id=3346556174218692&media_id=1632586053830670&request_source=1&active_tab=dongtai&device_id=65&app_name=news_article&share_token=4c7776c5-9a34-443f-b7df-9e6e69c08f17&tt_from=copy_link&utm_source=copy_link&utm_medium=toutiao_android&utm_campaign=client_share?=推荐《Emath》的主页  - 今日头条
+		// https://profile.zjurl.cn/rogue/ugc/profile/?version_code=851&version_name=80501&user_id=3346556174218692&media_id=1632586053830670&request_source=1&active_tab=dongtai&device_id=65&app_name=news_article&share_token=4c7776c5-9a34-443f-b7df-9e6e69c08f17&tt_from=copy_link&utm_source=copy_link&utm_medium=toutiao_android&utm_campaign=client_share?=推荐《Emath》的主页
+		// - 今日头条
 
 		public void DownloadUserTouTiaoHomeVideo(String mTouTiaoProfieUrl) {
 			String user_id_raw = mTouTiaoProfieUrl.substring(mTouTiaoProfieUrl.indexOf("user_id="));
 
-			String user_id = user_id_raw.substring(0,user_id_raw.indexOf("&")).replace("&", "").replace("user_id=", "");
+			String user_id = user_id_raw.substring(0, user_id_raw.indexOf("&")).replace("&", "").replace("user_id=",
+					"");
 
 			// https://www.ixigua.com/home/3346556174218692
-			System.out.println(" DownloadUserTouTiaoHomeVideo  mTouTiaoProfieUrl="+mTouTiaoProfieUrl);
-			System.out.println(" DownloadUserTouTiaoHomeVideo  user_id_raw="+user_id_raw);
+			System.out.println(" DownloadUserTouTiaoHomeVideo  mTouTiaoProfieUrl=" + mTouTiaoProfieUrl);
+			System.out.println(" DownloadUserTouTiaoHomeVideo  user_id_raw=" + user_id_raw);
 
-			System.out.println(" DownloadUserTouTiaoHomeVideo  user_id="+user_id);
+			System.out.println(" DownloadUserTouTiaoHomeVideo  user_id=" + user_id);
 
-			String touTiaoHomePage = "https://www.ixigua.com/home/"+user_id.trim();
+			String touTiaoHomePage = "https://www.ixigua.com/home/" + user_id.trim();
 
-			//xxzukgit
+			// xxzukgit
 
 			String homePageCode = getXiGua_MainPageSource(touTiaoHomePage);
 
-			// 检测 这个 主页下的  href 文件
-			if(homePageCode == null || "".equals(homePageCode)) {
-				System.out.println("当前 获取到的 主页路径 "+homePageCode+" 得到的 html代码为空!  退出执行");
-				return ;
+			// 检测 这个 主页下的 href 文件
+			if (homePageCode == null || "".equals(homePageCode)) {
+				System.out.println("当前 获取到的 主页路径 " + homePageCode + " 得到的 html代码为空!  退出执行");
+				return;
 			}
 
-			System.out.println("当前 获取到的 主页路径 "+homePageCode+" 得到的 html代码!  开始执行检测 href 视频操作!");
+			System.out.println("当前 获取到的 主页路径 " + homePageCode + " 得到的 html代码!  开始执行检测 href 视频操作!");
 			TryHrefAnalysis(homePageCode);
 
 		}
 
-
-
-
-
-		String  TryHrefAnalysis( String mPageHtmlCode ){
-			StringBuilder  mLogSB  = new StringBuilder();
+		String TryHrefAnalysis(String mPageHtmlCode) {
+			StringBuilder mLogSB = new StringBuilder();
 			ArrayList<String> allHrefList = new ArrayList<String>();
 			ArrayList<String> allNumberHrefList = new ArrayList<String>();
 			ArrayList<String> allNumberHttpLinkList = new ArrayList<String>();
 
-
-
-			if(mPageHtmlCode == null || "".equals(mPageHtmlCode)) {
+			if (mPageHtmlCode == null || "".equals(mPageHtmlCode)) {
 
 				System.out.println("当前获取到的 页面 代码 为 空  执行失败!  ");
 				return "当前获取到的 页面 代码 为 空  执行失败!";
 			}
 
-
 			// 以 href="
-			String[] rawHrefArr = 	mPageHtmlCode.split("href=\"");
+			String[] rawHrefArr = mPageHtmlCode.split("href=\"");
 
-			if(rawHrefArr == null) {
+			if (rawHrefArr == null) {
 				System.out.println("当前获取到的 页面 代码  不包含关键字  rawHrefArr");
 				return "当前获取到的 页面 代码  不包含关键字  rawHrefArr";
 
@@ -6564,10 +13060,10 @@ public class G2_ApplyRuleFor_TypeFile {
 
 			for (int i = 0; i < rawHrefArr.length; i++) {
 				String rawHrefItem = rawHrefArr[i];
-				System.out.println("rawHref["+i+"] = "+rawHrefItem);
-				mLogSB.append("rawHref["+i+"] = "+rawHrefItem+"\n");
-				if(rawHrefItem.contains("\"")) {
-					String realHref = rawHrefItem.substring(0,rawHrefItem.indexOf("\""));
+				System.out.println("rawHref[" + i + "] = " + rawHrefItem);
+				mLogSB.append("rawHref[" + i + "] = " + rawHrefItem + "\n");
+				if (rawHrefItem.contains("\"")) {
+					String realHref = rawHrefItem.substring(0, rawHrefItem.indexOf("\""));
 					allHrefList.add(realHref);
 
 				}
@@ -6576,44 +13072,37 @@ public class G2_ApplyRuleFor_TypeFile {
 			for (int i = 0; i < allHrefList.size(); i++) {
 				String realHref = allHrefList.get(i);
 
-				System.out.println("realHref["+i+"] = "+realHref);
-				mLogSB.append("realHref["+i+"] = "+realHref+"\n");
-				String clearTagHref = realHref.replace("/", "").replace("?logTag=","").trim();
+				System.out.println("realHref[" + i + "] = " + realHref);
+				mLogSB.append("realHref[" + i + "] = " + realHref + "\n");
+				String clearTagHref = realHref.replace("/", "").replace("?logTag=", "").trim();
 
-				if(isNumeric(clearTagHref) && !allNumberHrefList.contains(clearTagHref)) {
+				if (isNumeric(clearTagHref) && !allNumberHrefList.contains(clearTagHref)) {
 
 					allNumberHrefList.add(clearTagHref);
 				}
 
-
 			}
-
 
 			for (int i = 0; i < allNumberHrefList.size(); i++) {
 
 				String realNumHref = allNumberHrefList.get(i);
 
-				System.out.println("realNumHref["+i+"] = "+realNumHref);
-				mLogSB.append("realNumHref["+i+"] = "+realNumHref+"\n");
-				allNumberHttpLinkList.add("https://www.ixigua.com/"+realNumHref.trim());
+				System.out.println("realNumHref[" + i + "] = " + realNumHref);
+				mLogSB.append("realNumHref[" + i + "] = " + realNumHref + "\n");
+				allNumberHttpLinkList.add("https://www.ixigua.com/" + realNumHref.trim());
 			}
 
-
-			String downlodLog =  tryDownLoadXiGuaVideo(allNumberHttpLinkList);
+			String downlodLog = tryDownLoadXiGuaVideo(allNumberHttpLinkList);
 			mLogSB.append(downlodLog);
 
 			return mLogSB.toString();
 
-
-
 		}
 
-
-
 		String tryDownLoadXiGuaVideo(ArrayList<String> linkList) {
-			StringBuilder  downloadLogSB = new  StringBuilder();
+			StringBuilder downloadLogSB = new StringBuilder();
 
-			if(linkList == null || linkList.size() == 0) {
+			if (linkList == null || linkList.size() == 0) {
 
 				downloadLogSB.append("  当前 下载链接 集合 为 空 ");
 				return downloadLogSB.toString();
@@ -6623,23 +13112,17 @@ public class G2_ApplyRuleFor_TypeFile {
 			for (int i = 0; i < linkList.size(); i++) {
 				String linkItem = linkList.get(i);
 
-				// zukgit  下载 方式
+				// zukgit 下载 方式
 				XiGua_TouTiao_ParseUrl(i, linkItem);
-				downloadLogSB.append("下载 link["+i+"] "+linkItem+"  执行Over!");
+				downloadLogSB.append("下载 link[" + i + "] " + linkItem + "  执行Over!");
 
 			}
 
-
-
-
 			return downloadLogSB.toString();
-
 
 		}
 
-
-
-		public  String getPostDataString(HashMap<String, String> params) throws UnsupportedEncodingException {
+		public String getPostDataString(HashMap<String, String> params) throws UnsupportedEncodingException {
 			StringBuilder result = new StringBuilder();
 			boolean first = true;
 			for (Map.Entry<String, String> entry : params.entrySet()) {
@@ -6654,18 +13137,22 @@ public class G2_ApplyRuleFor_TypeFile {
 			return result.toString();
 		}
 
-
-		public  List<TwitterVideo> extractTwitterVideo(String id) {
-	        /* URL url = new URL(String.format("https://api.twitter.com/1.1/videos/tweet/config/%s.json", id));
-	         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-	         connection.setRequestMethod("GET");
-	         connection.addRequestProperty("Authorization", "Bearer AAAAAAAAAAAAAAAAAAAAAIK1zgAAAAAA2tUWuhGZ2JceoId5GwYWU5GspY4%3DUq7gzFoCZs1QfwGoVdvSac3IniczZEYXIcDyumCauIXpcAPorE");
-	         connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.56 Mobile Safari/537.36");
-	 */
+		public List<TwitterVideo> extractTwitterVideo(String id) {
+			/*
+			 * URL url = new
+			 * URL(String.format("https://api.twitter.com/1.1/videos/tweet/config/%s.json",
+			 * id)); HttpURLConnection connection = (HttpURLConnection)
+			 * url.openConnection(); connection.setRequestMethod("GET");
+			 * connection.addRequestProperty("Authorization",
+			 * "Bearer AAAAAAAAAAAAAAAAAAAAAIK1zgAAAAAA2tUWuhGZ2JceoId5GwYWU5GspY4%3DUq7gzFoCZs1QfwGoVdvSac3IniczZEYXIcDyumCauIXpcAPorE"
+			 * ); connection.setRequestProperty("User-Agent",
+			 * "Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.56 Mobile Safari/537.36"
+			 * );
+			 */
 
 			List<TwitterVideo> curTwitterListInfo = null;
 
-			try{
+			try {
 
 				InetSocketAddress address = new InetSocketAddress("127.0.0.1", 7078);
 				Proxy proxy = new Proxy(Proxy.Type.HTTP, address); // http代理协议类型
@@ -6674,43 +13161,41 @@ public class G2_ApplyRuleFor_TypeFile {
 //				HttpURLConnection connection = (HttpURLConnection) url.openConnection(proxy);   // 代理  有点慢
 				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 				connection.setRequestMethod("POST");
-				connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.56 Mobile Safari/537.36");
+				connection.setRequestProperty("User-Agent",
+						"Mozilla/5.0 (Linux; Android 5.0; SM-G900P Build/LRX21T) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.56 Mobile Safari/537.36");
 
 				connection.setDoOutput(true);
 				connection.setDoInput(true);
 
-
 				HashMap<String, String> postDataParams = new HashMap<>();
 				postDataParams.put("id", id);
-				long  beginTimeStamp = System.currentTimeMillis();
-				System.out.println("connection.getOutputStream  Begin  获取 id="+id+"  对应的  TwitterInfo_耗时_A  得很)" );
-
-
+				long beginTimeStamp = System.currentTimeMillis();
+				System.out.println("connection.getOutputStream  Begin  获取 id=" + id + "  对应的  TwitterInfo_耗时_A  得很)");
 
 				OutputStream os = connection.getOutputStream();
-				long  endTimeStamp = System.currentTimeMillis();
-				long distance_second = (endTimeStamp -beginTimeStamp)/1000;
-				System.out.println("connection.getOutputStream  Begin  获取 id="+id+"  成功 TwitterInfo_耗时_A:【"+distance_second+"秒】" );
+				long endTimeStamp = System.currentTimeMillis();
+				long distance_second = (endTimeStamp - beginTimeStamp) / 1000;
+				System.out.println("connection.getOutputStream  Begin  获取 id=" + id + "  成功 TwitterInfo_耗时_A:【"
+						+ distance_second + "秒】");
 
-				System.out.println("connection.getOutputStream  End " );
+				System.out.println("connection.getOutputStream  End ");
 
-				BufferedWriter writer = new BufferedWriter(
-						new OutputStreamWriter(os, "UTF-8"));
-				System.out.println("getPostDataString Begin " );
+				BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+				System.out.println("getPostDataString Begin ");
 				writer.write(getPostDataString(postDataParams));
-				System.out.println("getPostDataString  End " );
+				System.out.println("getPostDataString  End ");
 				writer.flush();
 				writer.close();
 				os.close();
-				System.out.println("Debug: extractTwitterVideo  Begin  statusCode (耗时B)" );
-				System.out.println("connection.getOutputStream  Begin  获取 id="+id+"  对应的  ( TwitterInfo_耗时B  _得很)" );
+				System.out.println("Debug: extractTwitterVideo  Begin  statusCode (耗时B)");
+				System.out.println("connection.getOutputStream  Begin  获取 id=" + id + "  对应的  ( TwitterInfo_耗时B  _得很)");
 				beginTimeStamp = System.currentTimeMillis();
 				int statusCode = connection.getResponseCode();
 				endTimeStamp = System.currentTimeMillis();
-				distance_second = (endTimeStamp -beginTimeStamp)/1000;
+				distance_second = (endTimeStamp - beginTimeStamp) / 1000;
 
-
-				System.out.println("Debug: extractTwitterVideo  End  statusCode = " + statusCode+"  TwitterInfo_耗时B【"+distance_second+" 秒】");
+				System.out.println("Debug: extractTwitterVideo  End  statusCode = " + statusCode + "  TwitterInfo_耗时B【"
+						+ distance_second + " 秒】");
 
 				if (statusCode == 200) {
 					StringBuilder sb = new StringBuilder();
@@ -6747,69 +13232,67 @@ public class G2_ApplyRuleFor_TypeFile {
 								twitterVideos.add(twitterVideo);
 							}
 							System.out.println("依据 PageUrl 获取 到  ID 成功！！ ");
-							download_failed_time=0;
+							download_failed_time = 0;
 							return twitterVideos;
 						}
 					}
 				}
 
-			}catch ( Exception e){
+			} catch (Exception e) {
 				download_failed_time++;
-				if(download_failed_time%5==0){
-					System.out.println("解析 pageUrl【"+id+"】 Retry 5 次 都失败!!  放弃这个 ID对应的资源!! ");
+				if (download_failed_time % 5 == 0) {
+					System.out.println("解析 pageUrl【" + id + "】 Retry 5 次 都失败!!  放弃这个 ID对应的资源!! ");
 
-				}else{
-					curTwitterListInfo = 	extractTwitterVideo( id);
+				} else {
+					curTwitterListInfo = extractTwitterVideo(id);
 
-					if(curTwitterListInfo != null && curTwitterListInfo.size() >0){
-						download_failed_time=0;
+					if (curTwitterListInfo != null && curTwitterListInfo.size() > 0) {
+						download_failed_time = 0;
 						return curTwitterListInfo;
 					}
 
-
 				}
-
 
 			}
 
 			return null;
 		}
+
 		String getIdFromTWUrl(String httpPageUrl) {
 			// // https://twitter.com/PDChinese/status/1427649465826033672?s=19
 
+			String status_end = httpPageUrl.substring(httpPageUrl.indexOf("status/") + "status/".length());
 
-			String  status_end = httpPageUrl.substring(httpPageUrl.indexOf("status/")+"status/".length());
-
-			String clear_doubt_id = status_end.substring(0,status_end.indexOf("?"));
+			String clear_doubt_id = status_end.substring(0, status_end.indexOf("?"));
 
 			return clear_doubt_id;
 
 		}
 
-
-		TwitterVideo   showTwitterInfo_ReturnBigOne(List<TwitterVideo> list , String httpPageUrl){
+		TwitterVideo showTwitterInfo_ReturnBigOne(List<TwitterVideo> list, String httpPageUrl) {
 			TwitterVideo curBigItem = null;
 			long currentBigSize = 0l;
 			for (int i = 0; i < list.size(); i++) {
-				TwitterVideo  item = list.get(i);
+				TwitterVideo item = list.get(i);
 
-				if(currentBigSize < item.size) {
+				if (currentBigSize < item.size) {
 					currentBigSize = item.size;
 					curBigItem = item;
 				}
-				System.out.println("twitter["+i+"]:"+item.toString());
+				System.out.println("twitter[" + i + "]:" + item.toString());
 			}
-			if(curBigItem != null) {
-				System.out.println("最大分辨率-url:"+curBigItem.toString()+"  httpPageUrl:"+httpPageUrl);
-			}else {
+			if (curBigItem != null) {
+				System.out.println("最大分辨率-url:" + curBigItem.toString() + "  httpPageUrl:" + httpPageUrl);
+			} else {
 				System.out.println("没有选中最大分辨率的 url!!  请检查");
 			}
 
 			return curBigItem;
 		}
-		// downRawVideo_WithUrl(index, finalVideoAddress, fileNameNoPoint, "douyin");
-		public  void downloadByCommonIO(int index,String pageurl ,  String httpUrl, String fileNameNoPoint, String source) {
 
+		// downRawVideo_WithUrl(index, finalVideoAddress, fileNameNoPoint, "douyin");
+		public void downloadByCommonIO(int index, String pageurl, String httpUrl, String fileNameNoPoint,
+				String source) {
 
 			String fileAddress = mDownloadedMonthDir.getAbsolutePath() + File.separator
 					+ (source == null || "".equals(source) ? "" : source + "_") + (fileNameNoPoint.replace(" ", ""))
@@ -6817,21 +13300,20 @@ public class G2_ApplyRuleFor_TypeFile {
 
 			try {
 				System.out.println();
-				System.out.println("downloadByCommonIO_Retry下载["+download_failed_time+"] Begin FileAddress="+fileAddress);
-				System.out.println("downloadByCommonIO_Retry下载["+download_failed_time+"] Begin PageUrl="+pageurl);
-				System.out.println("downloadByCommonIO_Retry下载["+download_failed_time+"] Begin HttpUrl="+httpUrl);
-
+				System.out.println(
+						"downloadByCommonIO_Retry下载[" + download_failed_time + "] Begin FileAddress=" + fileAddress);
+				System.out.println("downloadByCommonIO_Retry下载[" + download_failed_time + "] Begin PageUrl=" + pageurl);
+				System.out.println("downloadByCommonIO_Retry下载[" + download_failed_time + "] Begin HttpUrl=" + httpUrl);
 
 				File fileSavePath = new File(fileAddress);
-				FileUtils.copyURLToFile(new URL(httpUrl), fileSavePath,30000,30000);
+				FileUtils.copyURLToFile(new URL(httpUrl), fileSavePath, 30000, 30000);
 				download_failed_time = 0;
 
-				System.out.println("downloadByCommonIO_下载["+download_failed_time+"] End  fileAddress="+fileAddress);
+				System.out
+						.println("downloadByCommonIO_下载[" + download_failed_time + "] End  fileAddress=" + fileAddress);
 
 				System.out.println("\n-----视频保存路径-----\n" + fileSavePath.getAbsolutePath());
 				System.out.println("\nzzfile_3.bat " + fileSavePath.getParentFile().getAbsolutePath());
-
-
 
 				if (isMDName) {
 					System.out.println("由于 isMDName=true  视频文件将以 MD5 属性文件名称进行命名!!! ");
@@ -6845,57 +13327,53 @@ public class G2_ApplyRuleFor_TypeFile {
 					// 把下载的 mp4 文件 名称 转为 md值
 				}
 
-
-				//  把下载的 mp4 文件 名称 转为 md值
+				// 把下载的 mp4 文件 名称 转为 md值
 //						url_name_LogList.add(pageUrl+"          "+mdName);
 				urlStrList.add(httpUrl);
 
 			} catch (IOException e) {
 				download_failed_time++;
-				if(download_failed_time%10 == 0) {
-					System.out.println("程序下载 retry "+download_failed_time+" 次 仍然 下载 失败----放弃");
-				}else {
+				if (download_failed_time % 10 == 0) {
+					System.out.println("程序下载 retry " + download_failed_time + " 次 仍然 下载 失败----放弃");
+				} else {
 
-
-					downloadByCommonIO( index ,  pageurl , httpUrl,  fileNameNoPoint,  source);
+					downloadByCommonIO(index, pageurl, httpUrl, fileNameNoPoint, source);
 				}
 //			            e.printStackTrace();
 			}
 
-
 		}
 
-		public  void	TW_Download( int index  ,String httppage) {
+		public void TW_Download(int index, String httppage) {
 
-			// 1. 获取 tw 的  id
+			// 1. 获取 tw 的 id
 			String id_str = getIdFromTWUrl(httppage);
-			if(id_str == null || "".equals(id_str.trim()) || !isNumeric(id_str.trim())){
-				System.out.println("当前 TW-Url: "+httppage+" 识别出的ID出错请检查!! id_str="+id_str);
+			if (id_str == null || "".equals(id_str.trim()) || !isNumeric(id_str.trim())) {
+				System.out.println("当前 TW-Url: " + httppage + " 识别出的ID出错请检查!! id_str=" + id_str);
 				return;
 			}
 
-
 			try {
-				List<TwitterVideo> list = 	extractTwitterVideo(id_str);
+				List<TwitterVideo> list = extractTwitterVideo(id_str);
 
-				if(list == null || list.size() == 0) {
+				if (list == null || list.size() == 0) {
 					System.out.println("返回为空 ");
-				}else {
+				} else {
 
-					System.out.println("返回 list.size() == "+list.size());
-					TwitterVideo high_url_TwitterVideo = 		showTwitterInfo_ReturnBigOne(list,httppage);
+					System.out.println("返回 list.size() == " + list.size());
+					TwitterVideo high_url_TwitterVideo = showTwitterInfo_ReturnBigOne(list, httppage);
 
-					if(high_url_TwitterVideo != null) {
+					if (high_url_TwitterVideo != null) {
 //						downRawVideo_WithUrl(httppage, high_url_TwitterVideo.url, id_str, null);
 						// downRawVideo_WithUrl(index, finalVideoAddress, fileNameNoPoint, "douyin");
 
 //						downRawVideo_WithUrl(index, high_url_TwitterVideo.url, id_str, null);
-						downRawVideo_WithUrl_WithProxy(index, high_url_TwitterVideo.url, id_str, null,httppage);
+						downRawVideo_WithUrl_WithProxy(index, high_url_TwitterVideo.url, id_str, null, httppage);
 
 //						downloadByCommonIO(index,httppage, high_url_TwitterVideo.url, id_str, "tw");
 						System.out.println("下载操作完成!");
 
-					}else {
+					} else {
 						System.out.println(" url 为空 无法执行下载操作!! ");
 					}
 				}
@@ -6906,8 +13384,8 @@ public class G2_ApplyRuleFor_TypeFile {
 				System.out.println("出现异常!! ");
 			}
 
-
 		}
+
 		void TouTiao_XiGua_Download(int index, String urlitem) {
 			if (!ChromeDriverFile.exists()) {
 				System.out.println(
@@ -7283,10 +13761,11 @@ public class G2_ApplyRuleFor_TypeFile {
 				String finalVideoAddress = HttpUtil.createGet(videoAddress).addHeaders(headers).execute()
 						.header("Location");
 				// 注:打印获取的链接
-				System.out.println("-----抖音去水印链接-----\n" + "finalVideoAddress="+finalVideoAddress+"  \nvideoAddress="+videoAddress);
+				System.out.println("-----抖音去水印链接-----\n" + "finalVideoAddress=" + finalVideoAddress
+						+ "  \nvideoAddress=" + videoAddress);
 				// 下载无水印视频到本地
-				if(finalVideoAddress == null) {
-					finalVideoAddress = videoAddress ;
+				if (finalVideoAddress == null) {
+					finalVideoAddress = videoAddress;
 				}
 				downRawVideo_WithUrl(index, finalVideoAddress, fileNameNoPoint, "douyin");
 			} catch (IOException e) {
@@ -7298,15 +13777,13 @@ public class G2_ApplyRuleFor_TypeFile {
 		// "":source+"_")+title.replace(" ",
 		// ""))+"_"+index_download+"_"+timeStamp_Str+".mp4";
 
-
-
-
 		// 视频的保存 目录 不能是 当前文件 否则 就会执行 同步操作 影响网速
-		// pageUrl 是页面的url   httpUrl 是视频文件的url
+		// pageUrl 是页面的url httpUrl 是视频文件的url
 		@SuppressWarnings("unchecked")
-		public void downRawVideo_WithUrl_WithProxy(int index, String httpUrl, String fileNameNoPoint, String source ,String pageUrl) {
-			if(urlStrList.contains(httpUrl)) {
-				System.out.println("当前url 路径已经下载过  跳过下载!!  url路径: "+ httpUrl +"");
+		public void downRawVideo_WithUrl_WithProxy(int index, String httpUrl, String fileNameNoPoint, String source,
+				String pageUrl) {
+			if (urlStrList.contains(httpUrl)) {
+				System.out.println("当前url 路径已经下载过  跳过下载!!  url路径: " + httpUrl + "");
 				return;
 			}
 
@@ -7316,15 +13793,16 @@ public class G2_ApplyRuleFor_TypeFile {
 
 			int byteRead;
 
-
 			try {
 
 				// 获取链接
 
-				System.out.println("downloadByCommonIO_Retry下载["+download_failed_time+"] Begin fileAddress= "+fileAddress);
-				System.out.println("downloadByCommonIO_Retry下载["+download_failed_time+"] Begin HttpUrl= "+httpUrl);
-				System.out.println("downloadByCommonIO_Retry下载["+download_failed_time+"] Begin PageUrl= "+pageUrl);
-
+				System.out.println(
+						"downloadByCommonIO_Retry下载[" + download_failed_time + "] Begin fileAddress= " + fileAddress);
+				System.out
+						.println("downloadByCommonIO_Retry下载[" + download_failed_time + "] Begin HttpUrl= " + httpUrl);
+				System.out
+						.println("downloadByCommonIO_Retry下载[" + download_failed_time + "] Begin PageUrl= " + pageUrl);
 
 				InetSocketAddress address = new InetSocketAddress("127.0.0.1", 7078);
 				Proxy proxy = new Proxy(Proxy.Type.HTTP, address); // http代理协议类型
@@ -7332,20 +13810,14 @@ public class G2_ApplyRuleFor_TypeFile {
 				URLConnection conn = url.openConnection(proxy);
 				// 输入流
 
-				long  beginTimeStamp = System.currentTimeMillis();
-
-
-
-
-
+				long beginTimeStamp = System.currentTimeMillis();
 
 				System.out.println("conn.getInputStream 获得 输入流  Begin ( downRawVideo耗时_A 得很) ");
 				InputStream inStream = conn.getInputStream();
-				long  endTimeStamp = System.currentTimeMillis();
-				long distance_second = (endTimeStamp -beginTimeStamp)/1000;
+				long endTimeStamp = System.currentTimeMillis();
+				long distance_second = (endTimeStamp - beginTimeStamp) / 1000;
 
-
-				System.out.println("conn.getInputStream 获得 输入流  End ( downRawVideo耗时_A【"+distance_second+" 秒】 得很)");
+				System.out.println("conn.getInputStream 获得 输入流  End ( downRawVideo耗时_A【" + distance_second + " 秒】 得很)");
 
 				// 封装一个保存文件的路径对象
 				File fileSavePath = new File(fileAddress);
@@ -7364,16 +13836,15 @@ public class G2_ApplyRuleFor_TypeFile {
 					fs.write(buffer, 0, byteRead);
 				}
 				endTimeStamp = System.currentTimeMillis();
-				distance_second = (endTimeStamp -beginTimeStamp)/1000;
+				distance_second = (endTimeStamp - beginTimeStamp) / 1000;
 
-				System.out.println("FileOutputStream.write  写入本地文件  End ( downRawVideo_耗时_B【"+distance_second+" 秒】 得很)");
+				System.out.println(
+						"FileOutputStream.write  写入本地文件  End ( downRawVideo_耗时_B【" + distance_second + " 秒】 得很)");
 
 				inStream.close();
 				fs.close();
 				System.out.println("\n-----视频保存路径-----\n" + fileSavePath.getAbsolutePath());
 				System.out.println("\nzzfile_3.bat " + fileSavePath.getParentFile().getAbsolutePath());
-
-
 
 				if (isMDName) {
 					System.out.println("由于 isMDName=true  视频文件将以 MD5 属性文件名称进行命名!!! ");
@@ -7385,31 +13856,29 @@ public class G2_ApplyRuleFor_TypeFile {
 					// 把下载的 mp4 文件 名称 转为 md值
 				}
 
-
-
 				urlStrList.add(httpUrl);
 				download_failed_time = 0;
-				System.out.println("downloadByCommonIO_下载["+download_failed_time+"] End  fileAddress="+fileAddress);
+				System.out
+						.println("downloadByCommonIO_下载[" + download_failed_time + "] End  fileAddress=" + fileAddress);
 			} catch (Exception e) {
 
 				download_failed_time++;
-				if(download_failed_time%10 == 0) {
-					System.out.println("程序下载 retry "+download_failed_time+" 次 仍然 下载 失败----放弃");
-				}else {
-					downRawVideo_WithUrl_WithProxy(  index,  httpUrl,  fileNameNoPoint,  source ,pageUrl);
+				if (download_failed_time % 10 == 0) {
+					System.out.println("程序下载 retry " + download_failed_time + " 次 仍然 下载 失败----放弃");
+				} else {
+					downRawVideo_WithUrl_WithProxy(index, httpUrl, fileNameNoPoint, source, pageUrl);
 				}
 				// e.printStackTrace();
 
-				// 	System.out.println(e.getMessage());
+				// System.out.println(e.getMessage());
 			}
 		}
-
 
 		// 视频的保存 目录 不能是 当前文件 否则 就会执行 同步操作 影响网速
 		@SuppressWarnings("unchecked")
 		public void downRawVideo_WithUrl(int index, String httpUrl, String fileNameNoPoint, String source) {
 //	        String fileAddress = videoSavePath+"/"+source+"/"+title+".mp4";
-			if(mDownloadedMonthDir == null) {
+			if (mDownloadedMonthDir == null) {
 				mDownloadedMonthDir = new File(curDirPath);
 			}
 			String fileAddress = mDownloadedMonthDir.getAbsolutePath() + File.separator
@@ -7507,7 +13976,7 @@ public class G2_ApplyRuleFor_TypeFile {
 
 			System.out.println(" CC   calLastTxtFileInFileList.size() ==  " + allTxtFileList.size());
 
-			allTxtFileList.sort(mFileDateComparion);
+			allTxtFileList.sort(mFileDateComparion_Old_To_New);
 			File lastTxtFile = allTxtFileList.get(allTxtFileList.size() - 1);
 			return lastTxtFile;
 
@@ -7539,7 +14008,7 @@ public class G2_ApplyRuleFor_TypeFile {
 			if (txtFileList.size() == 0) {
 				return null;
 			}
-			txtFileList.sort(mFileDateComparion);
+			txtFileList.sort(mFileDateComparion_Old_To_New);
 			File lastTxtFile = txtFileList.get(txtFileList.size() - 1);
 //			mWeChatRootFile = newRootFile;
 
@@ -7586,26 +14055,22 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		}
 
-
-
 		// 对每行的数据检查是否有 zcmd_run_ 之类的 运行命令
 
-
-		public  void zcmd_run_toGetZCmdRunFromOneLine_And_InitZCmdList(String rowString, ArrayList<String> zcmdrunStrList , ArrayList<String> zrunStrList_cmderList) {
+		public void zcmd_run_toGetZCmdRunFromOneLine_And_InitZCmdList(String rowString,
+				ArrayList<String> zcmdrunStrList, ArrayList<String> zrunStrList_cmderList) {
 			String[] strArrRow = null;
 			String fixStr = "";
 
 //	        if(str.trim().startsWith("http:") || str.trim().startsWith("https:") ||
 //	                str.trim().startsWith("thunder:") ||   str.trim().startsWith("magnet::") ){
 
-
-
-			if(!rowString.contains("zcmd_run_") && !rowString.contains("zcmder_run_") ) {
-				System.out.println("当前行 rowString="+rowString+" 不包含标识符 【zcmd_run_】   【zcmder_run_】命令执行失败!");
+			if (!rowString.contains("zcmd_run_") && !rowString.contains("zcmder_run_")) {
+				System.out.println("当前行 rowString=" + rowString + " 不包含标识符 【zcmd_run_】   【zcmder_run_】命令执行失败!");
 				return;
 			}
 
-			if(rowString.contains("zcmd_run_")) {
+			if (rowString.contains("zcmd_run_")) {
 
 				if (rowString != null) {
 					fixStr = new String(rowString);
@@ -7619,43 +14084,33 @@ public class G2_ApplyRuleFor_TypeFile {
 
 					for (int i = 0; i < strArrRow.length; i++) {
 						String mCommandItem = strArrRow[i];
-						System.out.println("strArrRow["+i+"] = "+ mCommandItem);
-						if (mCommandItem == null || mCommandItem.trim().equals("") ) {
+						System.out.println("strArrRow[" + i + "] = " + mCommandItem);
+						if (mCommandItem == null || mCommandItem.trim().equals("")) {
 							continue;
 						}
 
-						mCommandItem =  mCommandItem.replace("zcmd_run_", "");
-						System.out.println("zcmd_run_xxx rowString["+rowString+"]"+"  mCommandItem = ["+ mCommandItem+"] " );
+						mCommandItem = mCommandItem.replace("zcmd_run_", "");
+						System.out.println("zcmd_run_xxx rowString[" + rowString + "]" + "  mCommandItem = ["
+								+ mCommandItem + "] ");
 
+						if (mCommandItem.contains("【") && mCommandItem.contains("】")
+								&& mCommandItem.indexOf("【") < mCommandItem.indexOf("】")) {
 
+							String tipNum = mCommandItem.substring(mCommandItem.indexOf("【"),
+									mCommandItem.lastIndexOf("】") + 1);
 
-						if(mCommandItem.contains("【") && mCommandItem.contains("】")  &&
-								mCommandItem.indexOf("【") < mCommandItem.indexOf("】")
-						){
-
-
-							String tipNum  =     mCommandItem.substring(mCommandItem.indexOf("【"),mCommandItem.lastIndexOf("】")+1);
-
-							System.out.println("tipNum = "+ tipNum);
-							mCommandItem = mCommandItem.replace(tipNum,"");
+							System.out.println("tipNum = " + tipNum);
+							mCommandItem = mCommandItem.replace(tipNum, "");
 
 						}
 
-
-
-
-
-
 						zcmdrunStrList.add(mCommandItem.trim());
-
-
 
 					}
 
 				}
 
-			} else if(rowString.contains("zcmder_run_")) {
-
+			} else if (rowString.contains("zcmder_run_")) {
 
 				if (rowString != null) {
 					fixStr = new String(rowString);
@@ -7669,45 +14124,35 @@ public class G2_ApplyRuleFor_TypeFile {
 
 					for (int i = 0; i < strArrRow.length; i++) {
 						String mCommandItem = strArrRow[i];
-						System.out.println("strArrRow["+i+"] = "+ mCommandItem);
-						if (mCommandItem == null || mCommandItem.trim().equals("") ) {
+						System.out.println("strArrRow[" + i + "] = " + mCommandItem);
+						if (mCommandItem == null || mCommandItem.trim().equals("")) {
 							continue;
 						}
 
-						mCommandItem =  mCommandItem.replace("zcmder_run_", "");
-						System.out.println("zcmd_run_xxx rowString["+rowString+"]"+"  mCommandItem = ["+ mCommandItem+"] " );
+						mCommandItem = mCommandItem.replace("zcmder_run_", "");
+						System.out.println("zcmd_run_xxx rowString[" + rowString + "]" + "  mCommandItem = ["
+								+ mCommandItem + "] ");
 
+						if (mCommandItem.contains("【") && mCommandItem.contains("】")
+								&& mCommandItem.indexOf("【") < mCommandItem.indexOf("】")) {
 
+							String tipNum = mCommandItem.substring(mCommandItem.indexOf("【"),
+									mCommandItem.lastIndexOf("】") + 1);
 
-						if(mCommandItem.contains("【") && mCommandItem.contains("】")  &&
-								mCommandItem.indexOf("【") < mCommandItem.indexOf("】")
-						){
-
-
-							String tipNum  =     mCommandItem.substring(mCommandItem.indexOf("【"),mCommandItem.lastIndexOf("】")+1);
-
-							System.out.println("tipNum = "+ tipNum);
-							mCommandItem = mCommandItem.replace(tipNum,"");
+							System.out.println("tipNum = " + tipNum);
+							mCommandItem = mCommandItem.replace(tipNum, "");
 
 						}
 
-
-
-
 						zrunStrList_cmderList.add(mCommandItem.trim());
-
-
 
 					}
 
 				}
 
-
 			}
 
-
 		}
-
 
 		/*
 		 * @Override String simpleDesc() {
@@ -7737,15 +14182,21 @@ public class G2_ApplyRuleFor_TypeFile {
 					+ "  ### 以MD5字符串保存下载视频文件 持续检测 WeChat目录 C:\\Users\\zukgit\\Documents\\WeChat Files\\xxxx\\FileStorage\\File\\2021-07 的 TXT文件的内容    \n"
 
 					+ Cur_Bat_Name + " #_" + rule_index + "   ### 只有在 WeChat的当前 月份接收文件目录 才能生效 Monitor 监控 \n"
+					+ Cur_Bat_Name + " #_" + rule_index
+					+ "  bootup_true   ### 只有在 WeChat的当前 月份接收文件目录 才能生效 Monitor 监控  bootup_true 标识是开机启动的进程 \n"
+					// copy
+					// System.getProperties().getProperty("user.home")\Desktop\zbin\win_zbin\zrule_apply_G2_39rule_startup.vbs
+					// C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\
+					// copy %userprofile%\Desktop\zbin\win_zbin\zrule_apply_G2_39rule_startup.vbs
+					// C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\
+					// zbatrule_I9_Rule30.bat _31_ file_C:\Users\zhuzj5\Desktop\ScreenShot\D\T.txt
+					+ " 【配置检测开机启动】 \"\n" + "zbatrule_I9_Rule30.bat _31_  file_" + Win_Lin_Mac_ZbinPath + File.separator
+					+ "zrule_apply_G2_39rule_startup.vbs" + "  " + "\n" + "  explorer.exe  \""
+					+ "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\StartUp\\\"  \n"
 
-					// copy System.getProperties().getProperty("user.home")\Desktop\zbin\win_zbin\zrule_apply_G2_39rule_startup.vbs   C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\
-					// copy %userprofile%\Desktop\zbin\win_zbin\zrule_apply_G2_39rule_startup.vbs   C:\ProgramData\Microsoft\Windows\Start Menu\Programs\StartUp\
-					// zbatrule_I9_Rule30.bat _31_  file_C:\Users\zhuzj5\Desktop\ScreenShot\D\T.txt
-					+ " 【配置检测开机启动】 \"\n" + "zbatrule_I9_Rule30.bat _31_  file_"+Win_Lin_Mac_ZbinPath+File.separator+"zrule_apply_G2_39rule_startup.vbs"+"  "+ "\n"
-					+ "  explorer.exe  \"" + "C:\\ProgramData\\Microsoft\\Windows\\Start Menu\\Programs\\StartUp\\\"  \n"
-
-					+ "  explorer.exe  \"" + System.getProperties().getProperty("user.home")+ "\\Documents\\WeChat Files\"  \n"
-					+ "  explorer.exe  \""+ System.getProperties().getProperty("user.home") + "\\Documents\\Tencent Files\"  \n"
+					+ "  explorer.exe  \"" + System.getProperties().getProperty("user.home")
+					+ "\\Documents\\WeChat Files\"  \n" + "  explorer.exe  \""
+					+ System.getProperties().getProperty("user.home") + "\\Documents\\Tencent Files\"  \n"
 
 					+ "  explorer.exe  \"" + mDownloadedMonthDir.getAbsolutePath() + "\"   \n" + "cd  " + "\""
 					+ System.getProperties().getProperty("user.home") + "\\Documents\\" + "\"" + "  && "
@@ -7753,7 +14204,7 @@ public class G2_ApplyRuleFor_TypeFile {
 					+ "  explorer.exe " + " \"" + mDownloadedMonthDir.getAbsolutePath() + "\""
 					+ " \n &&   zrule_apply_G2.bat " + "_" + rule_index + "_" + "  mdname_true" + "\n"
 
-					;
+			;
 		}
 
 	}
@@ -7762,7 +14213,7 @@ public class G2_ApplyRuleFor_TypeFile {
 	static double ONE_SECOND_MILLSECOND = 1000; // 1 秒钟 单位:毫秒
 	static double ONE_MINUTES_MILLSECOND = ONE_MINUTES_SECOND * ONE_SECOND_MILLSECOND; // 1分钟 单位:毫秒
 
-	static Comparator mFileDateComparion = new Comparator<File>() {
+	static Comparator mFileDateComparion_Old_To_New = new Comparator<File>() {
 		@Override
 		public int compare(File o1, File o2) {
 			long diff = o1.lastModified() - o2.lastModified();
@@ -7776,6 +14227,75 @@ public class G2_ApplyRuleFor_TypeFile {
 
 	};
 
+     static int getStrRepeatCount(String mainStr, String subStr) {
+//声明一个要返回的变量
+       int count = 0;
+//声明一个初始的下标，从初始位置开始查找
+       int index = 0;
+//获取主数据的长度
+       int mainStrLength = mainStr.length();
+//获取要查找的数据长度
+       int subStrLength = subStr.length();
+//如果要查找的数据长度大于主数据的长度则返回0
+       if (subStrLength > mainStrLength) {
+           return 0;
+       }
+//循环使用indexOf查找出现的下标，如果出现一次则count++
+       while ((index = mainStr.indexOf(subStr, index)) != -1) {
+           count++;
+//从找到的位置下标加上要查找的字符串长度，让指针往后移动继续查找
+           index += subStrLength;
+       }
+       return count;
+   }
+    
+	static Comparator mFileDateComparion_New_To_Old = new Comparator<File>() {
+		@Override
+		public int compare(File o1, File o2) {
+			long diff = o1.lastModified() - o2.lastModified();
+			if (diff > 0)
+				return -1;
+			else if (diff == 0)
+				return 0;
+			else
+				return 1;// 如果 if 中修改为 返回-1 同时此处修改为返回 1 排序就会是递减
+		}
+
+	};
+
+	
+	static Comparator mFileDateComparion_Deep_Seperator = new Comparator<File>() {
+		@Override
+		public int compare(File o1, File o2) {
+			String o1_name = o1.getAbsolutePath();
+			String o2_name = o2.getAbsolutePath();
+			
+			int o1_separator_count = getStrRepeatCount(o1_name,File.separator);
+			
+			int o2_separator_count = getStrRepeatCount(o2_name,File.separator);
+			
+			
+		//	repeat
+//			o1.separator
+			
+			if(o1_separator_count > o2_separator_count) {
+				
+				return -1;
+			}
+			
+			if(o1_separator_count < o2_separator_count) {
+				
+				return 1;
+			}
+			
+			return 0;
+			
+		}
+
+	};
+	
+	
+	
 	static Comparator mStringComparion = new Comparator<String>() {
 		@Override
 		public int compare(String o1, String o2) {
@@ -7858,7 +14378,7 @@ public class G2_ApplyRuleFor_TypeFile {
 					+ rule_index
 					+ "  C:\\Users\\xxx\\Desktop\\zbin\\J0_Data  ### 解析指定目录下的xlsx 文件 生成对应的.json 文件 没有直接返回    \n"
 
-					;
+			;
 		}
 
 		@Override
@@ -7881,8 +14401,6 @@ public class G2_ApplyRuleFor_TypeFile {
 					isDirOperation = true;
 					inputDirFile = inputDir;
 				}
-
-
 
 				System.out.println("initParamsWithInputList[" + i + "] = " + strInput + "  inputDir.exists()="
 						+ inputDir.exists() + "  inputDir.isDirectory()=" + inputDir.isDirectory());
@@ -7935,7 +14453,8 @@ public class G2_ApplyRuleFor_TypeFile {
 						xlsxFileList.add(fileItem);
 					}
 
-					System.out.println("inputDir_xlsx["+i+"] = "+ fileItem.getAbsolutePath()+"  Size="+fileItem.length() );
+					System.out.println(
+							"inputDir_xlsx[" + i + "] = " + fileItem.getAbsolutePath() + "  Size=" + fileItem.length());
 
 				}
 
@@ -8018,71 +14537,68 @@ public class G2_ApplyRuleFor_TypeFile {
 //									System.out.println("colum="+j);
 
 									switch (cellData.getCellType()) {
-										case NUMERIC: {
+									case NUMERIC: {
+										rowObj.put(row1.getCell(j).getStringCellValue(),
+												cellData.getNumericCellValue());
+										break;
+									}
+									case FORMULA: {
+										// 判断cell是否为日期格式
+										if (DateUtil.isCellDateFormatted(cellData)) {
+											// 转换为日期格式YYYY-mm-dd
+											rowObj.put(row1.getCell(j).getStringCellValue(),
+													cellData.getDateCellValue());
+										} else {
+											// 数字
 											rowObj.put(row1.getCell(j).getStringCellValue(),
 													cellData.getNumericCellValue());
-											break;
 										}
-										case FORMULA: {
-											// 判断cell是否为日期格式
-											if (DateUtil.isCellDateFormatted(cellData)) {
-												// 转换为日期格式YYYY-mm-dd
-												rowObj.put(row1.getCell(j).getStringCellValue(),
-														cellData.getDateCellValue());
-											} else {
-												// 数字
-												rowObj.put(row1.getCell(j).getStringCellValue(),
-														cellData.getNumericCellValue());
-											}
-											break;
-										}
+										break;
+									}
 
-										case STRING: {
+									case STRING: {
 
 //											System.out.println("row1.getCell(j).toString() = "+ row1.getCell(j).toString());
 //											System.out.println("row1.getCell(j).getCellStyle() = "+ row1.getCell(j).getCellStyle());
 //											System.out.println("row1.getCell(j).getCellType() = "+ row1.getCell(j).getCellType());
 
-											String cellContent = null;
+										String cellContent = null;
 
-											try {
-												cellContent = cellData.toString();
+										try {
+											cellContent = cellData.toString();
 
-											} catch (Error e) {
-												cellContent = "";
+										} catch (Error e) {
+											cellContent = "";
 
-											}
-
-											rowObj.put(row1.getCell(j).toString(), cellContent);
-
-											// 表头 是 富文本 的 时候 调用 getRichStringCellValue() 和 getStringCellValue() 报错!!!
-											// Exception in thread "main" java.lang.NoSuchMethodError:
-											// org.openxmlformats.schemas.spreadsheetml.x2006.main.CTRst.xgetT()
-											// Lorg/openxmlformats/schemas/officeDocument/x2006/sharedTypes/STXstring;
-
-											// rowObj.put(row1.getCell(j).getRichStringCellValue().toString(),
-											// cellData.getRichStringCellValue());
-											// rowObj.put(row1.getCell(j).getStringCellValue().toString(),
-											// cellData.getStringCellValue());
-
-											break;
 										}
-										default:
-											rowObj.put(row1.getCell(j).getStringCellValue(), "");
+
+										rowObj.put(row1.getCell(j).toString(), cellContent);
+
+										// 表头 是 富文本 的 时候 调用 getRichStringCellValue() 和 getStringCellValue() 报错!!!
+										// Exception in thread "main" java.lang.NoSuchMethodError:
+										// org.openxmlformats.schemas.spreadsheetml.x2006.main.CTRst.xgetT()
+										// Lorg/openxmlformats/schemas/officeDocument/x2006/sharedTypes/STXstring;
+
+										// rowObj.put(row1.getCell(j).getRichStringCellValue().toString(),
+										// cellData.getRichStringCellValue());
+										// rowObj.put(row1.getCell(j).getStringCellValue().toString(),
+										// cellData.getStringCellValue());
+
+										break;
+									}
+									default:
+										rowObj.put(row1.getCell(j).getStringCellValue(), "");
 									}
 								} else {
-
 
 									try {
 										rowObj.put(row1.getCell(j).getStringCellValue(), "");
 
 									} catch (Error e) {
-										System.out.println("发生异常 e="+ e);
+										System.out.println("发生异常 e=" + e);
 										continue;
 
 									}
-
-
 
 								}
 							}
@@ -8274,7 +14790,7 @@ public class G2_ApplyRuleFor_TypeFile {
 					+ rule_index + " zmain      ### 只在当前目录创建 zmain 的 /sdcard/zmain 目录结构 \n" + Cur_Bat_Name + " #_"
 					+ rule_index + " zapp      ### 只在当前目录创建 zapp 的 /sdcard/zapp 目录结构 \n"
 
-					;
+			;
 
 		}
 
@@ -8487,7 +15003,7 @@ public class G2_ApplyRuleFor_TypeFile {
 					+ Cur_Bat_Name + " #_" + rule_index
 					+ "  A.pdf  page_10_  page_50_  ### 解析当前的A.pdf 生成 从第10页开始解析到最后  从第50页开始解析到最后 \n"
 
-					;
+			;
 		}
 
 	}
@@ -8640,8 +15156,8 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		@Override
 		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
-											  HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
-											  ArrayList<File> curRealFileList) {
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 			// TODO Auto-generated method stub
 			ArrayList<File> allMp3FileList = new ArrayList<File>();
 
@@ -8762,7 +15278,7 @@ public class G2_ApplyRuleFor_TypeFile {
 		}
 
 		Rule34_MP3_NodeImpl getNodeImpl_With_Zimu(ArrayList<Rule34_MP3_NodeImpl> alphabet_node_list,
-												  String charAlhapbet) {
+				String charAlhapbet) {
 			Rule34_MP3_NodeImpl selectedNode = null;
 			for (int i = 0; i < alphabet_node_list.size(); i++) {
 				Rule34_MP3_NodeImpl node = alphabet_node_list.get(i);
@@ -8779,7 +15295,7 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		@SuppressWarnings("unchecked")
 		boolean Show_AddNode_MP3Map(HashMap<String, ArrayList<Rule34_MP3_NodeImpl>> xMP3FileMap,
-									ArrayList<Rule34_MP3_NodeImpl> alphabet_node_list) {
+				ArrayList<Rule34_MP3_NodeImpl> alphabet_node_list) {
 			boolean executeFlag = false;
 			Map.Entry<String, ArrayList<Rule34_MP3_NodeImpl>> entry;
 
@@ -9161,8 +15677,8 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		@Override
 		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
-											  HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
-											  ArrayList<File> curRealFileList) {
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 			// TODO Auto-generated method stub
 			ArrayList<File> allMp3FileList = new ArrayList<File>();
 
@@ -9361,9 +15877,6 @@ public class G2_ApplyRuleFor_TypeFile {
 
 	class MakeJpg2PDF_Rule_32 extends Basic_Rule {
 
-
-
-
 		MakeJpg2PDF_Rule_32() {
 			super("#", 32, 4);
 
@@ -9372,10 +15885,10 @@ public class G2_ApplyRuleFor_TypeFile {
 		@Override
 		String simpleDesc() {
 
-			return Cur_Bat_Name + " #_32    // 把当前的 jpg 和 png 文件转为一个 PDF文件  (不操作 孙文件 孙文件夹 )  \n"
-					+ Cur_Bat_Name + "  #_32   ### 把当前的 jpg 和 png 文件转为一个 PDF文件  \n"
+			return Cur_Bat_Name + " #_32    // 把当前的 jpg 和 png 文件转为一个 PDF文件  (不操作 孙文件 孙文件夹 )  \n" + Cur_Bat_Name
+					+ "  #_32   ### 把当前的 jpg 和 png 文件转为一个 PDF文件  \n"
 
-					;
+			;
 		}
 
 		@Override
@@ -9386,8 +15899,8 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		@Override
 		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
-											  HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
-											  ArrayList<File> curRealFileList) {
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 
 			ArrayList<File> pictureFileList = new ArrayList<File>();
 			int picture_index = 1;
@@ -9568,7 +16081,7 @@ public class G2_ApplyRuleFor_TypeFile {
 					+ Cur_Bat_Name
 					+ " #_31  100 .jpg jpg_shownumber_true jpg_background_0_255_0 jpg_wordcolor_0_0_0  jpg_frontsize_600 jpg_wxh_1000_1000   ##创建100个依据参数确定的.jpg图片 绿底黑字  \n"
 
-					;
+			;
 		}
 
 		void showParams() {
@@ -9695,8 +16208,8 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		@Override
 		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
-											  HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
-											  ArrayList<File> curRealFileList) {
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 			// TODO Auto-generated method stub
 
 			for (int i = 0; i < fliterTypeList.size(); i++) {
@@ -9998,8 +16511,8 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		@Override
 		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
-											  HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
-											  ArrayList<File> curRealFileList) {
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 // 	// 识别当前用户 指定的操作类型 1后缀增加 2前缀增加 3创建文件 4替换文件夹名称
 
 			ArrayList<File> slectedFileList = getRealFileWithDirAndPointType(curDirFile, fliterTypeList);
@@ -10008,64 +16521,64 @@ public class G2_ApplyRuleFor_TypeFile {
 
 			switch (currentOperaType) {
 
-				case 1:
-					for (int i = 0; i < slectedFileList.size(); i++) {
-						File selectFile = slectedFileList.get(i);
-						String selectFileName = selectFile.getName();
-						String pointType = getFileTypeWithPoint(selectFileName);
-						String FileNameWithNoLower = getFileNameNoPoint(selectFileName);
-						String newselectFileName = FileNameWithNoLower + appendStr_1 + pointType;
-						tryReName(selectFile, newselectFileName);
-					}
-					break;
+			case 1:
+				for (int i = 0; i < slectedFileList.size(); i++) {
+					File selectFile = slectedFileList.get(i);
+					String selectFileName = selectFile.getName();
+					String pointType = getFileTypeWithPoint(selectFileName);
+					String FileNameWithNoLower = getFileNameNoPoint(selectFileName);
+					String newselectFileName = FileNameWithNoLower + appendStr_1 + pointType;
+					tryReName(selectFile, newselectFileName);
+				}
+				break;
 
-				case 2:
-					for (int i = 0; i < slectedFileList.size(); i++) {
-						File selectFile = slectedFileList.get(i);
-						String selectFileName = selectFile.getName();
-						String newselectFileName = prefixStr_2 + selectFileName;
-						tryReName(selectFile, newselectFileName);
-					}
-					break;
+			case 2:
+				for (int i = 0; i < slectedFileList.size(); i++) {
+					File selectFile = slectedFileList.get(i);
+					String selectFileName = selectFile.getName();
+					String newselectFileName = prefixStr_2 + selectFileName;
+					tryReName(selectFile, newselectFileName);
+				}
+				break;
 
-				case 3:
-					System.out.println("beginIndex_3 = " + beginIndex_3 + "   endIndex_3=" + endIndex_3);
-					for (int j = 0; j < fliterTypeList.size(); j++) {
-						String typeStr = fliterTypeList.get(j);
-						for (int i = beginIndex_3; i < endIndex_3 + 1; i++) {
-							String absDirPath = curDirFile.getAbsolutePath();
+			case 3:
+				System.out.println("beginIndex_3 = " + beginIndex_3 + "   endIndex_3=" + endIndex_3);
+				for (int j = 0; j < fliterTypeList.size(); j++) {
+					String typeStr = fliterTypeList.get(j);
+					for (int i = beginIndex_3; i < endIndex_3 + 1; i++) {
+						String absDirPath = curDirFile.getAbsolutePath();
 
-							String selectFilePath = absDirPath + File.separator + prefixStr_3 + i + appendStr_3 + typeStr;
-							File curFileItem = new File(selectFilePath);
-							System.out.println("创建空 " + typeStr + " 文件 [" + i + "] = " + curFileItem.getName());
-							try {
-								curFileItem.createNewFile();
-							} catch (IOException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
+						String selectFilePath = absDirPath + File.separator + prefixStr_3 + i + appendStr_3 + typeStr;
+						File curFileItem = new File(selectFilePath);
+						System.out.println("创建空 " + typeStr + " 文件 [" + i + "] = " + curFileItem.getName());
+						try {
+							curFileItem.createNewFile();
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
 						}
-
 					}
 
-					break;
+				}
 
-				// 4替换文件夹名称
-				case 4:
-					System.out.println("replacedStr_4 = " + replacedStr_4 + "   newNameStr_4=" + newNameStr_4);
+				break;
 
-					for (int i = 0; i < slectedFileList.size(); i++) {
-						File realFile = slectedFileList.get(i);
-						String realFileName = realFile.getName();
+			// 4替换文件夹名称
+			case 4:
+				System.out.println("replacedStr_4 = " + replacedStr_4 + "   newNameStr_4=" + newNameStr_4);
 
-						String newRealName = realFileName.replace(replacedStr_4, newNameStr_4 == null ? "" : newNameStr_4);
-						tryReName(realFile, newRealName);
-					}
+				for (int i = 0; i < slectedFileList.size(); i++) {
+					File realFile = slectedFileList.get(i);
+					String realFileName = realFile.getName();
 
-					break;
+					String newRealName = realFileName.replace(replacedStr_4, newNameStr_4 == null ? "" : newNameStr_4);
+					tryReName(realFile, newRealName);
+				}
 
-				default:
-					System.out.println("当前 currentOperaType = " + currentOperaType + "  没有找到合适的操作类型去处理 Rule30 ");
+				break;
+
+			default:
+				System.out.println("当前 currentOperaType = " + currentOperaType + "  没有找到合适的操作类型去处理 Rule30 ");
 			}
 
 			return curDirList;
@@ -10139,8 +16652,8 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		@Override
 		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
-											  HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
-											  ArrayList<File> curRealFileList) {
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 
 			ArrayList<File> pptxFileList = new ArrayList<File>();
 			int pptx_index = 1;
@@ -10224,7 +16737,7 @@ public class G2_ApplyRuleFor_TypeFile {
 			return "\n" + Cur_Bat_Name + "  #_29     ## 把当前目录下的 pptx文件合并为一个 pptx文件  【保留原有】的pptx文件 \n" + Cur_Bat_Name
 					+ " #_29  delete  ##把当前目录下的 pptx文件合并为一个 pptx文件  【删除原有】的pptx文件 \n"
 
-					;
+			;
 		}
 
 	}
@@ -10308,8 +16821,8 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		@Override
 		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
-											  HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
-											  ArrayList<File> curRealFileList) {
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 
 			System.out.println("makeJpg2PPTX_Rule_28   搜索到的实体文件个数:" + curRealFileList.size());
 
@@ -10590,7 +17103,7 @@ public class G2_ApplyRuleFor_TypeFile {
 					+ Cur_Bat_Name
 					+ " #_28 keepbig name 270     [索引28]   // 把当前目录下文件  图片比例与电脑尺寸相同(PC 宽>高)的保持正向 比例不同的(手机 宽<高) 旋转270度 并添加文件名 生成 PPTX文件   \n"
 
-					;
+			;
 
 		}
 	}
@@ -10649,7 +17162,7 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		@Override
 		ArrayList<File> applyDir_SubFileListRule5(ArrayList<File> allSubDirFileList,
-												  ArrayList<File> allSubRealFileList) {
+				ArrayList<File> allSubRealFileList) {
 
 			for (int i = 0; i < allSubDirFileList.size(); i++) {
 				File curDirFile = allSubDirFileList.get(i);
@@ -10676,7 +17189,7 @@ public class G2_ApplyRuleFor_TypeFile {
 					if (mRealFile.isFile() && !mRealFile.isDirectory()) {
 						String realFileNmae = mRealFile.getName();
 						String type = getFileTypeWithPoint(realFileNmae);
-						System.out.println("j["+j+"] realFileNmae=" + realFileNmae + "   type=" +type);
+						System.out.println("j[" + j + "] realFileNmae=" + realFileNmae + "   type=" + type);
 						if ("".equals(type)) {
 							String newName = realFileNmae + "." + targetType;
 							tryReName(mRealFile, newName);
@@ -10776,7 +17289,7 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		@Override
 		ArrayList<File> applyDir_SubFileListRule5(ArrayList<File> allSubDirFileList,
-												  ArrayList<File> allSubRealFileList) {
+				ArrayList<File> allSubRealFileList) {
 			if (isSearchAllFile2CurDirFlag) {
 				// 比那里所有 类型的 文件 并 重新命名
 				tryReNameByDir(allSubDirFileList);
@@ -10995,10 +17508,10 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		@Override
 		String simpleDesc() {
-			return "\n"
-					+ Cur_Bat_Name + "  #_25  1992_"+getCurrentYear()+"   ##打开notepad输出当前1992年至今年"+getCurrentYear()+"年 年月历   MD格式类型(年月里) \n"
-					+ Cur_Bat_Name + "  #_25  1992_2020   ##打开notepad输出当前1992年至2020年 年月历   MD格式类型(年月里) \n"
-					+ Cur_Bat_Name + "  #_25  1990_   ##打开notepad输出当前1990年至今年" + getCurrentYear() + " 年月历 MD格式类型(年月里) \n"
+			return "\n" + Cur_Bat_Name + "  #_25  1992_" + getCurrentYear() + "   ##打开notepad输出当前1992年至今年"
+					+ getCurrentYear() + "年 年月历   MD格式类型(年月里) \n" + Cur_Bat_Name
+					+ "  #_25  1992_2020   ##打开notepad输出当前1992年至2020年 年月历   MD格式类型(年月里) \n" + Cur_Bat_Name
+					+ "  #_25  1990_   ##打开notepad输出当前1990年至今年" + getCurrentYear() + " 年月历 MD格式类型(年月里) \n"
 					+ Cur_Bat_Name + " #_25  _2010   ##打开notepad输出 1992(默认)至2010年年月历 MD格式类型(年月里) \n ";
 		}
 
@@ -11053,7 +17566,7 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		@Override
 		ArrayList<File> applyDir_SubFileListRule5(ArrayList<File> allSubDirFileList,
-												  ArrayList<File> allSubRealFileList) {
+				ArrayList<File> allSubRealFileList) {
 			// TODO Auto-generated method stub
 			// TODO Auto-generated method stub
 			if (originType == -1) { // 没有获取到 初始化值 那么 默认就是 1992
@@ -11071,7 +17584,7 @@ public class G2_ApplyRuleFor_TypeFile {
 				targetType = targetType - originType;
 			}
 			StringBuilder sb = new StringBuilder();
-			System.out.println("targetType = "+targetType +"    originType="+ originType);
+			System.out.println("targetType = " + targetType + "    originType=" + originType);
 			for (int i = targetType; i >= originType; i--) {
 				sb.append("   \n");
 				sb.append("   \n");
@@ -11158,8 +17671,8 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		@Override
 		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
-											  HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
-											  ArrayList<File> curRealFileList) {
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 			// TODO Auto-generated method stub
 
 			for (int i = 0; i < curFileList.size(); i++) {
@@ -11246,13 +17759,13 @@ public class G2_ApplyRuleFor_TypeFile {
 					+ Cur_Bat_Name + " #_" + rule_index
 					+ "  fix2real_true    ### 对当前目录的文件进行真实类型的检测[通过魔数字]并修正那些类型和魔数不一样文件的列表信息 \n"
 
-					;
+			;
 		}
 
 		@Override
 		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
-											  HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
-											  ArrayList<File> curRealFileList) {
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 			// TODO Auto-generated method stub
 			int different_type_file_index = 1;
 			ArrayList<File> differentRealTypeFileList = new ArrayList<File>();
@@ -11766,32 +18279,35 @@ public class G2_ApplyRuleFor_TypeFile {
 			return value;
 		}
 
-		/**
-		 * @param src 要读取文件头信息的文件的byte数组
-		 * @return 文件头信息
-		 * @author wlx
-		 *         <p>
-		 *         方法描述：将要读取文件头信息的文件的byte数组转换成string类型表示
-		 */
-		String bytesToHexString(byte[] src) {
-			StringBuilder builder = new StringBuilder();
-			if (src == null || src.length <= 0) {
-				return null;
-			}
-			String hv;
-			for (byte aSrc : src) {
-				// 以十六进制（基数 16）无符号整数形式返回一个整数参数的字符串表示形式，并转换为大写
-				hv = Integer.toHexString(aSrc & 0xFF).toUpperCase();
-				if (hv.length() < 2) {
-					builder.append(0);
-				}
-				builder.append(hv);
-			}
-//	        System.out.println(builder.toString());
-			return builder.toString();
-		}
+
 
 	}
+	
+	/**
+	 * @param src 要读取文件头信息的文件的byte数组
+	 * @return 文件头信息
+	 * @author wlx
+	 *         <p>
+	 *         方法描述：将要读取文件头信息的文件的byte数组转换成string类型表示
+	 */
+	static String bytesToHexString(byte[] src) {
+		StringBuilder builder = new StringBuilder();
+		if (src == null || src.length <= 0) {
+			return null;
+		}
+		String hv;
+		for (byte aSrc : src) {
+			// 以十六进制（基数 16）无符号整数形式返回一个整数参数的字符串表示形式，并转换为大写
+			hv = Integer.toHexString(aSrc & 0xFF).toUpperCase();
+			if (hv.length() < 2) {
+				builder.append(0);
+			}
+			builder.append(hv);
+		}
+//        System.out.println(builder.toString());
+		return builder.toString();
+	}
+	
 
 	class ReSize_Img_Rule_22 extends Basic_Rule {
 
@@ -11881,8 +18397,8 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		@Override
 		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
-											  HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
-											  ArrayList<File> curRealFileList) {
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 
 			ArrayList<File> operationFileList = new ArrayList<File>();
 			ArrayList<File> newOperationFileList = new ArrayList<File>();
@@ -12193,9 +18709,9 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		ArrayList<String> fliterTypeList;
 		ArrayList<File> mSrcFileImage; // 符合 过滤 条件的 当前目录的文件夹的集合
-		boolean isPortLandNamed;   //  是否 以  port 和 Name 添加前缀
+		boolean isPortLandNamed; // 是否 以 port 和 Name 添加前缀
 
-		boolean isClearBlank;    // 是否是把当前目录的文件中包含的空格去除  另外的操作逻辑
+		boolean isClearBlank; // 是否是把当前目录的文件中包含的空格去除 另外的操作逻辑
 
 		Rename_Img_WithSize_Rule_21() {
 			super("#", 21, 4); //
@@ -12206,7 +18722,6 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		}
 
-
 		@Override
 		boolean initParamsWithInputList(ArrayList<String> inputParamList) {
 			// TODO Auto-generated method stub
@@ -12214,13 +18729,12 @@ public class G2_ApplyRuleFor_TypeFile {
 			for (int i = 0; i < inputParamList.size(); i++) {
 				String inputParam = inputParamList.get(i);
 
-				if(inputParam.contains("portland_true")) {
+				if (inputParam.contains("portland_true")) {
 					isPortLandNamed = true;
 
 				}
 
-
-				if(inputParam.contains("clearblank_true")) {
+				if (inputParam.contains("clearblank_true")) {
 					isClearBlank = true;
 
 				}
@@ -12257,17 +18771,14 @@ public class G2_ApplyRuleFor_TypeFile {
 					fliterTypeList.add(".gif");
 				}
 
-
-
-
 			}
 
-			if(isClearBlank) {
+			if (isClearBlank) {
 				fliterTypeList.clear();
 				fliterTypeList.add("*");
 			}
 
-			System.out.println("isPortLandNamed = "+ isPortLandNamed +"  isEmptyTypeInput="+isEmptyTypeInput);
+			System.out.println("isPortLandNamed = " + isPortLandNamed + "  isEmptyTypeInput=" + isEmptyTypeInput);
 
 			return super.initParamsWithInputList(inputParamList);
 		}
@@ -12309,39 +18820,34 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		@Override
 		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
-											  HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
-											  ArrayList<File> curRealFileList) {
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 
-			if(isClearBlank) {
-				int blankIndex = 0 ;
+			if (isClearBlank) {
+				int blankIndex = 0;
 
 				for (int i = 0; i < curRealFileList.size(); i++) {
 					File fileItem = curRealFileList.get(i);
 					String fileName = fileItem.getName();
 					String fileName_lower = fileName.toLowerCase();
-					if(fileItem.isDirectory()) {
+					if (fileItem.isDirectory()) {
 						continue;
 					}
 
-
-					if(fileName.contains(" ")) {
+					if (fileName.contains(" ")) {
 						// 去除 名称 中的 空格
 						String newName = fileName.replace(" ", "");
 						tryReName(fileItem, newName);
-						System.out.println("去除空格文件["+blankIndex+"] oldname["+fileName+"]  newname["+newName+"]");
+						System.out.println(
+								"去除空格文件[" + blankIndex + "] oldname[" + fileName + "]  newname[" + newName + "]");
 						blankIndex++;
 					}
 
-
-
 				}
-
-
 
 				System.out.println("RealFile Clear Blank  实体文件 清除空格 执行完成! ");
 
 				return super.applySubFileListRule4(curFileList, subFileTypeMap, curDirList, curRealFileList);
-
 
 			}
 
@@ -12379,11 +18885,11 @@ public class G2_ApplyRuleFor_TypeFile {
 				// 当前文件的 宽高
 				String str_width_x_high = calculateSizeStr(width, high);
 				String newName = str_width_x_high + "_" + fileName;
-				if(isPortLandNamed) {
-					if(width > high) {
-						newName = "Land_"+newName;
-					}else {
-						newName = "Port_"+newName;
+				if (isPortLandNamed) {
+					if (width > high) {
+						newName = "Land_" + newName;
+					} else {
+						newName = "Port_" + newName;
 
 					}
 				}
@@ -12459,8 +18965,8 @@ public class G2_ApplyRuleFor_TypeFile {
 				itemDesc += batName.trim() + Cur_Batch_End + "  " + type + "_" + index + "_jpg_png_gif_webp"
 						+ "    #### [索引 " + index + "]  描述: " + desc_A + "\n";
 
-				itemDesc += batName.trim() + Cur_Batch_End + "  " + type + "_" + index + "_jpg_png_gif_webp" + "  portland_true "
-						+ "    #### [索引 " + index + "]  描述: " + desc_B + "\n";
+				itemDesc += batName.trim() + Cur_Batch_End + "  " + type + "_" + index + "_jpg_png_gif_webp"
+						+ "  portland_true " + "    #### [索引 " + index + "]  描述: " + desc_B + "\n";
 
 				itemDesc += batName.trim() + Cur_Batch_End + "  " + type + "_" + index + "" + "  clearblank_true "
 						+ "    #### [索引 " + index + "]  描述: " + "## 清除当前目录下的包含有空格的文件名称 去除空格" + "\n";
@@ -12535,8 +19041,8 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		@Override
 		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
-											  HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
-											  ArrayList<File> curRealFileList) {
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 
 			for (int i = 0; i < curRealFileList.size(); i++) {
 				File fileItem = curRealFileList.get(i);
@@ -12623,8 +19129,6 @@ public class G2_ApplyRuleFor_TypeFile {
 			}
 
 		}
-
-
 
 		String ruleTip(String type, int index, String batName, OS_TYPE curType) {
 			String itemDesc = "";
@@ -12839,7 +19343,7 @@ public class G2_ApplyRuleFor_TypeFile {
 					+ "\n" + Cur_Bat_Name
 					+ " #_19  <指定文件A> <指定文件B>          ### 把当前文件夹下 指定文件名称 单独压缩为 .7z 文件 文件名不变化   密码默认为 752025 !   \"+ "
 
-					;
+			;
 		}
 
 	}
@@ -12997,7 +19501,7 @@ public class G2_ApplyRuleFor_TypeFile {
 					+ "\n" + Cur_Bat_Name
 					+ " #_18  <指定文件A> <指定文件B>          ### 把当前文件夹下 指定文件名称  文件全部改名为 MD5属性命名的文件 【(32)位16进制.type】 "
 
-					;
+			;
 		}
 
 	}
@@ -13023,7 +19527,7 @@ public class G2_ApplyRuleFor_TypeFile {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		if(bi == null) {
+		if (bi == null) {
 			return "MD5_Null";
 		}
 		return bi.toString(16);
@@ -13054,8 +19558,8 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		@Override
 		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
-											  HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
-											  ArrayList<File> curRealFileList) {
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 			if (curDirFile != null) {
 				for (int i = 0; i < dirNameList.size(); i++) {
 					String dirName = dirNameList.get(i);
@@ -13239,8 +19743,8 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		@Override
 		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
-											  HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
-											  ArrayList<File> curRealFileList) {
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 
 			ArrayList<File> webpFile = subFileTypeMap.get(".webp");
 			if (webpFile == null) {
@@ -13494,7 +19998,7 @@ public class G2_ApplyRuleFor_TypeFile {
 					+ "\n" + Cur_Bat_Name
 					+ " #_14  .jpg  .png  .gif  .webp .mp4 .avi .flv .wmv     ### 生成 视频 + 图片 格式文件集合  源文件被按顺序重命名 1_ 2_ 动态计算当前文件夹中所有子文件中的视频文件 并在当前目录生成 JPG_20200522_154600 MP4_20200522_154600 字样的文件夹 \n"
 
-					;
+			;
 		}
 	}
 
@@ -13594,9 +20098,12 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		@Override
 		String simpleDesc() {
-			return "\n" + Cur_Bat_Name + "  #_13_mp4    ### 动态计算当前文件夹中所有子文件中的mp4文件夹中的 mp4文件个数(孙文件夹名称必须是mp4)  并在当前shell目录生成html文件 \n"
-					+ Cur_Bat_Name + "  #_13_jpg    ### 动态计算当前文件夹中所有子文件中的jpg文件夹中的 jpg文件个数(孙文件夹名称必须是jpg) 并在当前目录生成html文件\n"
-					+ Cur_Bat_Name + "  #_13_gif    ### 动态计算当前文件夹中所有子文件中的gif文件夹中的 gif文件个数(孙文件夹名称必须是gif) 并在当前目录生成html文件\n"
+			return "\n" + Cur_Bat_Name
+					+ "  #_13_mp4    ### 动态计算当前文件夹中所有子文件中的mp4文件夹中的 mp4文件个数(孙文件夹名称必须是mp4)  并在当前shell目录生成html文件 \n"
+					+ Cur_Bat_Name
+					+ "  #_13_jpg    ### 动态计算当前文件夹中所有子文件中的jpg文件夹中的 jpg文件个数(孙文件夹名称必须是jpg) 并在当前目录生成html文件\n"
+					+ Cur_Bat_Name
+					+ "  #_13_gif    ### 动态计算当前文件夹中所有子文件中的gif文件夹中的 gif文件个数(孙文件夹名称必须是gif) 并在当前目录生成html文件\n"
 					+ Cur_Bat_Name
 					+ "  #_13_mp4  <单个子件夹参数>  ### 同没有参数(但shell路径不同) 动态计算当前文件夹中所有子文件中的mp4文件夹中的 mp4文件个数 并在当前目录生成html文件\n"
 					+ Cur_Bat_Name
@@ -13611,8 +20118,8 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		@Override
 		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
-											  HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
-											  ArrayList<File> curRealFileList) {
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 			ArrayList<File> operaDirList = new ArrayList<File>();
 			boolean isMultiDirInput = false;
 			String curBasePath = "";
@@ -13788,12 +20295,9 @@ public class G2_ApplyRuleFor_TypeFile {
 	class CalCulMediaHtml_Rule_12 extends Basic_Rule {
 
 		ArrayList<File> operaDirFileList; // 当前从参数获得的目录文件集合
-		int operaType; // 0-unknow  1--mp4 2--jpg 3--gif     // 4--allmp4    把当前所有的mp4文件转为一个数组  放入到html页面
+		int operaType; // 0-unknow 1--mp4 2--jpg 3--gif // 4--allmp4 把当前所有的mp4文件转为一个数组 放入到html页面
 
-
-		ArrayList<File> allMp4FileList; //  当前目录的所有的mp4文件的列表   operaType=4--allmp4 适用
-
-
+		ArrayList<File> allMp4FileList; // 当前目录的所有的mp4文件的列表 operaType=4--allmp4 适用
 
 		ArrayList<File> mp4AllHtmlTemplate_FileList;
 
@@ -13806,12 +20310,10 @@ public class G2_ApplyRuleFor_TypeFile {
 		File Mp4_All_2x4_Html_TemplateFile;
 		File Mp4_All_2x5_Html_TemplateFile;
 
-
 		File Mp4_All_3x2_Html_TemplateFile;
 		File Mp4_All_3x3_Html_TemplateFile;
 		File Mp4_All_3x4_Html_TemplateFile;
 		File Mp4_All_3x5_Html_TemplateFile;
-
 
 		File Mp4_All_4x2_Html_TemplateFile;
 		File Mp4_All_4x3_Html_TemplateFile;
@@ -13822,18 +20324,6 @@ public class G2_ApplyRuleFor_TypeFile {
 		File Mp4_All_5x3_Html_TemplateFile;
 		File Mp4_All_5x4_Html_TemplateFile;
 		File Mp4_All_5x5_Html_TemplateFile;
-
-
-
-
-
-
-
-
-
-
-
-
 
 		File Mp4_2x2_Html_TemplateFile;
 		File Mp4_3x3_Html_TemplateFile;
@@ -13901,41 +20391,30 @@ public class G2_ApplyRuleFor_TypeFile {
 			jpgHtmlTemplate_FileList = new ArrayList<File>();
 			gifHtmlTemplate_FileList = new ArrayList<File>();
 
-
 			Mp4_All_2x2_Html_TemplateFile = new File(zbinPath + File.separator + "G2_Rule12_mp4_all_2x2.html");
 			Mp4_All_2x3_Html_TemplateFile = new File(zbinPath + File.separator + "G2_Rule12_mp4_all_2x3.html");
 			Mp4_All_2x4_Html_TemplateFile = new File(zbinPath + File.separator + "G2_Rule12_mp4_all_2x4.html");
 			Mp4_All_2x5_Html_TemplateFile = new File(zbinPath + File.separator + "G2_Rule12_mp4_all_2x5.html");
-
-
 
 			Mp4_All_3x2_Html_TemplateFile = new File(zbinPath + File.separator + "G2_Rule12_mp4_all_3x2.html");
 			Mp4_All_3x3_Html_TemplateFile = new File(zbinPath + File.separator + "G2_Rule12_mp4_all_3x3.html");
 			Mp4_All_3x4_Html_TemplateFile = new File(zbinPath + File.separator + "G2_Rule12_mp4_all_3x4.html");
 			Mp4_All_3x5_Html_TemplateFile = new File(zbinPath + File.separator + "G2_Rule12_mp4_all_3x5.html");
 
-
 			Mp4_All_4x2_Html_TemplateFile = new File(zbinPath + File.separator + "G2_Rule12_mp4_all_4x2.html");
 			Mp4_All_4x3_Html_TemplateFile = new File(zbinPath + File.separator + "G2_Rule12_mp4_all_4x3.html");
 			Mp4_All_4x4_Html_TemplateFile = new File(zbinPath + File.separator + "G2_Rule12_mp4_all_4x4.html");
 			Mp4_All_4x5_Html_TemplateFile = new File(zbinPath + File.separator + "G2_Rule12_mp4_all_4x5.html");
-
 
 			Mp4_All_5x2_Html_TemplateFile = new File(zbinPath + File.separator + "G2_Rule12_mp4_all_5x2.html");
 			Mp4_All_5x3_Html_TemplateFile = new File(zbinPath + File.separator + "G2_Rule12_mp4_all_5x3.html");
 			Mp4_All_5x4_Html_TemplateFile = new File(zbinPath + File.separator + "G2_Rule12_mp4_all_5x4.html");
 			Mp4_All_5x5_Html_TemplateFile = new File(zbinPath + File.separator + "G2_Rule12_mp4_all_5x5.html");
 
-
-
-
-
 			mp4AllHtmlTemplate_FileList.add(Mp4_All_2x2_Html_TemplateFile);
 			mp4AllHtmlTemplate_FileList.add(Mp4_All_2x3_Html_TemplateFile);
 			mp4AllHtmlTemplate_FileList.add(Mp4_All_2x4_Html_TemplateFile);
 			mp4AllHtmlTemplate_FileList.add(Mp4_All_2x5_Html_TemplateFile);
-
-
 
 			mp4AllHtmlTemplate_FileList.add(Mp4_All_3x2_Html_TemplateFile);
 			mp4AllHtmlTemplate_FileList.add(Mp4_All_3x3_Html_TemplateFile);
@@ -13947,14 +20426,10 @@ public class G2_ApplyRuleFor_TypeFile {
 			mp4AllHtmlTemplate_FileList.add(Mp4_All_4x4_Html_TemplateFile);
 			mp4AllHtmlTemplate_FileList.add(Mp4_All_4x5_Html_TemplateFile);
 
-
 			mp4AllHtmlTemplate_FileList.add(Mp4_All_5x2_Html_TemplateFile);
 			mp4AllHtmlTemplate_FileList.add(Mp4_All_5x3_Html_TemplateFile);
 			mp4AllHtmlTemplate_FileList.add(Mp4_All_5x4_Html_TemplateFile);
 			mp4AllHtmlTemplate_FileList.add(Mp4_All_5x5_Html_TemplateFile);
-
-
-
 
 			Mp4_2x2_Html_TemplateFile = new File(zbinPath + File.separator + "G2_Rule12_mp4_2x2.html");
 			Mp4_3x3_Html_TemplateFile = new File(zbinPath + File.separator + "G2_Rule12_mp4_3x3.html");
@@ -14087,7 +20562,6 @@ public class G2_ApplyRuleFor_TypeFile {
 				operaType = 4;
 			}
 
-
 			return super.initParams4InputParam(inputParam);
 		}
 
@@ -14120,7 +20594,7 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		@Override
 		ArrayList<File> applyDir_SubFileListRule5(ArrayList<File> allSubDirFileList,
-												  ArrayList<File> allSubRealFileList) {
+				ArrayList<File> allSubRealFileList) {
 			if (operaDirFileList.size() == 0) {
 				System.out.println("当前用户没有输入执行的目录名称,请重新输入B!");
 
@@ -14140,11 +20614,7 @@ public class G2_ApplyRuleFor_TypeFile {
 
 			}
 
-
-
-			if(operaType == 4 ) {   //  对当前目录的所有的
-
-
+			if (operaType == 4) { // 对当前目录的所有的
 
 				OperationHtmlMedia(curDirFile);
 
@@ -14160,32 +20630,28 @@ public class G2_ApplyRuleFor_TypeFile {
 					OperationHtmlMedia(operaDirFile);
 				}
 
-
 			}
-
-
 
 			return super.applyDir_SubFileListRule5(allSubDirFileList, allSubRealFileList);
 		}
 
 		@Override
 		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
-											  HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
-											  ArrayList<File> curRealFileList) {
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 			if (operaDirFileList.size() == 0) {
 				System.out.println("当前用户没有输入执行的目录名称,请重新输入C!");
 				return null;
 			}
-			if(operaType == 4 ) {   //  mp4all 的 逻辑与 别的逻辑 有点区别
+			if (operaType == 4) { // mp4all 的 逻辑与 别的逻辑 有点区别
 
 				OperationHtmlMedia(curDirFile);
 
-			}else {
+			} else {
 				for (int i = 0; i < operaDirFileList.size(); i++) {
 					File operaDirFile = operaDirFileList.get(i);
 					OperationHtmlMedia(operaDirFile);
 				}
-
 
 			}
 
@@ -14194,72 +20660,69 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		void OperationHtmlMedia(File xdirFile) {
 			switch (operaType) {
-				case 1: // mp4
-					ArrayList<File> mp4_mediaFileList = getSubTypeFileWithPoint(xdirFile, ".mp4");
-					tryMediaFileRenameOperation(mp4_mediaFileList, ".mp4");
-					tryMP4HtmlOperation(xdirFile, mp4_mediaFileList.size());
-					break;
-				case 2: // jpg
-					ArrayList<File> jpg_mediaFileList = getSubTypeFileWithPoint(xdirFile, ".jpg");
-					tryMediaFileRenameOperation(jpg_mediaFileList, ".jpg");
-					tryJPGHtmlOperation(xdirFile, jpg_mediaFileList.size());
-					break;
-				case 3: // gif
-					ArrayList<File> gif_mediaFileList = getSubTypeFileWithPoint(xdirFile, ".gif");
-					tryMediaFileRenameOperation(gif_mediaFileList, ".gif");
-					tryGIFHtmlOperation(xdirFile, gif_mediaFileList.size());
-					break;
+			case 1: // mp4
+				ArrayList<File> mp4_mediaFileList = getSubTypeFileWithPoint(xdirFile, ".mp4");
+				tryMediaFileRenameOperation(mp4_mediaFileList, ".mp4");
+				tryMP4HtmlOperation(xdirFile, mp4_mediaFileList.size());
+				break;
+			case 2: // jpg
+				ArrayList<File> jpg_mediaFileList = getSubTypeFileWithPoint(xdirFile, ".jpg");
+				tryMediaFileRenameOperation(jpg_mediaFileList, ".jpg");
+				tryJPGHtmlOperation(xdirFile, jpg_mediaFileList.size());
+				break;
+			case 3: // gif
+				ArrayList<File> gif_mediaFileList = getSubTypeFileWithPoint(xdirFile, ".gif");
+				tryMediaFileRenameOperation(gif_mediaFileList, ".gif");
+				tryGIFHtmlOperation(xdirFile, gif_mediaFileList.size());
+				break;
 
-				case 4: // allmp4
+			case 4: // allmp4
 
-					allMp4FileList = getAllSubFile(curDirFile, ".mp4");
-					if(allMp4FileList == null || allMp4FileList.size() == 0) {
-						System.out.println("  当前目录 curDirFile="+curDirFile.getAbsolutePath()+" 没有寻找到 .mp4文件 执行生成 allmp4-html文件失败!");
-						return;
+				allMp4FileList = getAllSubFile(curDirFile, ".mp4");
+				if (allMp4FileList == null || allMp4FileList.size() == 0) {
+					System.out.println("  当前目录 curDirFile=" + curDirFile.getAbsolutePath()
+							+ " 没有寻找到 .mp4文件 执行生成 allmp4-html文件失败!");
+					return;
+				}
+				System.out.println("  当前目录 curDirFile=" + curDirFile.getAbsolutePath() + " allMp4FileList.size()="
+						+ allMp4FileList.size());
+
+				StringBuilder htmlCodeSB_head1 = new StringBuilder();
+				StringBuilder htmlCodeSB_head2 = new StringBuilder();
+
+				htmlCodeSB_head1.append("var videoCount =  " + allMp4FileList.size() + ";\n");
+				htmlCodeSB_head2.append("var videolist = [");
+				for (int i = 0; i < allMp4FileList.size(); i++) {
+					File mp4File = allMp4FileList.get(i);
+					String mp4FilePath = allMp4FileList.get(i).getAbsolutePath();
+					String mp4FilePath_fixed = mp4FilePath.replace(File.separator, "/");
+					String varName = "videofile_" + i;
+					htmlCodeSB_head1.append(
+							varName + " ={  index:" + i + " , filepath:\"" + mp4FilePath_fixed + "\" };" + "\n");
+					if (i == allMp4FileList.size() - 1) {
+						htmlCodeSB_head2.append(varName + "");
+					} else {
+						htmlCodeSB_head2.append(varName + ",");
 					}
-					System.out.println("  当前目录 curDirFile="+curDirFile.getAbsolutePath()+" allMp4FileList.size()="+allMp4FileList.size());
 
-					StringBuilder  htmlCodeSB_head1 = new StringBuilder();
-					StringBuilder  htmlCodeSB_head2 = new StringBuilder();
+				}
+				htmlCodeSB_head2.append("];\n");
 
+				String htmlCode = htmlCodeSB_head1 + "\n" + htmlCodeSB_head2.toString();
 
-					htmlCodeSB_head1.append("var videoCount =  "+allMp4FileList.size()+";\n");
-					htmlCodeSB_head2.append("var videolist = [");
-					for (int i = 0; i <  allMp4FileList.size(); i++) {
-						File mp4File = allMp4FileList.get(i);
-						String mp4FilePath = allMp4FileList.get(i).getAbsolutePath();
-						String mp4FilePath_fixed  = mp4FilePath.replace(File.separator, "/");
-						String varName = "videofile_"+i;
-						htmlCodeSB_head1.append(varName+" ={  index:"+i+" , filepath:\""+mp4FilePath_fixed+"\" };"+"\n");
-						if(i == allMp4FileList.size() -1) {
-							htmlCodeSB_head2.append(varName+"");
-						}else {
-							htmlCodeSB_head2.append(varName+",");
-						}
+				System.out.println("  htmlCode=\n " + htmlCode.toString());
 
-					}
-					htmlCodeSB_head2.append("];\n");
-
-
-
-					String htmlCode = htmlCodeSB_head1+"\n"+htmlCodeSB_head2.toString();
-
-					System.out.println("  htmlCode=\n "+htmlCode.toString());
-
-					// hoderplace -begin
+				// hoderplace -begin
 //							videofile_0 = { index:0 , path:"./mp4_1/mp4/",length:11,};
 //							video1 = { index:1 , path:"./mp4_2/mp4/",length:11,};
 //							var objectArr = [ person0,person1, ];
-					// hoderplace -end
+				// hoderplace -end
 
+				tryAllMp4HtmlOperation(htmlCode);
 
-					tryAllMp4HtmlOperation(htmlCode);
+				break;
 
-
-					break;
-
-
-				default:
+			default:
 			}
 
 		}
@@ -14359,7 +20822,6 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		}
 
-
 		// allMp4 的 操作逻辑
 		void tryAllMp4HtmlOperation(String commonHtmlCode) {
 			String curDirName = curDirFile.getName();
@@ -14379,27 +20841,25 @@ public class G2_ApplyRuleFor_TypeFile {
 				String htmlContent = ReadFileContent(HtmlFile);
 				htmlContent = htmlContent.replace("zukgitPlaceHolderindex", commonHtmlCode);
 
-				File curShellHtmlFile = new File(
-						curDirFile.getAbsolutePath() + File.separator + "" + htmlname);
+				File curShellHtmlFile = new File(curDirFile.getAbsolutePath() + File.separator + "" + htmlname);
 				writeContentToFile(curShellHtmlFile, htmlContent);
-				System.out.println("htmlContent:"+ htmlContent);
-				System.out.println("生成Html文件:"+ curShellHtmlFile.getAbsolutePath());
+				System.out.println("htmlContent:" + htmlContent);
+				System.out.println("生成Html文件:" + curShellHtmlFile.getAbsolutePath());
 			}
 
 		}
 
-
 		@Override
 		String simpleDesc() {
 			return "\n" + Cur_Bat_Name
-					+ "  #_12_mp4      ### 把目录中包含mp4的文件夹进行检索 生成 [mp4目录名称-html文件][mp4改名1.2.3][单一文件夹] 播放文件  \n" + Cur_Bat_Name
-					+ "  #_12_allmp4    ### 把目录中所有的mp4文件 生成 Arr数组 放入 [allmp4_timestamp_html][mp4不改名][多文件夹] 播放文件  \n" + Cur_Bat_Name
-					+ "  #_12_gif      ### 把目录中包含gif的文件夹进行检索 生成 gif-html 播放文件  \n" + Cur_Bat_Name
+					+ "  #_12_mp4      ### 把目录中包含mp4的文件夹进行检索 生成 [mp4目录名称-html文件][mp4改名1.2.3][单一文件夹] 播放文件  \n"
+					+ Cur_Bat_Name
+					+ "  #_12_allmp4    ### 把目录中所有的mp4文件 生成 Arr数组 放入 [allmp4_timestamp_html][mp4不改名][多文件夹] 播放文件  \n"
+					+ Cur_Bat_Name + "  #_12_gif      ### 把目录中包含gif的文件夹进行检索 生成 gif-html 播放文件  \n" + Cur_Bat_Name
 					+ "  #_12_jpg      ### 把目录中包含jpg的文件夹进行检索 生成 jpg-html 播放文件  \n" + Cur_Bat_Name
 					+ "  #_12_mp4   <目标文件夹目录>   ### 把当前输入目录包含mp4文件夹 生成 mp4-html 播放文件  \n" + Cur_Bat_Name
 					+ "  #_12_gif   <目标文件夹目录>   ### 把当前输入目录包含gif文件夹 生成 gif-html 播放文件  \n" + Cur_Bat_Name
 					+ "  #_12_jpg   <目标文件夹目录>   ### 把当前输入目录包含jpg文件夹 生成 jpg-html 播放文件  \n";
-
 
 		}
 
@@ -14419,7 +20879,7 @@ public class G2_ApplyRuleFor_TypeFile {
 		@SuppressWarnings("unchecked")
 		@Override
 		ArrayList<File> applyDir_SubFileListRule5(ArrayList<File> allSubDirFileList,
-												  ArrayList<File> allSubRealFileList) {
+				ArrayList<File> allSubRealFileList) {
 
 			System.out.println("allSubDirFileList = " + allSubDirFileList.size());
 			System.out.println("allSubRealFileList = " + allSubRealFileList.size());
@@ -14512,8 +20972,8 @@ public class G2_ApplyRuleFor_TypeFile {
 		@SuppressWarnings("unchecked")
 		@Override
 		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
-											  HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
-											  ArrayList<File> curRealFileList) {
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 
 			if (!curDirList.contains(curDirFile)) {
 				curDirList.add(curDirFile);
@@ -14730,51 +21190,51 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		@Override
 		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
-											  HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
-											  ArrayList<File> curRealFileList) {
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 
 			switch (currentOperaType) {
 
-				case 1:
-					for (int i = 0; i < curDirList.size(); i++) {
-						File dirFile = curDirList.get(i);
-						String dirName = dirFile.getName();
-						String newName = dirName + appendStr_1;
-						tryReName(dirFile, newName);
-					}
-					break;
+			case 1:
+				for (int i = 0; i < curDirList.size(); i++) {
+					File dirFile = curDirList.get(i);
+					String dirName = dirFile.getName();
+					String newName = dirName + appendStr_1;
+					tryReName(dirFile, newName);
+				}
+				break;
 
-				case 2:
-					for (int i = 0; i < curDirList.size(); i++) {
-						File dirFile = curDirList.get(i);
-						String dirName = dirFile.getName();
-						String newName = prefixStr_2 + dirName;
-						tryReName(dirFile, newName);
-					}
-					break;
+			case 2:
+				for (int i = 0; i < curDirList.size(); i++) {
+					File dirFile = curDirList.get(i);
+					String dirName = dirFile.getName();
+					String newName = prefixStr_2 + dirName;
+					tryReName(dirFile, newName);
+				}
+				break;
 
-				case 3:
-					for (int i = beginIndex_3; i < endIndex_3 + 1; i++) {
-						String absDirPath = curDirFile.getAbsolutePath();
-						String newDir = absDirPath + File.separator + prefixStr_3 + i + appendStr_3;
-						File curDirFileItem = new File(newDir);
-						curDirFileItem.mkdirs();
-					}
-					break;
+			case 3:
+				for (int i = beginIndex_3; i < endIndex_3 + 1; i++) {
+					String absDirPath = curDirFile.getAbsolutePath();
+					String newDir = absDirPath + File.separator + prefixStr_3 + i + appendStr_3;
+					File curDirFileItem = new File(newDir);
+					curDirFileItem.mkdirs();
+				}
+				break;
 
-				case 4:
+			case 4:
 
-					for (int i = 0; i < curDirList.size(); i++) {
-						File dirFile = curDirList.get(i);
-						String dirName = dirFile.getName();
-						String newName = dirName.replace(replacedStr_4, newNameStr_4);
-						tryReName(dirFile, newName);
-					}
+				for (int i = 0; i < curDirList.size(); i++) {
+					File dirFile = curDirList.get(i);
+					String dirName = dirFile.getName();
+					String newName = dirName.replace(replacedStr_4, newNameStr_4);
+					tryReName(dirFile, newName);
+				}
 
-					break;
+				break;
 
-				default:
-					System.out.println("当前 currentOperaType = " + currentOperaType + "  没有找到合适的操作类型去处理 ");
+			default:
+				System.out.println("当前 currentOperaType = " + currentOperaType + "  没有找到合适的操作类型去处理 ");
 			}
 
 			return curDirList;
@@ -14935,8 +21395,8 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		@Override
 		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
-											  HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
-											  ArrayList<File> curRealFileList) {
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 
 			System.out.println("Rule8_ClearChineseType_8   搜索到的实体文件个数:" + curRealFileList.size());
 
@@ -15036,7 +21496,7 @@ public class G2_ApplyRuleFor_TypeFile {
 //        Cur_Bat_Name + "  jgm_5_nextstep  [索引5]   //  JPG="+jpgBeginIndex+ " GIF="+gifBeginIndex+" MP4="+mp4BeginIndex+"  JPG增量="+nextStepCountJPG +"    GIF增量="+nextStepCountGIF + "   MP4增量="+nextStepCountMP4+" ▲【 把jpg gif png的增量添加到 beginIndex 然后增量置0 】 \n ";
 
 		void jiamiAllDir(ArrayList<File> curFileList, HashMap<String, ArrayList<File>> subFileTypeMap,
-						 ArrayList<File> curDirList, ArrayList<File> curRealFileList) {
+				ArrayList<File> curDirList, ArrayList<File> curRealFileList) {
 			// 1.创建一个时间戳文件夹
 			// 2.在当前文件夹的基础上
 
@@ -15125,8 +21585,8 @@ public class G2_ApplyRuleFor_TypeFile {
 		}
 
 		void jiemi1970ZVIDir(File m1970ZVI_DirFile, ArrayList<File> curFileList,
-							 HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
-							 ArrayList<File> curRealFileList) {
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 
 			SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd_HHmmss");// 设置日期格式
 			String date = df.format(new Date());
@@ -15226,7 +21686,7 @@ public class G2_ApplyRuleFor_TypeFile {
 		}
 
 		void jiemiAllDir(ArrayList<File> curFileList, HashMap<String, ArrayList<File>> subFileTypeMap,
-						 ArrayList<File> curDirList, ArrayList<File> curRealFileList) {
+				ArrayList<File> curDirList, ArrayList<File> curRealFileList) {
 
 			// 1.创建一个时间戳文件夹
 			// 2.在当前文件夹的基础上
@@ -15344,8 +21804,8 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		@Override
 		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
-											  HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
-											  ArrayList<File> curRealFileList) {
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 			System.out.println("Rule7 搜索到的实体文件个数:  curRealFileList.size() =" + curRealFileList.size());
 			if (isAllFileOperation) {
 				if (mEncroptyDirect) {
@@ -15471,8 +21931,8 @@ public class G2_ApplyRuleFor_TypeFile {
 		@SuppressWarnings("unchecked")
 		@Override
 		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
-											  HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
-											  ArrayList<File> curRealFileList) {
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 
 			boolean executeFlag = false;
 			boolean isFixedAllSubFlag = curFilterFileTypeList.contains("#");
@@ -16094,7 +22554,7 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		// 从 起始的地址 beginIndex 开始计算
 		String getPaddingIntStringWithDirIndexFileNameWithIndex(String cTempTag, int CurrentTempIndex, int beginIndex,
-																int index, int padinglength, String oneStr, boolean dirPre) {
+				int index, int padinglength, String oneStr, boolean dirPre) {
 
 			int indexIdentify = beginIndex + index;
 			int tempIndexResult = (indexIdentify / 1000);
@@ -16105,7 +22565,7 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		// 不从起始的地址 计算 从0，1,2,3.... 开始计算
 		String getPaddingIntStringWithDirIndexFileName(String cTempTag, int CurrentTempIndex, int index,
-													   int padinglength, String oneStr, boolean dirPre) {
+				int padinglength, String oneStr, boolean dirPre) {
 
 			int tempIndexA = (index / 1000);
 			int tempIndexResult = CurrentTempIndex + tempIndexA;
@@ -16488,14 +22948,14 @@ public class G2_ApplyRuleFor_TypeFile {
 
 		@Override
 		ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
-											  HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
-											  ArrayList<File> curRealFileList) {
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList) {
 			return curFileList;
 		}
 
 		@Override
 		ArrayList<File> applyDir_SubFileListRule5(ArrayList<File> allSubDirFileList,
-												  ArrayList<File> allSubRealFileList) {
+				ArrayList<File> allSubRealFileList) {
 
 			return null;
 		}
@@ -16525,7 +22985,10 @@ public class G2_ApplyRuleFor_TypeFile {
 				itemDesc = batName.trim() + ".bat  " + type + "_" + index + "    [索引 " + index + "]  描述:"
 						+ simpleDesc();
 			} else {
-				itemDesc = batName.trim() + ".sh " + type + "_" + index + "    [索引 " + index + "]  描述:" + simpleDesc();
+			//  在 Linux 下  #_42 会被当成注释  无法 被识别  所以  必须 把 第一个 # 号改为 下划线
+				String  simple_desc = simpleDesc();
+				String fixed_simple_desc  = simple_desc.replace("#_","@_");
+				itemDesc = batName.trim() + ".sh " + type + "_" + index + "    [索引 " + index + "]  描述:" + fixed_simple_desc;
 			}
 
 			return itemDesc;
@@ -16549,14 +23012,15 @@ public class G2_ApplyRuleFor_TypeFile {
 				curFixedFileList.add(curFile);
 			} else {
 				String fileNameNoPoint = getFileNameNoPoint(newName);
-				String secondNewName = newName.replace(fileNameNoPoint, fileNameNoPoint+"_"+getTimeStampLong());
-				System.out.println(oldName + " 转为 " + newFilePath + " 失败1次！ 尝试使用新名称 secondNewName=["+secondNewName+"]");
+				String secondNewName = newName.replace(fileNameNoPoint, fileNameNoPoint + "_" + getTimeStampLong());
+				System.out.println(
+						oldName + " 转为 " + newFilePath + " 失败1次！ 尝试使用新名称 secondNewName=[" + secondNewName + "]");
 				String newSecondPath = curFile.getParent() + File.separator + secondNewName;
 				File secondFile = new File(newSecondPath);
 				flag = curFile.renameTo(secondFile);
-				if(flag) {
+				if (flag) {
 					System.out.println(oldName + " 第二次转为 " + newFilePath + " 成功！");
-				}else {
+				} else {
 					System.out.println(oldName + " 第二次转为 " + newFilePath + " 仍然失败！");
 				}
 			}
@@ -16583,14 +23047,14 @@ public class G2_ApplyRuleFor_TypeFile {
 		abstract File applyFileByteOperationRule2(File originFile);
 
 		abstract ArrayList<File> applyFileListRule3(ArrayList<File> subFileList,
-													HashMap<String, ArrayList<File>> fileTypeMap);
+				HashMap<String, ArrayList<File>> fileTypeMap);
 
 		abstract ArrayList<File> applySubFileListRule4(ArrayList<File> curFileList,
-													   HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
-													   ArrayList<File> curRealFileList);
+				HashMap<String, ArrayList<File>> subFileTypeMap, ArrayList<File> curDirList,
+				ArrayList<File> curRealFileList);
 
 		abstract ArrayList<File> applyDir_SubFileListRule5(ArrayList<File> allSubDirFileList,
-														   ArrayList<File> allSubRealFileList);
+				ArrayList<File> allSubRealFileList);
 
 		abstract boolean initParams4InputParam(String inputParam); // 初始化Rule的参数 依据输入的字符串
 
@@ -16602,10 +23066,6 @@ public class G2_ApplyRuleFor_TypeFile {
 		abstract String simpleDesc(); // 使用的简单描述 中文的该 rule的使用情况 默认会在 ruleTip 被调用
 
 	}
-
-
-
-
 
 	static void ANSI_writeContentToFile(File file, String strParam) {
 
@@ -16621,7 +23081,7 @@ public class G2_ApplyRuleFor_TypeFile {
 			}
 
 			if (file != null && file.exists()) {
-				BufferedWriter curBW = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file),"GBK"));
+				BufferedWriter curBW = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "GBK"));
 				curBW.write(strParam);
 				curBW.flush();
 				curBW.close();
@@ -16634,30 +23094,27 @@ public class G2_ApplyRuleFor_TypeFile {
 		}
 	}
 
-
-
-
-	public   void UTF8File_To_ANSIFile(File file) {
-		StringBuffer buffer=new StringBuffer();
+	public void UTF8File_To_ANSIFile(File file) {
+		StringBuffer buffer = new StringBuffer();
 		try {
-			FileInputStream fis=new FileInputStream(file.getAbsolutePath());
-			InputStreamReader isr=new InputStreamReader(fis,"UTF-8");
-			BufferedReader br=new BufferedReader(isr);
-			String line=null;
+			FileInputStream fis = new FileInputStream(file.getAbsolutePath());
+			InputStreamReader isr = new InputStreamReader(fis, "UTF-8");
+			BufferedReader br = new BufferedReader(isr);
+			String line = null;
 			br.skip(1);
-			while ((line=br.readLine())!=null) {
+			while ((line = br.readLine()) != null) {
 				buffer.append(line);
 				buffer.append("\r\n");
 			}
-			buffer.delete(buffer.length()-2,buffer.length());
+			buffer.delete(buffer.length() - 2, buffer.length());
 			br.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		System.out.println(buffer);
 		try {
-			FileOutputStream fos=new FileOutputStream(file.getAbsoluteFile());
-			OutputStreamWriter osw=new OutputStreamWriter(fos);
+			FileOutputStream fos = new FileOutputStream(file.getAbsoluteFile());
+			OutputStreamWriter osw = new OutputStreamWriter(fos);
 			osw.write(buffer.toString());
 			osw.flush();
 			osw.close();
@@ -16665,10 +23122,7 @@ public class G2_ApplyRuleFor_TypeFile {
 			e.printStackTrace();
 		}
 
-
 	}
-
-
 
 	static void writeContentToFile(File file, String strParam) {
 
@@ -16695,6 +23149,114 @@ public class G2_ApplyRuleFor_TypeFile {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static String ReadFileContent_No_UTF8(File mFilePath) {
+
+		if (mFilePath != null && mFilePath.exists()) {
+			// System.out.println("存在 当前文件 "+ mFilePath.getAbsolutePath());
+		} else {
+			System.out.println("不存在 当前文件 " + mFilePath.getAbsolutePath());
+
+			return null;
+		}
+		StringBuilder sb = new StringBuilder();
+
+		try {
+			BufferedReader curBR = new BufferedReader(new InputStreamReader(new FileInputStream(mFilePath)));
+			String oldOneLine = "";
+			int index = 1;
+			while (oldOneLine != null) {
+
+				oldOneLine = curBR.readLine();
+				if (oldOneLine == null || oldOneLine.trim().isEmpty()) {
+					continue;
+				}
+
+				sb.append(oldOneLine + "\n");
+//                    System.out.println("第"+index+"行读取到的字符串:"+oldOneLine);
+				index++;
+
+			}
+			curBR.close();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return sb.toString();
+
+	}
+
+	public static String ReadFileContent_GBK(File mFilePath) {
+
+		if (mFilePath != null && mFilePath.exists()) {
+			// System.out.println("存在 当前文件 "+ mFilePath.getAbsolutePath());
+		} else {
+			System.out.println("不存在 当前文件 " + mFilePath.getAbsolutePath());
+
+			return null;
+		}
+		StringBuilder sb = new StringBuilder();
+
+		try {
+			BufferedReader curBR = new BufferedReader(new InputStreamReader(new FileInputStream(mFilePath), "GBK"));
+			String oldOneLine = "";
+			int index = 1;
+			while (oldOneLine != null) {
+
+				oldOneLine = curBR.readLine();
+				if (oldOneLine == null || oldOneLine.trim().isEmpty()) {
+					continue;
+				}
+
+				sb.append(oldOneLine + "\n");
+//                    System.out.println("第"+index+"行读取到的字符串:"+oldOneLine);
+				index++;
+
+			}
+			curBR.close();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return sb.toString();
+
+	}
+
+	public static String ReadFileContent_UTF8(File mFilePath) {
+
+		if (mFilePath != null && mFilePath.exists()) {
+			// System.out.println("存在 当前文件 "+ mFilePath.getAbsolutePath());
+		} else {
+			System.out.println("不存在 当前文件 " + mFilePath.getAbsolutePath());
+
+			return null;
+		}
+		StringBuilder sb = new StringBuilder();
+
+		try {
+			BufferedReader curBR = new BufferedReader(new InputStreamReader(new FileInputStream(mFilePath), "utf-8"));
+			String oldOneLine = "";
+			int index = 1;
+			while (oldOneLine != null) {
+
+				oldOneLine = curBR.readLine();
+				if (oldOneLine == null || oldOneLine.trim().isEmpty()) {
+					continue;
+				}
+
+				sb.append(oldOneLine + "\n");
+//                    System.out.println("第"+index+"行读取到的字符串:"+oldOneLine);
+				index++;
+
+			}
+			curBR.close();
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return sb.toString();
+
 	}
 
 	public static String ReadFileContent(File mFilePath) {
@@ -16738,7 +23300,7 @@ public class G2_ApplyRuleFor_TypeFile {
 		if (mFilePath != null && mFilePath.exists()) {
 			// System.out.println("存在 当前文件 "+ mFilePath.getAbsolutePath());
 		} else {
-			System.out.println("不存在 当前文件 " + mFilePath.getAbsolutePath());
+			System.out.println("不存在 当前文件  ReadFileContentAsList  mFilePath = null "  );
 
 			return null;
 		}
@@ -16803,6 +23365,12 @@ public class G2_ApplyRuleFor_TypeFile {
 		}
 		try {
 			if (file != null && !file.exists()) {
+				System.out.println("新建文件夹: file=" + file.getAbsolutePath());
+
+				if (!file.getParentFile().exists()) {
+					file.getParentFile().mkdirs();
+				}
+
 				file.createNewFile();
 			}
 
@@ -16855,6 +23423,9 @@ public class G2_ApplyRuleFor_TypeFile {
 			if (!encryptFile.exists()) {
 				encryptFile.createNewFile();
 			}
+			
+			long generalFile_length = generalFile.length();
+			
 			generalFileInputStream = new FileInputStream(generalFile);
 			generalBufferedInputStream = new BufferedInputStream(generalFileInputStream);
 
@@ -16886,11 +23457,33 @@ public class G2_ApplyRuleFor_TypeFile {
 			}
 
 			// 对读取到的TEMP字节数组 BYTE_CONTENT_LENGTH 个字节进行 ECB模式加密 明文大小与密文大小一致
-
+          
+		
+			
 			byte[] encrypt_bytes = encrypt(TEMP_Rule7);
 
+			
+			/*
+			byte[] real_byte =   new byte[(int) generalFile_length];
+			for (int i = 0; i < generalFile_length; i++) {
+				real_byte[i] = TEMP_Rule7[i];
+			}
+			
+			byte[] encrypt_real_bytes = encrypt(real_byte);
+			String raw_bytes_str  = bytesToHexString(real_byte);
+			String encrypt_raw_bytes_str  = bytesToHexString(encrypt_real_bytes);
+
+			
+			
 			System.out.println("加密原始文件:" + generalFile.getName() + "  加密前明文大小:" + TEMP_Rule7.length + "   加密后密文大小:"
 					+ encrypt_bytes.length);
+			
+			 String raw_str = new String(real_byte,"utf-8");
+			 String encrypt_str = new String(encrypt_real_bytes,"utf-8");
+			 
+			  System.out.println("原始字符串:"+raw_str+   "   "+ "原始Hex字符串:" + raw_bytes_str );
+			  System.out.println("加密字符串:"+encrypt_str+   "   "+"加密Hex字符串:" + encrypt_raw_bytes_str );
+	        */
 
 			// 加密后的密文 填充 encryptFile文件的头首部
 			encryptBufferedOutputStream.write(encrypt_bytes, 0, encrypt_bytes.length);
@@ -16917,10 +23510,20 @@ public class G2_ApplyRuleFor_TypeFile {
 		try {
 			Security.addProvider(new com.sun.crypto.provider.SunJCE());
 			Key key = getKey(strDefaultKey_Rule7.getBytes());
+		//	System.out.println("getFormat()=【"+key.getFormat()+"】  bytesToHexString=【getEncoded = "+bytesToHexString(key.getEncoded())+"】"
+		//	+"【getAlgorithm= "+key.getAlgorithm()+"】" +"【toString = "+key.toString()+"】" +"【serialVersionUID= "+key.serialVersionUID+"】");
 			encryptCipher = Cipher.getInstance("DES/ECB/NoPadding");
 			encryptCipher.init(Cipher.ENCRYPT_MODE, key);
 			decryptCipher = Cipher.getInstance("DES/ECB/NoPadding");
 			decryptCipher.init(Cipher.DECRYPT_MODE, key);
+		//	System.out.println("getFormat()=【"+key.getFormat()+"】  bytesToHexString=【"+bytesToHexString(key.getEncoded())+"】");
+			
+//			System.out.println("SunJCE_decryptCipher.toString()=【1 "+decryptCipher.toString()+"】"+"【2 "+decryptCipher+"】"
+//					+"【3getAlgorithm  "+decryptCipher.getAlgorithm()+"】"+"【4getBlockSize "+decryptCipher.getBlockSize()+"】"+
+//					"【5VI "+bytesToHexString(decryptCipher.getIV())+"】"+"【6getParameters "+decryptCipher.getParameters()+"】"+
+//					"【7getProvider  "+decryptCipher.getProvider()+"】"	+"【8getExemptionMechanism "+decryptCipher.getExemptionMechanism()+"】") ;	
+		
+			
 		} catch (Exception e) {
 
 		}
@@ -16956,6 +23559,9 @@ public class G2_ApplyRuleFor_TypeFile {
 	static ArrayList<File> getAllSubFile(File dirFile, String typeStr) {
 		ArrayList<String> typeList = new ArrayList<String>();
 		typeList.add(typeStr);
+		if(dirFile == null) {
+			return null;
+		}
 
 		return getAllSubFile(dirFile.getAbsolutePath(), "", typeList);
 
@@ -16983,7 +23589,7 @@ public class G2_ApplyRuleFor_TypeFile {
 
 					for (int i = 0; i < typeList.size(); i++) {
 						String type = typeList.get(i);
-						if ("#".equals(type)) { // 如果 类型是 * 那么就把 所有的 非目录文件加入列表中
+						if ("*".equals(type) || "#".equals(type)) { // 如果 类型是 * 那么就把 所有的 非目录文件加入列表中
 							File curFile = new File(fileString);
 							if (!curFile.isDirectory()) {
 								allFile.add(curFile);
@@ -17283,9 +23889,9 @@ public class G2_ApplyRuleFor_TypeFile {
 				ArrayList<File> resultFileList = curApplayRule.applySubFileListRule4(typeFileList, CurDirFileTypeMap,
 						subDirList, realFileList);
 				if (resultFileList != typeFileList) {
-					System.out.println("应用规则:  " + applyRuleString + " 成功!");
+					System.out.println("应用规则: curApplayRule.operation_type ="+curApplayRule.operation_type+" " + applyRuleString + " 成功!");
 				} else {
-					System.out.println("应用规则:  " + applyRuleString + " 失败!");
+					System.out.println("应用规则: curApplayRule.operation_type ="+curApplayRule.operation_type+" " + applyRuleString + " 失败!");
 				}
 
 			} else if (curApplayRule.operation_type == 3) { // 对所有文件进行的 统一处理的 类型
@@ -17293,9 +23899,9 @@ public class G2_ApplyRuleFor_TypeFile {
 				ArrayList<File> resultFileList = curApplayRule.applyFileListRule3(typeFileList, CurDirFileTypeMap);
 				if (resultFileList != typeFileList) {
 
-					System.out.println("应用规则:  " + applyRuleString + " 成功!");
+					System.out.println("应用规则: curApplayRule.operation_type ="+curApplayRule.operation_type+" " + applyRuleString + " 成功!");
 				} else {
-					System.out.println("应用规则:  " + applyRuleString + " 失败!");
+					System.out.println("应用规则: curApplayRule.operation_type ="+curApplayRule.operation_type+" " + applyRuleString + " 失败!");
 				}
 
 			} else if (curApplayRule.operation_type == 5) { // 对所有文件夹 所有子文件 孙文件 所有 子文件夹 孙文件夹
@@ -17498,6 +24104,20 @@ public class G2_ApplyRuleFor_TypeFile {
 		return date;
 	}
 
+	static String getTimeStamp_HHmmss() {
+
+		SimpleDateFormat df = new SimpleDateFormat("HHmmss");// 设置日期格式
+		String date = df.format(new Date());
+		return date;
+	}
+
+	static String getTimeStamp_YYYYMMdd() {
+
+		SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd");// 设置日期格式
+		String date = df.format(new Date());
+		return date;
+	}
+
 	static Rule getRuleByIdentify(String identify) {
 		for (int i = 0; i < realTypeRuleList.size(); i++) {
 			if (realTypeRuleList.get(i).identify.equals(identify)) {
@@ -17512,7 +24132,11 @@ public class G2_ApplyRuleFor_TypeFile {
 		OutputStream output = null;
 		int lengthSize;
 		// 创建输入输出流对象
+		File targetDirParentFile = target.getParentFile();
 		try {
+			if (targetDirParentFile != null && !targetDirParentFile.exists()) {
+				targetDirParentFile.mkdirs();
+			}
 			input = new FileInputStream(origin);
 			output = new FileOutputStream(target);
 			// 获取文件长度
@@ -18142,12 +24766,10 @@ public class G2_ApplyRuleFor_TypeFile {
 
 	}
 
-
 	/**
 	 * 删除文件，可以是文件或文件夹
 	 *
-	 * @param fileName
-	 * 要删除的文件名
+	 * @param fileName 要删除的文件名
 	 * @return 删除成功返回true，否则返回false
 	 */
 	public static boolean delete(String fileName) {
@@ -18166,8 +24788,7 @@ public class G2_ApplyRuleFor_TypeFile {
 	/**
 	 * 删除单个文件
 	 *
-	 * @param fileName
-	 * 要删除的文件的文件名
+	 * @param fileName 要删除的文件的文件名
 	 * @return 单个文件删除成功返回true，否则返回false
 	 */
 	public static boolean deleteFile(String fileName) {
@@ -18190,8 +24811,7 @@ public class G2_ApplyRuleFor_TypeFile {
 	/**
 	 * 删除目录及目录下的文件
 	 *
-	 * @param dir
-	 * 要删除的目录的文件路径
+	 * @param dir 要删除的目录的文件路径
 	 * @return 目录删除成功返回true，否则返回false
 	 */
 	public static boolean deleteDirectory(String dir) {
@@ -18216,8 +24836,7 @@ public class G2_ApplyRuleFor_TypeFile {
 			}
 			// 删除子目录
 			else if (files[i].isDirectory()) {
-				flag = deleteDirectory(files[i]
-						.getAbsolutePath());
+				flag = deleteDirectory(files[i].getAbsolutePath());
 				if (!flag)
 					break;
 			}
@@ -18302,12 +24921,9 @@ public class G2_ApplyRuleFor_TypeFile {
 		return isPort;
 	}
 
-
-
 	public static String getMainPageHtmlCode(String url) {
 
 		File ChromeDriverFile = new File(zbinPath + File.separator + "G2_chromedriver_v91.exe");
-
 
 		ChromeOptions CUR_CHROME_OPTIONS = new ChromeOptions();
 		// 驱动位置
@@ -18352,8 +24968,6 @@ public class G2_ApplyRuleFor_TypeFile {
 
 					}
 
-
-
 				}
 
 				TimeUnit.MILLISECONDS.sleep(waitTime);
@@ -18374,6 +24988,1009 @@ public class G2_ApplyRuleFor_TypeFile {
 		return null;
 	}
 
+	static String getTimeStampyyyyMMdd_HHmmss() {
 
+		SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd_HHmmss");// 设置日期格式
+		String date = df.format(new Date());
+		return date;
+	}
+
+	static String getYear_Month_Day() {
+
+		SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd");// 设置日期格式
+		String date = df.format(new Date());
+		return date;
+	}
+
+	static File getPCScreenFile() {
+
+		// H7_Email_WorkPlace
+		// 把截图放到 C:\Users\zhuzj5\Desktop\zbin\H7_Email_WorkPlace\yyMMdd_hhmmss 文件夹中
+
+		String timestamp = getTimeStamp_YYYYMMdd();
+		String H7_WorkPlace_TaskDir = zbinPath + File.separator + "G2_Monitor_Download" + File.separator
+				+ getTimeStamp_YYYYMM();
+
+		File taskDirFile = new File(H7_WorkPlace_TaskDir);
+		if (!taskDirFile.exists()) {
+			taskDirFile.mkdirs();
+		}
+
+		File imageFIle = null;
+		String imageName = "pc_screen_" + getTimeStampyyyyMMdd_HHmmss() + ".png";
+		String imageAbsPath = H7_WorkPlace_TaskDir + File.separator + imageName;
+
+		imageFIle = new File(imageAbsPath);
+
+		if (!imageFIle.exists()) {
+			try {
+				imageFIle.createNewFile();
+			} catch (Exception e) {
+
+			}
+		}
+
+		// ----------------Image Begin---------
+		GraphicsDevice gd = GraphicsEnvironment.getLocalGraphicsEnvironment().getDefaultScreenDevice();
+		int height = gd.getDisplayMode().getHeight();
+		int width = gd.getDisplayMode().getWidth();
+		Rectangle screenRect = new Rectangle(0, 0, width, height);
+		cn.hutool.core.swing.ScreenUtil.captureScreen(screenRect, imageFIle);
+//----------------Image End---------
+
+		System.out.println("PC截图路径: " + imageAbsPath);
+		if (!imageFIle.exists() || imageFIle.length() < 100) {
+			return null;
+		}
+
+		return imageFIle;
+//        File newImage_XY_File =   paintXYFromImageFile(imageFIle);
+//        return newImage_XY_File;
+	}
+
+	static boolean isImageFile(File imageFIle) {
+		boolean flag = false;
+		if (imageFIle.getName().endsWith(".jpg") || imageFIle.getName().endsWith(".Jpg")
+				|| imageFIle.getName().endsWith(".JPG") || imageFIle.getName().endsWith(".png")
+				|| imageFIle.getName().endsWith(".Png") || imageFIle.getName().endsWith(".PNG")) {
+			flag = true;
+		}
+		return flag;
+	}
+
+	public static String getFileTypeNoPoint(String fileName) {
+		String name = "";
+		if (fileName.contains(".")) {
+			name = fileName.substring(fileName.lastIndexOf(".") + 1).trim().toLowerCase();
+		} else {
+			name = "";
+		}
+		return name.toLowerCase().trim();
+	}
+
+	static File paintXYFromImageFile(File imageFile) {
+		if (!imageFile.exists() || imageFile.length() < 10 || !isImageFile(imageFile)) {
+			return null;
+		}
+
+		String originName = getFileNameNoPoint(imageFile.getName());
+		String imageType = getFileTypeNoPoint(imageFile.getName());
+		String newImageFileNameStr = originName + "_xy" + "." + imageType;
+		File newImageFile = new File(
+				imageFile.getParentFile().getAbsolutePath() + File.separator + newImageFileNameStr);
+
+		try {
+			if (!newImageFile.exists()) {
+				newImageFile.createNewFile();
+			}
+			BufferedImage bi = ImageIO.read(imageFile);
+			int height = bi.getHeight();
+			int width = bi.getWidth();
+
+			int up_line_num = width / 10; // 竖线的数量
+			int down_line_num = height / 10; // 横线的数量
+
+			Graphics2D g2 = (Graphics2D) bi.getGraphics();
+			g2.setColor(Color.RED);// 设置颜色
+			g2.setStroke(new BasicStroke(1.5f)); // 直线粗细
+			Font f = new Font("宋体", Font.BOLD, 20);
+			g2.setFont(f); // 设置字体:字体、字号、大小
+			for (int i = 0; i < down_line_num; i++) { // 横线的数量
+				int down_origin_x_item = 0;
+				int down_origin_y_item = 100 * i + 100;
+				int down_new_x_item = width;
+				int down_new_y_item = down_origin_y_item;
+
+				int text_X = down_origin_x_item + 10; //
+				int text_y = down_origin_y_item - 10; //
+				g2.drawString(down_origin_y_item + "", text_X, text_y);
+				g2.drawLine(down_origin_x_item, down_origin_y_item, down_new_x_item, down_new_y_item);
+			}
+
+			for (int i = 0; i < up_line_num; i++) { // 竖线的数量
+
+				int down_origin_x_item = 100 * i + 100;
+				int down_origin_y_item = 0;
+				int down_new_x_item = down_origin_x_item;
+				int down_new_y_item = height;
+				int text_X = down_origin_x_item - 50; //
+				int text_y = down_origin_y_item + 20;
+				g2.drawString(down_origin_x_item + "", text_X, text_y);
+				g2.drawLine(down_origin_x_item, down_origin_y_item, down_new_x_item, down_new_y_item);
+			}
+			ImageIO.write(bi, imageType, new FileOutputStream(newImageFile));
+			System.out.println("程序执行结束!");
+		} catch (IOException e) {
+
+			e.printStackTrace();
+			System.out.println("异常=" + e);
+			return imageFile; // 出现异常 那么就不操作 x y 坐标了
+		}
+		return newImageFile;
+	}
+
+    @SuppressWarnings("unchecked")
+    public static void sendemail(boolean isFirstMonitor , String PcName, String targetEMail, String mTitle, String inputContent,
+                                 ArrayList<String> paramTextList, ArrayList<String> extraTextList, HashMap<File, String> imageFile_Desc_Map,
+                                 ArrayList<File> attatchFileList) throws Exception {
+    	
+    	
+    	
+    	
+    	//  isFirstMonitor   如果是  第一个 邮件 那么 正文的 一部分设置成绿色 
+        // 给用户发送邮件的邮箱
+        String from = "382581427@qq.com";
+        // 邮箱的用户名
+        String username = "382581427@qq.com";
+        // 邮箱授权码 // kyioxkexvqdtbjhd【新】 pwkvngnpfkvpbgcd【旧】
+
+        String password = "kyioxkexvqdtbjhd";
+        // 发送邮件的服务器地址，QQ服务器
+        String host = "smtp.qq.com";
+        // 接收人邮箱
+        String to = targetEMail;
+        if (to == null || "".equals(to.trim())) {
+            to = "zukgit@foxmail.com";
+        }
+
+        // 邮件主题
+//        String title = "邮件主题[测试混合邮件]";
+        String title = mTitle;
+        if (title == null || "".equals(title.trim())) {
+            title = "YYYYHHDD";
+        }
+
+        // 使用QQ邮箱时配置
+        Properties prop = new Properties();
+        prop.setProperty("mail.host", "smtp.qq.com"); // 设置QQ邮件服务器
+        prop.setProperty("mail.transport.protocol", "smtp"); // 邮件发送协议
+        prop.setProperty("mail.smtp.auth", "true"); // 需要验证用户名和密码
+
+        // 关于QQ邮箱，还要设置SSL加密，其他邮箱不需要
+        MailSSLSocketFactory sf = new MailSSLSocketFactory();
+        sf.setTrustAllHosts(true);
+        prop.put("mail.smtp.ssl.enable", "true");
+        prop.put("mail.smtp.ssl.socketFactory", sf);
+
+        // 创建定义整个邮件程序所需的环境信息的 Session 对象，QQ才有，其他邮箱就不用了
+        javax.mail.Session session = javax.mail.Session.getInstance(prop, new Authenticator() {
+            @Override
+            protected PasswordAuthentication getPasswordAuthentication() {
+                // 发件人邮箱用户名，授权码
+                return new PasswordAuthentication(username, password);
+            }
+        });
+
+        // 开启 Session 的 debug 模式，这样就可以查看程序发送 Email 的运行状态
+//       session.setDebug(true);
+
+        // 通过 session 得到 transport 对象
+        javax.mail.Transport ts = session.getTransport();
+
+        // 使用邮箱的用户名和授权码连上邮箱服务器
+        ts.connect(host, username, password);
+
+        // 创建邮件，写邮件
+        // 需要传递 session
+        MimeMessage message = new MimeMessage(session);
+        message.setFrom(new javax.mail.internet.InternetAddress(from)); // 指明邮件的发件人
+        message.setRecipient(javax.mail.Message.RecipientType.TO, new javax.mail.internet.InternetAddress(to)); // 指明邮件的收件人
+        message.setSubject(mTitle); // 邮件主题
+
+        // =========================================== 配置开始
+        // ==============================
+        // 遍历 imageFile_Desc_Map
+
+        StringBuilder extraSB = new StringBuilder();
+        if (extraTextList != null && extraTextList.size() > 0) { // 一些 额外的信息
+            extraSB.append("<br><br>═══════ 副文开始 ═══════<br><br>");
+            for (int i = 0; i < extraTextList.size(); i++) {
+                extraSB.append(extraTextList.get(i) + "<br>");
+            }
+            extraSB.append("<br><br>═══════ 副文结束 ═══════<br><br>");
+        }
+
+        StringBuilder paramSB = new StringBuilder();
+        if (paramTextList != null && paramTextList.size() > 0) { // 一些 额外的信息
+
+            for (int i = 0; i < paramTextList.size(); i++) {
+                paramSB.append(paramTextList.get(i) + "<br>");
+            }
+
+        }
+
+        ArrayList<MimeBodyPart> image_desc_MimeBodyPartList = new ArrayList<MimeBodyPart>();
+
+        MimeBodyPart body_content = new MimeBodyPart(); // 文字内容
+    	File lastAttatchFile =  null ;
+    	if(attatchFileList != null && attatchFileList.size() > 0 ) {
+    		
+    		 lastAttatchFile = attatchFileList.get(attatchFileList.size()-1);
+    		 
+    	}
+    	
+        if(isFirstMonitor) {
+        	
+            body_content.setContent("<font color=\"green\">"+inputContent + "</font><br><br>" + PcName + " " + getTimeStampyyyyMMdd_HHmmss()+" LastFile:"+lastAttatchFile
+            + "<br>═1═1═1═1═1═1═ 正文结束 ═1═1═1═1═1═1═<br>" + "" + "<br>" + paramSB.toString() + "<br>═1═1═1═1═1═1═ 参数结束 ═1═1═1═1═1══<br><br>"
+            + extraSB.toString(), "text/html;charset=utf-8");
+
+        }else {
+
+            body_content.setContent(inputContent + "<br><br>" + PcName + " " + getTimeStampyyyyMMdd_HHmmss()+" LastFile:"+lastAttatchFile
+            + "<br>═══════ 正文结束 ═══════<br>" + "" + "<br>" + paramSB.toString() + "<br>═══════ 参数结束 ═══════<br><br>"
+            + extraSB.toString(), "text/html;charset=utf-8");
+        }
+
+        image_desc_MimeBodyPartList.add(body_content);
+
+        if (imageFile_Desc_Map != null) {
+
+            Map.Entry<File, String> entryItem;
+            int item_index = 0;
+            int map_size = 0;
+            map_size = imageFile_Desc_Map.size();
+            Iterator iterator = imageFile_Desc_Map.entrySet().iterator();
+            while (iterator.hasNext()) {
+                entryItem = (Map.Entry<File, String>) iterator.next();
+                File key_file = entryItem.getKey(); // Map的Key
+                String value_desc = entryItem.getValue(); // Map的Value
+                if (key_file == null) {
+                    System.out.println("map[" + item_index + "][" + map_size + "]____" + "key[" + key_file + "]-value["
+                            + value_desc + "]" + " 为空! ");
+                    continue;
+                }
+
+                if (!key_file.exists()) {
+                    System.out.println("map[" + item_index + "][" + map_size + "]____" + "key[" + key_file + "]-value["
+                            + value_desc + "]" + " 不存在! ");
+                    continue;
+                }
+                System.out.println("map[" + item_index + "][" + map_size + "]____" + "key[" + key_file + "]-value["
+                        + value_desc + "]");
+
+                MimeBodyPart body_image = new MimeBodyPart();
+                body_image.setDataHandler(new javax.activation.DataHandler(
+                        new javax.activation.FileDataSource(key_file.getAbsolutePath())));
+                body_image.setContentID(key_file.getName());
+
+                // 文本
+                // " 图片描述:fafa <img src='cid:1.png'>", "text/html;charset=utf-8"
+//   		        body2.setContent("我不是广告，<img src='cid:1.png'>", "text/html;charset=utf-8");
+                String image_item_desc = value_desc + " <img src='cid:" + key_file.getName() + "'>";
+                MimeBodyPart body_text = new MimeBodyPart();
+                body_text.setContent(image_item_desc, "text/html;charset=utf-8");
+
+                image_desc_MimeBodyPartList.add(body_image);
+                image_desc_MimeBodyPartList.add(body_text);
+
+                item_index++;
+            }
+        }
+
+        MimeMultipart image_desc_MimeMultipart = null;
+        if (image_desc_MimeBodyPartList != null && image_desc_MimeBodyPartList.size() > 0) {
+            image_desc_MimeMultipart = new MimeMultipart();
+
+            for (int i = 0; i < image_desc_MimeBodyPartList.size(); i++) {
+                image_desc_MimeMultipart.addBodyPart(image_desc_MimeBodyPartList.get(i));
+            }
+            image_desc_MimeMultipart.setSubType("related"); // 文本和图片内嵌成功
+        }
+
+        ArrayList<MimeBodyPart> attatch_MimeBodyPartList = new ArrayList<MimeBodyPart>();
+
+        if (attatchFileList != null && attatchFileList.size() > 0) {
+
+            for (int i = 0; i < attatchFileList.size(); i++) {
+                File attatchFile = attatchFileList.get(i);
+
+                MimeBodyPart body_attatch = new MimeBodyPart();
+                body_attatch.setDataHandler(new javax.activation.DataHandler(
+                        new javax.activation.FileDataSource(attatchFile.getAbsolutePath())));
+                body_attatch.setFileName(attatchFile.getName());
+                attatch_MimeBodyPartList.add(body_attatch);
+            }
+
+        }
+
+        // 将拼装好的正文内容设置为主体
+        MimeBodyPart contentText = new MimeBodyPart();
+        if (image_desc_MimeMultipart != null) {
+            contentText.setContent(image_desc_MimeMultipart);
+        }
+
+        // 拼接附件与正文内容
+        MimeMultipart all_MimeMultipart = new MimeMultipart();
+        all_MimeMultipart.addBodyPart(contentText);
+        for (int i = 0; i < attatch_MimeBodyPartList.size(); i++) {
+            all_MimeMultipart.addBodyPart(attatch_MimeBodyPartList.get(i)); // 添加附件
+        }
+        all_MimeMultipart.setSubType("mixed");
+
+        // =========================================== 配置结束
+        // ==============================
+        // 设置到消息中，保存修改
+        message.setContent(all_MimeMultipart); // 把最后编辑好的邮件放到消息当中
+        message.saveChanges(); // 保存修改
+
+        // 发送邮件
+        ts.sendMessage(message, message.getAllRecipients());
+
+        System.out.println("sendemail finish__________");
+        
+        // 释放资源
+        ts.close();
+
+    }
+
+	static ArrayList<String> getWifiInfoList() {
+		ArrayList<String> wifiInfoList = new ArrayList<String>();
+		String osName = System.getProperties().getProperty("os.name").toLowerCase();
+		File wifiLogFile = new File(System.getProperties().getProperty("user.home") + File.separator + "Desktop"
+				+ File.separator + "zbin" + File.separator + "E2_WifiDetail.txt");
+
+		if (osName != null && osName.toLowerCase().contains("win")) { // windows 系统
+			String word1 = "上的配置文件"; // 接口 WLAN 上的配置文件 debugtheworld:
+			String word2 = "关键内容"; // 关键内容 : 12345678
+
+			String curMatchContent = "";
+			String tip = "";
+			if (wifiLogFile.exists()) {
+				String UTF8_Conent = ReadFileContent_No_UTF8(wifiLogFile);
+				String Default_Conent = ReadFileContent_No_UTF8(wifiLogFile);
+				String GBK_Conent = ReadFileContent_GBK(wifiLogFile);
+
+				if (UTF8_Conent.contains(word2)) {
+					curMatchContent = UTF8_Conent;
+					tip = "UTF8_Conent";
+				} else if (Default_Conent.contains(word2)) {
+					curMatchContent = Default_Conent;
+					tip = "Default_Conent";
+				} else if (GBK_Conent.contains(word2)) {
+					curMatchContent = GBK_Conent;
+					tip = "GBK_Conent";
+				}
+
+			}
+
+			System.out.println("tipA[" + tip + "]  curMatchContent=" + curMatchContent);
+
+			ArrayList<WifiItem> wifiItemList = new ArrayList<WifiItem>();
+
+			// 如果 有 就 读取 txt 文件 ,
+			if (wifiLogFile.exists() && curMatchContent.contains(word2)) {
+				// System.out.println("wifiLogFile 文件存在");
+				readWifiObjectFromString(curMatchContent, wifiItemList);
+				ArrayList<String> wifiList = transactWifiList(wifiItemList);
+
+				System.out.println(" Read-Wifi_Success   wifiList.size()=" + wifiList.size());
+
+				if (wifiList != null && wifiList.size() > 0) {
+
+					for (int i = 0; i < wifiList.size(); i++) {
+						String wifiStr = wifiList.get(i);
+						if (!wifiInfoList.contains(wifiStr)) {
+							wifiInfoList.add(wifiStr);
+						}
+					}
+
+				}
+
+//                return wifiList;   // 这里不返回   因为  有可能 当前 不是最新的数据
+
+			}
+
+			if (!wifiLogFile.exists() || !curMatchContent.contains(word2)) { // 如果 不存在 那么 执行 相关命令得到 对应的文件 执行
+																				// E2_WifiDetail_Exit.bat 文件
+				File E2_WifiDetail_Bat_File = new File(System.getProperties().getProperty("user.home") + File.separator
+						+ "Desktop" + File.separator + "zbin" + File.separator + "E2_WifiDetail_Exit.bat");
+
+				System.out.println("执行 Bat 文件 " + E2_WifiDetail_Bat_File.getAbsolutePath() + " Begin");
+				execCMD(E2_WifiDetail_Bat_File.getAbsolutePath());
+				System.out.println("执行 Bat 文件 " + E2_WifiDetail_Bat_File.getAbsolutePath() + " End");
+
+				try {
+					Thread.sleep(1500); // 睡 1.5 秒
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				boolean wifiLogExist = wifiLogFile.exists();
+				boolean isContainWord = false;
+				String wifiLog_Content = "";
+
+				if (wifiLogExist) {
+					String UTF8_Conent = ReadFileContent_No_UTF8(wifiLogFile);
+					String Default_Conent = ReadFileContent_No_UTF8(wifiLogFile);
+					String GBK_Conent = ReadFileContent_GBK(wifiLogFile);
+
+					if (UTF8_Conent.contains(word2)) {
+						curMatchContent = UTF8_Conent;
+						tip = "UTF8_Conent";
+					} else if (Default_Conent.contains(word2)) {
+						curMatchContent = Default_Conent;
+						tip = "Default_Conent";
+					} else if (GBK_Conent.contains(word2)) {
+						curMatchContent = GBK_Conent;
+						tip = "GBK_Conent";
+					}
+
+					wifiLog_Content = ReadFileContent(wifiLogFile);
+					isContainWord = curMatchContent.contains(word2);
+				}
+
+				boolean conainWord = curMatchContent.contains(word2);
+				System.out.println(
+						"tipB[" + tip + "]  conainWord=" + conainWord + "   curMatchContent=" + curMatchContent);
+
+				if (wifiLogFile.exists() && curMatchContent.contains(word2)) {
+					// System.out.println("wifiLogFile 文件存在");
+					readWifiObjectFromString(curMatchContent, wifiItemList);
+					ArrayList<String> wifiList = transactWifiList(wifiItemList);
+					System.out.println("getWifiInfoList() __A__  wifiList.size= " + wifiList.size() + "wifiLogExist = "
+							+ wifiLogExist + "isContainWord=" + isContainWord + "  curMatchContent=" + curMatchContent);
+
+					if (wifiList != null && wifiList.size() > 0) {
+						wifiList.addAll(wifiList);
+					}
+
+//	              	return wifiList;
+
+				}
+				System.out.println("getWifiInfoList() __B__  getWifiInfoList().size= " + wifiInfoList.size()
+						+ "   wifiLogExist = " + wifiLogExist + "  isContainWord=" + isContainWord
+						+ "  wifiLog_Content=" + wifiLog_Content);
+
+			}
+
+		} else if (osName != null && osName.toLowerCase().contains("mac")) { // mac 的
+
+			ArrayList<String> wifiListMac = new ArrayList<String>();
+			wifiListMac.add("MAC系统访问WIFI密码: 请打开LaunchPad 》 其他 》 钥匙串访问 》 系统(right) 》 airport网络密码");
+			return wifiListMac;
+
+		} else { // linx
+
+			String wifiPath = "/etc/NetworkManager/system-connections";
+			File wifiDir = new File(wifiPath);
+			if (!wifiDir.exists()) {
+				System.out.println("WiFi-Path: " + wifiPath + "  不存在!");
+				return null;
+			}
+
+			File[] wifiList = wifiDir.listFiles();
+			ArrayList<String> wifiLogList = new ArrayList<String>();
+			for (int i = 0; i < wifiList.length; i++) {
+				int index = i + 1;
+				String str0 = "WIFI索引:" + index;
+				wifiLogList.add(str0);
+				ArrayList<String> curWifiItemLog = translateLinuxWifi(wifiList[i], i, wifiList.length);
+				wifiLogList.addAll(curWifiItemLog);
+			}
+			wifiInfoList.addAll(wifiLogList);
+
+		}
+		System.out.println("getWifiInfoList() __C__  getWifiInfoList().size= " + wifiInfoList.size());
+
+		return wifiInfoList;
+
+	}
+
+	public static synchronized void readWifiObjectFromString(String fileContent, ArrayList<WifiItem> wifiItemList) {
+		StringBuilder sb = new StringBuilder();
+		String word1 = "上的配置文件"; // 接口 WLAN 上的配置文件 debugtheworld:
+		String word2 = "关键内容"; // 关键内容 : 12345678
+
+		try {
+			// BufferedReader curBR = new BufferedReader(new InputStreamReader(new
+			// FileInputStream(fileItem), "utf-8"));
+
+			String lineContent = "";
+
+			String wifiName = "";
+			String wifiKey = "";
+			boolean wifiNameReadyFlag = false;
+			boolean wifiKeyReadyFlag = false;
+
+			String[] lineArr = fileContent.split("\n");
+
+			for (int i = 0; i < lineArr.length; i++) {
+				lineContent = lineArr[i].trim();
+
+				if (lineContent.contains(word1)) {
+					wifiName = lineContent
+							.substring(lineContent.indexOf(word1) + word1.length(), lineContent.length() - 1).trim();
+					wifiNameReadyFlag = true;
+					wifiKeyReadyFlag = false;
+					wifiKey = "";
+				}
+
+				if (lineContent.contains(word2)) {
+					wifiKey = lineContent.substring(lineContent.indexOf(word2) + word2.length()).trim();
+					wifiKey = wifiKey.substring(1).trim();
+					if (wifiNameReadyFlag) {
+						wifiKeyReadyFlag = true;
+					}
+					if (wifiNameReadyFlag && wifiNameReadyFlag) {
+						WifiItem wifiItem = new WifiItem(wifiName, wifiKey);
+						wifiItemList.add(wifiItem);
+						wifiNameReadyFlag = false;
+						wifiKeyReadyFlag = false;
+					}
+				}
+
+			}
+
+		} catch (Exception e) {
+			System.out.println("readWifiObjectFromString Exception e=" + e);
+		}
+
+	}
+
+	public static ArrayList<String> transactWifiList(ArrayList<WifiItem> wifiList) {
+		ArrayList<String> strArr = new ArrayList<String>();
+
+		for (int i = 0; i < wifiList.size(); i++) {
+			WifiItem item = wifiList.get(i);
+			int index = i + 1;
+			String str0 = "WIFI索引:" + index;
+			String str1 = "WIFI名称:" + item.getName();
+			String str2 = "WIFI密码:" + item.getKey();
+			strArr.add("wifi[" + i + "][" + wifiList.size() + "] wifi名称[" + item.getName() + "] wifi密码[" + item.getKey()
+					+ "]");
+
+		}
+		return strArr;
+
+	}
+
+	public static ArrayList<String> translateLinuxWifi(File wifiFile, int index, int count) {
+		ArrayList<String> strArr = new ArrayList<String>();
+		String wifiName = wifiFile.getName();
+		String wifiPsk = "";
+		String fileContent = readStringFromFile(wifiFile);
+
+		if (!fileContent.contains("psk=") || "".equals(fileContent)) {
+			wifiPsk = "无权限访问wifi文件:" + wifiFile.getAbsolutePath();
+		} else {
+			String mWifiPassword = fileContent.substring(fileContent.indexOf("psk=")).trim();
+			mWifiPassword = mWifiPassword.substring(0, mWifiPassword.indexOf("[")).trim();
+			mWifiPassword = mWifiPassword.replace("psk=", "").trim();
+			wifiPsk = mWifiPassword;
+
+		}
+//       psk=zhuminghe
+//[ipv4]
+
+		if (null == wifiPsk || "".equals(wifiPsk)) {
+			wifiPsk = "[无密码]";
+		}
+		String str1 = "WIFI名称:" + wifiName;
+		String str2 = "WIFI密码:" + wifiPsk;
+		String str3 = "==================";
+
+		strArr.add("wifi[" + index + "][" + count + "] wifi名称[" + wifiName + "] wifi密码[" + wifiPsk + "]");
+
+		return strArr;
+	}
+
+	static String readStringFromFile(File fileItem) {
+		StringBuilder sb = new StringBuilder();
+		try {
+			// BufferedReader curBR = new BufferedReader(new InputStreamReader(new
+			// FileInputStream(fileItem), "utf-8"));
+			BufferedReader curBR = new BufferedReader(new InputStreamReader(new FileInputStream(fileItem)));
+			String lineContent = "";
+			while (lineContent != null) {
+				lineContent = curBR.readLine();
+				if (lineContent == null || lineContent.trim().isEmpty()) {
+					continue;
+				}
+				sb.append(lineContent + "\n");
+			}
+			curBR.close();
+		} catch (Exception e) {
+		}
+		return sb.toString();
+	}
+
+	static String long2yyyyMMdd_HHmmss(long millionMs) {
+
+		Calendar mCalendar = Calendar.getInstance();
+		mCalendar.setTimeInMillis(millionMs);
+		int year = mCalendar.get(Calendar.YEAR);
+		int month = mCalendar.get(Calendar.MONTH);
+		int day = mCalendar.get(Calendar.DAY_OF_MONTH);
+
+		Date date = mCalendar.getTime();
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
+		String date_str = sdf.format(date);
+		return date_str;
+	}
+
+	static class WifiItem {
+		String name;
+		String key;
+
+		WifiItem() {
+
+		}
+
+		WifiItem(String name, String key) {
+			this.name = name;
+			this.key = key;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public void setKey(String key) {
+			this.key = key;
+		}
+
+		public String getKey() {
+			return key;
+		}
+
+		public String getName() {
+			return name;
+		}
+	}
+	
+
+	static String bytesToIntString(byte[] src ) {
+		StringBuilder builder = new StringBuilder();
+		if (src == null || src.length <= 0) {
+			return null;
+		}
+		String hv;
+
+		int byteIndex = 0 ;
+		for (byte aSrc : src) {
+			// 以十六进制（基数 16）无符号整数形式返回一个整数参数的字符串表示形式，并转换为大写
+			hv = Integer.toString(aSrc & 0xFF).toUpperCase();
+			int value = Integer.parseInt(hv);
+			
+			int padding_blank = 2;
+			String blank_pandding_str = "  ";
+			if( value >= 100) {
+				padding_blank = 1;
+				blank_pandding_str = " ";
+			}
+			if (hv.length() < 2) {
+				builder.append(0);
+			}
+			
+			
+			if(byteIndex == src.length -1) {
+				builder.append(blank_pandding_str+hv+"  ");
+			}else {
+				builder.append(blank_pandding_str+hv+"   "+","+" ");
+			}
+		
+			byteIndex++;
+			
+		}
+
+//        System.out.println(builder.toString());
+		return builder.toString();
+	}
+	static String bytesToIntCharString(byte[] src,String rawstr) {
+		StringBuilder builder = new StringBuilder();
+		if (src == null || src.length <= 0) {
+			return null;
+		}
+		String hv;
+		
+		int rawStr_size = rawstr.length();
+
+		int byteIndex = 0 ;
+		for (byte aSrc : src) {
+			// 以十六进制（基数 16）无符号整数形式返回一个整数参数的字符串表示形式，并转换为大写
+			hv = Integer.toString(aSrc & 0xFF).toUpperCase();
+			int value = Integer.parseInt(hv);
+			
+			int padding_blank = 2;
+			String blank_pandding_str = "  ";
+			if( value >= 100) {
+				padding_blank = 1;
+				blank_pandding_str = " ";
+			} 
+			if ( value < 10) {
+				 padding_blank = 3;
+				 blank_pandding_str = "   ";
+			}
+			if (hv.length() < 2) {
+				builder.append(0);
+			}
+			
+			
+			if(byteIndex == src.length -1) {
+				builder.append(blank_pandding_str+hv+"_"+(byteIndex >= rawStr_size ?"?": rawstr.substring(byteIndex,byteIndex+1))+"");
+			}else {
+				builder.append(blank_pandding_str+hv+"_"+(byteIndex >= rawStr_size ?"?": rawstr.substring(byteIndex,byteIndex+1))+" "+","+" ");
+			}
+		
+			byteIndex++;
+			
+		}
+
+//        System.out.println(builder.toString());
+		return builder.toString();
+	}
+	
+	static String bytesToHexString_Padding(byte[] src) {
+		StringBuilder builder = new StringBuilder();
+		if (src == null || src.length <= 0) {
+			return null;
+		}
+		String hv;
+
+		int byteIndex = 0 ;
+		for (byte aSrc : src) {
+			// 以十六进制（基数 16）无符号整数形式返回一个整数参数的字符串表示形式，并转换为大写
+			hv = Integer.toHexString(aSrc & 0xFF).toUpperCase();
+			if (hv.length() < 2) {
+				builder.append(0);
+			}
+			if(byteIndex == src.length -1) {
+				builder.append("0x"+hv+" ");
+			}else {
+				builder.append("0x"+hv+"   "+","+" ");
+			}
+		
+			byteIndex++;
+			
+		}
+
+//        System.out.println(builder.toString());
+		return builder.toString();
+	}
+	
+	
+	static String bytesToHexCharString(byte[] src,String rawstr) {
+		StringBuilder builder = new StringBuilder();
+		if (src == null || src.length <= 0) {
+			return null;
+		}
+		String hv;
+		int rawStr_size = rawstr.length();
+
+		int byteIndex = 0 ;
+		for (byte aSrc : src) {
+			// 以十六进制（基数 16）无符号整数形式返回一个整数参数的字符串表示形式，并转换为大写
+			hv = Integer.toHexString(aSrc & 0xFF).toUpperCase();
+			if (hv.length() < 2) {
+				builder.append(0);
+			}
+			if(byteIndex == src.length -1) {
+				builder.append("0x"+hv+"_"+(byteIndex >= rawStr_size ?"?": rawstr.substring(byteIndex,byteIndex+1))+"");
+			}else {
+				builder.append("0x"+hv+"_"+(byteIndex >= rawStr_size ?"?": rawstr.substring(byteIndex,byteIndex+1))+" "+","+" ");
+			}
+		
+			byteIndex++;
+			
+		}
+
+//        System.out.println(builder.toString());
+		return builder.toString();
+	}
+	
+	static String getTimeStamp_yyyyMMdd_HHmmss() {
+
+		SimpleDateFormat df = new SimpleDateFormat("yyyyMMdd_HHmmss");// 设置日期格式
+		String date = df.format(new Date());
+		return date;
+	}
+
+    static ArrayList<File> initJavaDirFromParam(ArrayList<String> keyList) {
+        ArrayList<File> curJavaDirList = new ArrayList<File>();
+
+        for (int i = 0; i < keyList.size(); i++) {
+            String itemStr = keyList.get(i);
+            String absItemStr = "";
+            if (itemStr.startsWith("./") || itemStr.startsWith(".\\")) {
+                itemStr = itemStr.replace("./", "");
+                itemStr = itemStr.replace(".\\", "");
+                absItemStr = curProjectPath + File.separator + itemStr;
+            } else {
+                absItemStr = itemStr;    // 传递过来的就是绝对路径
+            }
+
+            File cuAabsItemStrFile = new File(absItemStr);
+            if (cuAabsItemStrFile.exists() && cuAabsItemStrFile.isDirectory()) {
+                // 文件存在 并且是以  当前文件是文件夹
+                curJavaDirList.add(cuAabsItemStrFile);
+            }
+        }
+
+        return curJavaDirList;
+
+    }
+
+    static boolean checkExceptionFlag(String codeBack1) {
+        boolean flag = false;
+        if (codeBack1.contains("(>)") || codeBack1.contains("(>>)") || codeBack1.contains("(>>>)") || codeBack1.contains("(<)")
+                || codeBack1.contains("(=)") || codeBack1.contains("(|)") || codeBack1.contains("(<<)") || codeBack1.contains("(<<<)")
+                || codeBack1.contains("(&)") || codeBack1.contains("(+)") || codeBack1.contains("(-)") || codeBack1.contains("(!=)") ||
+                codeBack1.contains("(/)") || codeBack1.contains("(!)") || codeBack1.contains("(*)") || codeBack1.contains("(^)") ||
+                codeBack1.contains("(%)") || codeBack1.contains("(:)") || codeBack1.contains("(*=)") || codeBack1.contains("(%=)") ||
+                codeBack1.contains("(&&)") || codeBack1.contains("(&=)") || codeBack1.contains("()") || codeBack1.contains("(+=)") ||
+                codeBack1.contains("(-=)") || codeBack1.contains("(->)") || codeBack1.contains("(/=)") || codeBack1.contains("(::)") ||
+                codeBack1.contains("(<<=)") || codeBack1.contains("(==)") || codeBack1.contains("(>=)") || codeBack1.contains("(>>=)") ||
+                codeBack1.contains("(>>>=)") || codeBack1.contains("(^=)") || codeBack1.contains("(||)")
+        ) {
+
+            flag = true;
+        }
+
+        return flag;
+
+//                expected one of "!=" "%" "%=" "&" "&&" "&=" "(" ")" "*" "*=" "+" "+=" "," "-" "-=" "->"
+//                "/" "/=" "::" "<" "<<=" "<=" "=" "==" ">" ">=" ">>=" ">>>=" "?" "^" "^="
+//                "instanceof" "|" "|=" "||"
+
+    }
+    
+	static String getRepeatString(String repeatSrc, int repeatCount) {
+		String src = "";
+		for (int i = 0; i < repeatCount; i++) {
+			src += repeatSrc;
+		}
+		return src;
+	}
+	
+	static String getUserName() {
+		// user.home=C:\Users\zhuzj5
+		String username = "";
+		String home_dir = System.getProperties().getProperty("user.home") ;
+		if(home_dir == null) {
+			return null;
+		}
+		
+		if(home_dir.contains(File.separator)) {
+			username = home_dir.substring(home_dir.lastIndexOf(File.separator)+1);
+		}
+		
+		return username;
+		
+	}
+
+	static int getEmptyBeginCount(String oneLine) {
+		int empty_count = 0;
+		if(!oneLine.startsWith(" ")) {
+			return empty_count;
+		}
+		
+
+		
+		
+		int strLength = oneLine.length();
+		
+		for (int i = 0; i < strLength ;  i++) {
+			String pre_str = oneLine.charAt(i)+"";
+			if(pre_str.equals(" ")) {
+				empty_count++;
+			} else {
+				break;
+			}
+			 
+			
+		}
+		
+		return empty_count;
+		
+	}
+	static int calculPythonOneEmptyStep(ArrayList<String> srtList) {
+		int step_count = 0;
+		HashSet<Integer> intSet = new HashSet<Integer>();
+		
+		boolean  Tip_Block_Begin = false;
+		boolean  Tip_Block_End = false;
+		
+		for (int i = 0; i < srtList.size(); i++) {
+			String oneLine = srtList.get(i);
+			if("".equals(oneLine.trim())) {
+				continue;
+			}
+			
+			if(!Tip_Block_Begin && oneLine.trim().startsWith("'''") &&  oneLine.trim().indexOf("'''") == oneLine.trim().lastIndexOf("'''")) {
+				Tip_Block_Begin = true;
+				continue;
+			}
+			
+			if(!Tip_Block_End &&  oneLine.trim().startsWith("'''") &&  oneLine.trim().indexOf("'''") == oneLine.trim().lastIndexOf("'''")) {
+				Tip_Block_Begin = false;
+				Tip_Block_End = false;
+				continue;
+			}
+			
+			if(Tip_Block_Begin && !Tip_Block_End) {
+//				System.out.println("注释阶段 不判断 space! ");
+				continue;
+			}
+			
+			
+			intSet.add(getEmptyBeginCount(oneLine));
+			
+		}
+		
+		if(intSet.size() == 0) {
+			return step_count;
+		}
+		
+		ArrayList<Integer> intArr  = new ArrayList<Integer>();
+		intArr.addAll(intSet);
+		
+
+		
+		intArr.sort(new Comparator<Integer>() {
+			@Override
+			public int compare(Integer o1, Integer o2) {
+		
+				return o2-o1;
+			}
+		});
+
+		
+		
+		for (int i = 0; i < intArr.size(); i++) {
+			int space_item = intArr.get(i);
+			if(space_item == 0 ) {
+				continue;
+			}
+			
+			if(step_count == 0) {
+				step_count = space_item;
+			}
+		
+			if(space_item < step_count ) {
+				step_count = space_item;
+			}
+			
+			
+		}
+	
+		
+		
+		return step_count;
+		
+		
+	}
+static	boolean isContainInStrList(ArrayList<String> srtList, String matchStr) {
+
+		for (int i = 0; i < srtList.size(); i++) {
+			String str_item = srtList.get(i);
+			if (str_item.contains(matchStr)) {
+				return true;
+			}
+		}
+		return false;
+
+	}
 
 }
