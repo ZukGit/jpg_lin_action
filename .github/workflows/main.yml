@@ -37,6 +37,7 @@ jobs:
          tree
          echo ___________tree_end___________
          echo ___________dir_begin___________
+         # Directory: D:\a\jpg_lin_action\jpg_lin_action
          dir
          echo ___________dir_end___________
          echo Hello, jpg_lin_action! 
