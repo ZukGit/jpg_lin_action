@@ -73,7 +73,6 @@ jobs:
           cmd /K C:\Users\runneradmin\Desktop\zbin\win_zbin\zrule_apply_G2.bat  _58  D:\a\jpg_lin_action\jpg_lin_action\jpg_lin_port\  D:\a\jpg_lin_action\jpg_lin_action\jpg_lin_land\    outjsondir_D:\a\jpg_lin_action\jpg_lin_action\
            
           git config --global user.email "ZukGit"
-
           git config --global user.name "382581427@qq.com" 
 
           cmd /K zbatrule_I9_Rule30.bat _33_

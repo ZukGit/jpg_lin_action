@@ -5295,7 +5295,7 @@ set CURRENT_DATE_TIME_STAMP=%date:~0,4%年%date:~5,2%月%date:~8,2%日-%hh%时%t
 echo CURRENT_DATE_TIME_STAMP=%CURRENT_DATE_TIME_STAMP%
 time
 git add ./
-git commit -m %CURRENT_DATE_TIME_STAMP%______Zukgit-的提交
+git commit -m "Zukgit_Commit"
 git push
 git log
 echo [rule33vgitcommit_func_0x0 EndPrintCode]   output=[__empty__]  param1=[__empty__] 
