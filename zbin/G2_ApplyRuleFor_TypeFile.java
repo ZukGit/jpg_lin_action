@@ -449,7 +449,7 @@ public class G2_ApplyRuleFor_TypeFile {
 //			rootDirList = new  ArrayList<RootDirFile>();
 			isDirInput = false;
 			jsonFileName = "filesummary_rule"+rule_index+".json";
-			mFileSummary = new FileSummary("3333332");
+			mFileSummary = new FileSummary("3333334");
 		}
 
 		@Override
